@@ -2,24 +2,17 @@
   "name": "coinche",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
-    "@types/jest": "24.0.13",
-    "@types/node": "12.0.2",
-    "@types/react": "16.8.18",
-    "@types/react-dom": "16.8.4",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "react-scripts": "3.0.1",
-    "typescript": "3.4.5"
-  },
   "scripts": {
     "start": "react-scripts start",
+    "dev": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "lint": "run-p lint:es lint:tsc",
+    "lint:fix": "yarn lint:fix:es",
+    "lint:es": "eslint '**/*.{js,jsx,mjs,ts,tsx}'",
+    "lint:fix:es": "eslint --fix '**/*.{js,jsx,mjs,ts,tsx}'",
+    "lint:tsc": "tsc",
     "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
   },
   "browserslist": {
     "production": [
@@ -32,5 +25,36 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "dependencies": {
+    "boardgame.io": "0.31.6",
+    "react": "16.8.6",
+    "react-dom": "16.8.6",
+    "react-scripts": "3.0.1",
+    "typescript": "3.4.5"
+  },
+  "devDependencies": {
+    "@types/jest": "24.0.13",
+    "@types/node": "12.0.2",
+    "@types/react": "16.8.18",
+    "@types/react-dom": "16.8.4",
+    "husky": "2.3.0",
+    "lint-staged": "8.1.7",
+    "npm-run-all": "4.1.5",
+    "prettier": "1.17.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "react-app"
   }
 }
