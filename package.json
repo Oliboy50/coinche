@@ -14,17 +14,9 @@
     "lint:tsc": "tsc",
     "eject": "react-scripts eject"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "engines": {
+    "node": "^11.12.0",
+    "yarn": "^1.13.0"
   },
   "dependencies": {
     "boardgame.io": "0.31.6",
@@ -43,6 +35,21 @@
     "npm-run-all": "4.1.5",
     "prettier": "1.17.1"
   },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
@@ -53,8 +60,5 @@
       "eslint --fix",
       "git add"
     ]
-  },
-  "eslintConfig": {
-    "extends": "react-app"
   }
 }
