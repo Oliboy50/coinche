@@ -1,6 +1,6 @@
 dockerConfig: &dockerConfig
   docker:
-    - image: circleci/node:10
+    - image: circleci/node:11
 
 version: 2
 
@@ -11,55 +11,20 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "yarn.lock" }}
-      - run:
-          name: install
-          command: |
-            yarn install --frozen-lockfile
+            - yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - yarn-packages-v1-{{ .Branch }}-
+            - yarn-packages-v1-
+      - run: yarn
       - save_cache:
           paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "yarn.lock" }}
-      - run:
-          name: build
-          command: |
-            yarn build
-      - persist_to_workspace:
-          root: .
-          paths:
-            - node_modules
-            - build
-
-  lint:
-    <<: *dockerConfig
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: lint
-          command: |
-            yarn lint
-
-  test:
-    <<: *dockerConfig
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: test
-          command: |
-            yarn test
+            - ~/.cache/yarn
+          key: yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      - run: yarn build
+      - run: yarn lint
+      - run: yarn test
 
 workflows:
   version: 2
-  quality:
+  build:
     jobs:
       - build
-      - lint:
-          requires:
-            - build
-      - test:
-          requires:
-            - build
