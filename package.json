@@ -3,14 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "react-scripts start",
     "dev": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "lint": "run-p lint:es lint:tsc",
     "lint:fix": "yarn lint:fix:es",
-    "lint:es": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
-    "lint:fix:es": "eslint --fix 'src/**/*.{js,jsx,ts,tsx}'",
+    "lint:es": "eslint '{core,src}/**/*.{js,jsx,ts,tsx}'",
+    "lint:fix:es": "eslint --fix '{core,src}/**/*.{js,jsx,ts,tsx}'",
     "lint:tsc": "tsc",
     "eject": "react-scripts eject"
   },
@@ -48,7 +47,12 @@
     ]
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": "react-app",
+    "rules": {
+      "semi": ["error", "always"],
+      "comma-dangle": ["error", "always-multiline"],
+      "quotes": ["error", "single"]
+    }
   },
   "husky": {
     "hooks": {
@@ -56,7 +60,7 @@
     }
   },
   "lint-staged": {
-    "src/**/*.{js,jsx,ts,tsx}": [
+    "{core,src}/**/*.{js,jsx,ts,tsx}": [
       "eslint --fix",
       "git add"
     ]
