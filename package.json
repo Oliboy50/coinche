@@ -8,8 +8,8 @@
     "test": "react-scripts test",
     "lint": "run-p lint:es lint:tsc",
     "lint:fix": "yarn lint:fix:es",
-    "lint:es": "eslint '{core,src}/**/*.{js,jsx,ts,tsx}'",
-    "lint:fix:es": "eslint --fix '{core,src}/**/*.{js,jsx,ts,tsx}'",
+    "lint:es": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
+    "lint:fix:es": "eslint --fix 'src/**/*.{js,jsx,ts,tsx}'",
     "lint:tsc": "tsc",
     "eject": "react-scripts eject"
   },
@@ -60,7 +60,7 @@
     }
   },
   "lint-staged": {
-    "{core,src}/**/*.{js,jsx,ts,tsx}": [
+    "src/**/*.{js,jsx,ts,tsx}": [
       "eslint --fix",
       "git add"
     ]

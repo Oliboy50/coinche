@@ -47,7 +47,7 @@ declare module 'boardgame.io/core' {
 }
 
 declare module 'boardgame.io/react' {
-  import React from 'react';
+  import { ComponentType } from 'react';
   import { GameContext } from 'boardgame.io/core';
 
   export interface BoardProps<GameState, GameMoves> {
@@ -63,11 +63,11 @@ declare module 'boardgame.io/react' {
 
   interface ClientArgs {
     game: object;
-    numPlayer?: number;
-    board?: React.ComponentType<BoardProps<GameState>>;
+    numPlayers?: number;
+    board?: ComponentType<BoardProps<GameState>>;
     multiplayer?: boolean | { server: string } | { local: boolean };
     debug?: boolean;
   }
 
-  export function Client(clientArgs: ClientArgs): React.ComponentType;
+  export function Client(clientArgs: ClientArgs): ComponentType;
 }

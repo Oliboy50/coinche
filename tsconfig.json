@@ -20,7 +20,6 @@
     "jsx": "preserve"
   },
   "include": [
-    "core",
     "src"
   ]
 }
