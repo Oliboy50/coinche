@@ -1,4 +1,5 @@
-import { Game } from 'boardgame.io/core';
+import { Game, TurnOrder, PlayerView } from 'boardgame.io/core';
+import { distributeAvailableCard, shuffleAvailableCards } from './actions';
 
 enum PlayingCardColor {
   Spade,
@@ -24,19 +25,23 @@ enum CoincheTrumpMode {
   AllTrump,
 }
 
-enum PlayerPosition {
-  North,
-  East,
-  South,
-  West,
+export enum PlayerID {
+  North = '0',
+  East = '1',
+  South = '2',
+  West = '3',
+}
+
+export enum PhaseID {
+  Talk = '0',
+  PlayCards = '1',
 }
 
 interface CoinchePlayer {
-  name: string;
   cards: CoincheCard[];
 }
 
-interface CoincheCard {
+export interface CoincheCard {
   color: PlayingCardColor;
   name: PlayingCardName;
 }
@@ -45,38 +50,20 @@ export interface CoincheGameState {
   availableCards: CoincheCard[];
   playedCards: CoincheCard[];
   players: {
-    [PlayerPosition.North]: CoinchePlayer,
-    [PlayerPosition.East]: CoinchePlayer,
-    [PlayerPosition.South]: CoinchePlayer,
-    [PlayerPosition.West]: CoinchePlayer,
+    [key in PlayerID]: CoinchePlayer;
   };
+  dealer: PlayerID;
+  turnOrder: PlayerID[];
+  howManyCardsPlayersHaveBeforeTalking: number;
   trumpMode?: CoincheTrumpMode;
-  currentTrump?: PlayingCardColor;
+  trump?: PlayingCardColor;
+  expectedPoints?: number;
 }
 
 export interface CoincheGameMoves {
   shuffle: () => any;
-  distributeCard: (playerPosition: PlayerPosition) => any;
+  // distributeCard: (playerID: PlayerID) => any;
 }
-
-export const getCardValue = (card: CoincheCard, gameState: CoincheGameState): number => {
-  switch (card.name) {
-    case PlayingCardName.Ace:
-      return gameState.trumpMode === CoincheTrumpMode.NoTrump ? 19 : 11;
-    case PlayingCardName.Nine:
-      return gameState.currentTrump === card.color ? 14 : 0;
-    case PlayingCardName.Ten:
-      return 10;
-    case PlayingCardName.Jack:
-      return gameState.currentTrump === card.color ? 20 : 2;
-    case PlayingCardName.Queen:
-      return 3;
-    case PlayingCardName.King:
-      return 4;
-    default:
-      return 0;
-  }
-};
 
 const getCoincheCards = (): CoincheCard[] => [
   {
@@ -209,40 +196,94 @@ const getCoincheCards = (): CoincheCard[] => [
   },
 ];
 
-export const buildCoincheGame = () => Game<CoincheGameState, CoincheGameMoves>({
-  setup: () => ({
-    availableCards: getCoincheCards(),
-    playedCards: [],
-    players: {
-      [PlayerPosition.North]: {
-        name: 'North',
-        cards: [],
-      },
-      [PlayerPosition.East]: {
-        name: 'East',
-        cards: [],
-      },
-      [PlayerPosition.South]: {
-        name: 'South',
-        cards: [],
-      },
-      [PlayerPosition.West]: {
-        name: 'West',
-        cards: [],
-      },
-    },
-  }),
+export const getCoincheCardValue = (card: CoincheCard, gameState: CoincheGameState): number => {
+  switch (card.name) {
+    case PlayingCardName.Ace:
+      return gameState.trumpMode === CoincheTrumpMode.NoTrump ? 19 : 11;
+    case PlayingCardName.Nine:
+      return gameState.trump === card.color ? 14 : 0;
+    case PlayingCardName.Ten:
+      return 10;
+    case PlayingCardName.Jack:
+      return gameState.trump === card.color ? 20 : 2;
+    case PlayingCardName.Queen:
+      return 3;
+    case PlayingCardName.King:
+      return 4;
+    default:
+      return 0;
+  }
+};
 
-  moves: {
-    shuffle: (G, ctx) => ({...G, availableCards: ctx.random.Shuffle(G.availableCards)}),
-    distributeCard: (G, ctx, playerPosition) => {
-      const card = G.availableCards.pop();
-      if (!card) {
-        return G;
-      }
+const getTurnOrder = (dealer: PlayerID): PlayerID[] => {
+  switch (dealer) {
+    case PlayerID.North:
+      return [PlayerID.North, PlayerID.West, PlayerID.South, PlayerID.East];
+    case PlayerID.East:
+      return [PlayerID.East, PlayerID.North, PlayerID.West, PlayerID.South];
+    case PlayerID.South:
+      return [PlayerID.South, PlayerID.East, PlayerID.North, PlayerID.West];
+    case PlayerID.West:
+      return [PlayerID.West, PlayerID.South, PlayerID.East, PlayerID.North];
+  }
+};
 
-      G.players[playerPosition].cards.push(card);
-      return G;
+export const buildCoincheGame = () => Game<CoincheGameState, CoincheGameMoves, PlayerID, PhaseID>({
+  setup: (ctx, setupData) => {
+    const dealer = PlayerID.North;
+
+    return {
+      availableCards: getCoincheCards(),
+      playedCards: [],
+      players: {
+        [PlayerID.North]: {
+          cards: [],
+        },
+        [PlayerID.East]: {
+          cards: [],
+        },
+        [PlayerID.South]: {
+          cards: [],
+        },
+        [PlayerID.West]: {
+          cards: [],
+        },
+      },
+      dealer,
+      howManyCardsPlayersHaveBeforeTalking: 6,
+      turnOrder: getTurnOrder(dealer),
+    };
+  },
+
+  flow: {
+    turnOrder: TurnOrder.CUSTOM_FROM<CoincheGameState>('turnOrder'),
+    startingPhase: PhaseID.Talk,
+    phases: {
+      [PhaseID.Talk]: {
+        onPhaseBegin: (G, ctx) => {
+          G.availableCards = shuffleAvailableCards(G, ctx);
+
+          G.turnOrder.forEach(playerID => {
+            for (let i = 0; i < G.howManyCardsPlayersHaveBeforeTalking; i++) {
+              distributeAvailableCard(G, ctx, playerID);
+            }
+          });
+        },
+        allowedMoves: ['shuffle'],
+        endPhaseIf: G => Boolean(G.trump && G.expectedPoints),
+        next: PhaseID.PlayCards,
+      },
+      [PhaseID.PlayCards]: {
+        allowedMoves: [],
+        endPhaseIf: G => Boolean(G.trump && G.expectedPoints),
+        next: PhaseID.Talk,
+      },
     },
   },
+
+  moves: {
+    shuffle: (G, ctx) => ({ ...G, availableCards: shuffleAvailableCards(G, ctx) }),
+  },
+
+  playerView: PlayerView.STRIP_SECRETS,
 });

@@ -9,6 +9,7 @@
 ### Production build
 
 ```shell
+yarn
 yarn build
 ```
 
@@ -17,6 +18,7 @@ yarn build
 ### Start hacking
 
 ```shell
+yarn
 yarn dev
 ```
 
