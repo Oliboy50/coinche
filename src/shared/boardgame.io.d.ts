@@ -1,69 +1,94 @@
 declare module 'boardgame.io/core' {
-  const TurnOrder: {
-    CUSTOM_FROM: <GameState>(gameStateKey: keyof GameState) => object;
-    CUSTOM: (order: string[]) => object;
-    [key: string]: object;
-  };
+  /**
+   * Default type arguments value
+   */
+  export type DefaultGameState = object;
+  export type DefaultMoves = object;
+  export type DefaultGameStatePlayerView = object;
+  export type DefaultPlayerID = string;
+  export type DefaultPhaseID = string;
 
-  const PlayerView: {
-    STRIP_SECRETS: (G: object, ctx: Context, playerID: any) => Partial<typeof G>; // eslint-disable-line no-undef
-  };
-
-  export interface Context {
+  export interface Context<
+    PlayerID = DefaultPlayerID,
+  > {
     numPlayer: number;
     turn: number;
-    currentPlayer: string;
+    currentPlayer: PlayerID;
     currentPlayerMoves: number;
     random: {
-      Shuffle: <A extends any[]>(array: A) => A;
+      Shuffle: <A extends Array>(array: A) => A;
     };
   }
 
-  interface GameFlowTrigger<GameState> {
-    conditon: (G: GameState, ctx: Context) => boolean;
-    action: (G: GameState, ctx: Context) => void;
-  }
-
-  interface GameFlowPhase<GameState, Moves, PhaseID> {
-    onPhaseBegin?: (G: GameState, ctx: Context) => GameState | void,
+  export interface GameFlowPhase<
+    GameState = DefaultGameState,
+    Moves = DefaultMoves,
+    PlayerID = DefaultPlayerID,
+    PhaseID = DefaultPhaseID,
+  > {
+    onPhaseBegin?: (G: GameState, ctx: Context<PlayerID>) => GameState | void,
     allowedMoves?: (keyof Moves)[];
-    endPhaseIf?: (G: GameState, ctx: Context) => boolean;
+    endPhaseIf?: (G: GameState, ctx: Context<PlayerID>) => boolean;
     next?: PhaseID;
-    onPhaseEnd?: (G: GameState, ctx: Context) => GameState | void,
+    onPhaseEnd?: (G: GameState, ctx: Context<PlayerID>) => GameState | void,
   }
 
-  interface GameFlow<GameState, Moves, PhaseID> {
+  export interface GameFlow<
+    GameState = DefaultGameState,
+    Moves = DefaultMoves,
+    PlayerID = DefaultPlayerID,
+    PhaseID = DefaultPhaseID,
+  > {
     turnOrder?: object;
     startingPhase?: PhaseID;
-    phases?: Record<PhaseID, GameFlowPhase<GameState, Moves, PhaseID>>;
-    endTurnIf?: (G: GameState, ctx: Context) => boolean;
-    endGameIf?: (G: GameState, ctx: Context) => boolean;
-    triggers?: GameFlowTrigger<GameState>[];
+    phases?: Record<PhaseID, GameFlowPhase<GameState, Moves, PlayerID, PhaseID>>;
+    endTurnIf?: (G: GameState, ctx: Context<PlayerID>) => boolean;
+    endGameIf?: (G: GameState, ctx: Context<PlayerID>) => boolean;
   }
 
-  type GameMoves<GameState, Moves> = {
-    [key in keyof Moves]: (G: GameState, ctx: Context, ...args: Parameters<Moves[key]>) => GameState | void;
+  export interface GameConfig<
+    GameState = DefaultGameState,
+    GameStatePlayerView = DefaultGameStatePlayerView,
+    Moves = DefaultMoves,
+    PlayerID = DefaultPlayerID,
+    PhaseID = DefaultPhaseID,
+  > {
+    setup: (ctx: Context<PlayerID>, setupData: object) => GameState;
+    moves: {
+      [key in keyof Moves]: (G: GameState, ctx: Context<PlayerID>, ...args: Parameters<Moves[key]>) => GameState | void;
+    };
+    flow?: GameFlow<GameState, Moves, PlayerID, PhaseID>;
+    playerView?: (G: GameState, ctx: Context<PlayerID>, playerID: PlayerID) => GameStatePlayerView;
   }
 
-  interface GameArgs<GameState, Moves, PlayerID, PhaseID> {
-    setup: (ctx: Context, setupData: object) => GameState;
-    moves: GameMoves<GameState, Moves>;
-    playerView?: (G: GameState, ctx: Context, playerID: PlayerID) => Partial<GameState>;
-    flow?: GameFlow<GameState, Moves, PhaseID>;
-  }
+  export function Game<
+    GameState = DefaultGameState,
+    GameStatePlayerView = DefaultGameStatePlayerView,
+    Moves = DefaultMoves,
+    PlayerID = DefaultPlayerID,
+    PhaseID = DefaultPhaseID,
+  >(game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, PhaseID>): object;
 
-  function Game<GameState, Moves, PlayerID extends string, PhaseID extends string>(gameArgs: GameArgs<GameState, Moves, PlayerID, PhaseID>): object;
+  export const TurnOrder: {
+    CUSTOM_FROM: <GameState = DefaultGameState>(gameStateKey: keyof GameState) => object;
+  };
 
-  export { Game, TurnOrder, PlayerView };
+  export const PlayerView: {
+    STRIP_SECRETS: Required<GameConfig>['playerView'];
+  };
 }
 
 declare module 'boardgame.io/react' {
   import { ComponentType } from 'react';
-  import { Context } from 'boardgame.io/core';
+  import { Context, DefaultGameStatePlayerView, DefaultMoves, DefaultPlayerID } from 'boardgame.io/core';
 
-  export interface BoardProps<GameState, Moves, PlayerID> {
-    G: GameState;
-    ctx: Context;
+  export interface BoardProps<
+    GameStatePlayerView = DefaultGameStatePlayerView,
+    Moves = DefaultMoves,
+    PlayerID = DefaultPlayerID,
+  > {
+    G: GameStatePlayerView;
+    ctx: Context<PlayerID>;
     moves: Moves;
     gameID: string;
     playerID: PlayerID;
@@ -72,21 +97,29 @@ declare module 'boardgame.io/react' {
     isConnected: boolean;
   }
 
-  interface ClientArgs<GameState, Moves, PlayerID> {
+  export interface Client<
+    GameStatePlayerView = DefaultGameStatePlayerView,
+    Moves = DefaultMoves,
+    PlayerID = DefaultPlayerID,
+  > {
     game: object;
     numPlayers?: number;
-    board?: ComponentType<BoardProps<GameState, Moves, PlayerID>>;
+    board?: ComponentType<BoardProps<GameStatePlayerView, Moves, PlayerID>>;
     multiplayer?: boolean | { server: string } | { local: boolean };
     debug?: boolean;
   }
 
-  interface ClientProps<PlayerID> {
+  export interface ClientProps<
+    PlayerID = DefaultPlayerID,
+  > {
     gameID?: string;
     playerID?: PlayerID;
     debug?: boolean;
   }
 
-  function Client<GameState, Moves, PlayerID extends string>(clientArgs: ClientArgs<GameState, Moves, PlayerID>): ComponentType<ClientProps<GameState, Moves, PlayerID>>;
-
-  export { Client };
+  export function Client<
+    GameStatePlayerView = DefaultGameStatePlayerView,
+    Moves = DefaultMoves,
+    PlayerID = DefaultPlayerID,
+  >(client: Client<GameStatePlayerView, Moves, PlayerID>): ComponentType<ClientProps<PlayerID>>;
 }

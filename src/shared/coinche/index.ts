@@ -1,14 +1,16 @@
-import { Game, TurnOrder, PlayerView } from 'boardgame.io/core';
+import { Game, TurnOrder } from 'boardgame.io/core';
 import { distributeAvailableCard, shuffleAvailableCards } from './actions';
 
-enum PlayingCardColor {
+type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+
+export enum PlayingCardColor {
   Spade,
   Diamond,
   Heart,
   Club,
 }
 
-enum PlayingCardName {
+export enum PlayingCardName {
   Ace,
   Seven,
   Eight,
@@ -19,8 +21,11 @@ enum PlayingCardName {
   King,
 }
 
-enum CoincheTrumpMode {
-  SingleTrump,
+export enum CoincheTrumpMode {
+  TrumpSpade,
+  TrumpDiamond,
+  TrumpHeart,
+  TrumpClub,
   NoTrump,
   AllTrump,
 }
@@ -60,9 +65,13 @@ export interface CoincheGameState {
   expectedPoints?: number;
 }
 
-export interface CoincheGameMoves {
-  shuffle: () => any;
-  // distributeCard: (playerID: PlayerID) => any;
+export type CoincheGameStatePlayerView = Omit<CoincheGameState, 'players'> & {
+  player?: CoinchePlayer;
+}
+
+export interface CoincheMoves {
+  talk_skip: () => any;
+  talk_take: (expectedPoints: number, mode: CoincheTrumpMode) => any;
 }
 
 const getCoincheCards = (): CoincheCard[] => [
@@ -228,7 +237,7 @@ const getTurnOrder = (dealer: PlayerID): PlayerID[] => {
   }
 };
 
-export const buildCoincheGame = () => Game<CoincheGameState, CoincheGameMoves, PlayerID, PhaseID>({
+export const buildCoincheGame = () => Game<CoincheGameState, CoincheGameStatePlayerView, CoincheMoves, PlayerID, PhaseID>({
   setup: (ctx, setupData) => {
     const dealer = PlayerID.North;
 
@@ -269,7 +278,7 @@ export const buildCoincheGame = () => Game<CoincheGameState, CoincheGameMoves, P
             }
           });
         },
-        allowedMoves: ['shuffle'],
+        allowedMoves: ['talk_skip', 'talk_take'],
         endPhaseIf: G => Boolean(G.trump && G.expectedPoints),
         next: PhaseID.PlayCards,
       },
@@ -282,8 +291,12 @@ export const buildCoincheGame = () => Game<CoincheGameState, CoincheGameMoves, P
   },
 
   moves: {
-    shuffle: (G, ctx) => ({ ...G, availableCards: shuffleAvailableCards(G, ctx) }),
+    talk_skip: (G, ctx) => ({ ...G, availableCards: shuffleAvailableCards(G, ctx) }),
+    talk_take: (G, ctx, expectedPoints, color) => ({ ...G, availableCards: shuffleAvailableCards(G, ctx) }),
   },
 
-  playerView: PlayerView.STRIP_SECRETS,
+  playerView: ({ players, ...GWithoutPlayers }, ctx, playerID) => ({
+    ...GWithoutPlayers,
+    ...(players ? { player: players[playerID] } : null),
+  }),
 });

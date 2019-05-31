@@ -1,8 +1,13 @@
 import { Client } from 'boardgame.io/react';
-import {buildCoincheGame, CoincheGameMoves, CoincheGameState, PlayerID} from '../shared/coinche';
+import {
+  buildCoincheGame,
+  CoincheGameStatePlayerView,
+  CoincheMoves,
+  PlayerID,
+} from '../shared/coinche';
 import { CoincheBoard } from './CoincheBoard';
 
-export const CoincheClient = Client<CoincheGameState, CoincheGameMoves, PlayerID>({
+export const CoincheClient = Client<CoincheGameStatePlayerView, CoincheMoves, PlayerID>({
   game: buildCoincheGame(),
   numPlayers: 4,
   multiplayer: { local: true },
