@@ -10,13 +10,34 @@ declare module 'boardgame.io/core' {
 
   export interface Context<
     PlayerID = DefaultPlayerID,
+    PhaseID = DefaultPhaseID,
   > {
-    numPlayer: number;
+    numPlayers: number;
     turn: number;
     currentPlayer: PlayerID;
     currentPlayerMoves: number;
     random: {
-      Shuffle: <A extends Array>(array: A) => A;
+      Shuffle: <A extends any[]>(array: A) => A;
+    };
+    actionPlayers: PlayerID[];
+    playOrder: PlayerID[];
+    playOrderPos: number;
+    stats: {
+      turn: {
+        numMoves: Partial<Record<PlayerID, number>>;
+        allPlayed: boolean;
+      };
+      phase: {
+        numMoves: Partial<Record<PlayerID, number>>;
+        allPlayed: boolean;
+      };
+    };
+    allPlayed: boolean;
+    playerID: PlayerID;
+    events: {
+      endGame: () => void;
+      endPhase: (options?: { next: PhaseID }) => void;
+      endTurn: () => void;
     };
   }
 
@@ -26,11 +47,16 @@ declare module 'boardgame.io/core' {
     PlayerID = DefaultPlayerID,
     PhaseID = DefaultPhaseID,
   > {
-    onPhaseBegin?: (G: GameState, ctx: Context<PlayerID>) => GameState | void,
-    allowedMoves?: (keyof Moves)[];
-    endPhaseIf?: (G: GameState, ctx: Context<PlayerID>) => boolean;
+    endPhaseIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => boolean | { next: PhaseID };
     next?: PhaseID;
-    onPhaseEnd?: (G: GameState, ctx: Context<PlayerID>) => GameState | void,
+    endTurnIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => boolean;
+    endGameIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => boolean;
+    onTurnBegin?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
+    onTurnEnd?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
+    onMove?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
+    onPhaseBegin?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
+    onPhaseEnd?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
+    allowedMoves?: (keyof Moves)[];
   }
 
   export interface GameFlow<
@@ -39,11 +65,17 @@ declare module 'boardgame.io/core' {
     PlayerID = DefaultPlayerID,
     PhaseID = DefaultPhaseID,
   > {
+    endTurn?: boolean;
+    endPhase?: boolean;
+    endGame?: boolean;
     turnOrder?: object;
     startingPhase?: PhaseID;
     phases?: Record<PhaseID, GameFlowPhase<GameState, Moves, PlayerID, PhaseID>>;
-    endTurnIf?: (G: GameState, ctx: Context<PlayerID>) => boolean;
-    endGameIf?: (G: GameState, ctx: Context<PlayerID>) => boolean;
+    endTurnIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => boolean;
+    endGameIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => any;
+    onTurnBegin?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
+    onTurnEnd?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
+    onMove?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
   }
 
   export interface GameConfig<
@@ -53,12 +85,12 @@ declare module 'boardgame.io/core' {
     PlayerID = DefaultPlayerID,
     PhaseID = DefaultPhaseID,
   > {
-    setup: (ctx: Context<PlayerID>, setupData: object) => GameState;
+    setup: (ctx: Context<PlayerID, PhaseID>, setupData: object) => GameState;
     moves: {
-      [key in keyof Moves]: (G: GameState, ctx: Context<PlayerID>, ...args: Parameters<Moves[key]>) => GameState | void;
+      [key in keyof Moves]: (G: GameState, ctx: Context<PlayerID, PhaseID>, ...args: Parameters<Moves[key]>) => GameState | void;
     };
     flow?: GameFlow<GameState, Moves, PlayerID, PhaseID>;
-    playerView?: (G: GameState, ctx: Context<PlayerID>, playerID: PlayerID) => GameStatePlayerView;
+    playerView?: (G: GameState, ctx: Context<PlayerID, PhaseID>, playerID: PlayerID) => GameStatePlayerView;
   }
 
   export function Game<
@@ -80,15 +112,16 @@ declare module 'boardgame.io/core' {
 
 declare module 'boardgame.io/react' {
   import { ComponentType } from 'react';
-  import { Context, DefaultGameStatePlayerView, DefaultMoves, DefaultPlayerID } from 'boardgame.io/core';
+  import { Context, DefaultGameStatePlayerView, DefaultMoves, DefaultPlayerID, DefaultPhaseID } from 'boardgame.io/core';
 
   export interface BoardProps<
     GameStatePlayerView = DefaultGameStatePlayerView,
     Moves = DefaultMoves,
     PlayerID = DefaultPlayerID,
+    PhaseID = DefaultPhaseID,
   > {
     G: GameStatePlayerView;
-    ctx: Context<PlayerID>;
+    ctx: Context<PlayerID, PhaseID>;
     moves: Moves;
     gameID: string;
     playerID: PlayerID;
@@ -101,10 +134,11 @@ declare module 'boardgame.io/react' {
     GameStatePlayerView = DefaultGameStatePlayerView,
     Moves = DefaultMoves,
     PlayerID = DefaultPlayerID,
+    PhaseID = DefaultPhaseID,
   > {
     game: object;
     numPlayers?: number;
-    board?: ComponentType<BoardProps<GameStatePlayerView, Moves, PlayerID>>;
+    board?: ComponentType<BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>>;
     multiplayer?: boolean | { server: string } | { local: boolean };
     debug?: boolean;
   }
@@ -121,5 +155,6 @@ declare module 'boardgame.io/react' {
     GameStatePlayerView = DefaultGameStatePlayerView,
     Moves = DefaultMoves,
     PlayerID = DefaultPlayerID,
-  >(client: Client<GameStatePlayerView, Moves, PlayerID>): ComponentType<ClientProps<PlayerID>>;
+    PhaseID = DefaultPhaseID,
+  >(client: Client<GameStatePlayerView, Moves, PlayerID, PhaseID>): ComponentType<ClientProps<PlayerID>>;
 }

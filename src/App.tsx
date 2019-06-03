@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './App.module.css';
-import {CoincheClient} from './coinche/CoincheClient';
-import {PlayerID} from './shared/coinche';
+import { CoincheClient } from './coinche/CoincheClient';
+import { PlayerID } from './shared/coinche';
 
 const App: React.FunctionComponent = () => {
   return (

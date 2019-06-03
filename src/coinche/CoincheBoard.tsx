@@ -1,19 +1,20 @@
 import React from 'react';
 import { BoardProps } from 'boardgame.io/react';
 import {
-  CoincheGameStatePlayerView,
-  CoincheMoves,
-  CoincheTrumpMode,
+  GameStatePlayerView,
+  Moves,
+  TrumpMode,
   PlayerID,
+  PhaseID,
 } from '../shared/coinche';
 
-export const CoincheBoard: React.FunctionComponent<BoardProps<CoincheGameStatePlayerView, CoincheMoves, PlayerID>> = ({
+export const CoincheBoard: React.FunctionComponent<BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>> = ({
   moves,
 }) => {
   return (
     <div>
-      <button onClick={() => moves.talk_skip()}>Skip</button>
-      <button onClick={() => moves.talk_take(250, CoincheTrumpMode.NoTrump)}>250 Sans Atout</button>
+      <button onClick={() => moves.saySkip()}>Skip</button>
+      <button onClick={() => moves.sayTake(250, TrumpMode.NoTrump)}>250 Sans Atout</button>
     </div>
   );
 };
