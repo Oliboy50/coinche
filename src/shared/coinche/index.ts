@@ -33,6 +33,7 @@ export enum TrumpMode {
   NoTrump,
   AllTrump,
 }
+export const validTrumpModes = Object.values(TrumpMode).filter(k => typeof k === 'number');
 
 export enum PlayerID {
   North = '0',
@@ -60,22 +61,26 @@ export interface Card {
 
 export interface GameState {
   // global state
-  numCards: number;
+  howManyPlayers: number;
+  howManyCards: number;
   howManyPointsATeamMustReachToEndTheGame: number;
-  howManyCardsToDistributeToEachPlayerBeforeTalking: number;
-  howManyCardsToDistributeToEachPlayerAfterTalking: number;
+  howManyCardsToDealToEachPlayerBeforeTalking: number;
+  howManyCardsToDealToEachPlayerAfterTalking: number;
   teamsPoints: Record<TeamID, number>;
 
   // round state
   availableCards: Card[];
+  playedCards: Card[];
   playersCards: Record<PlayerID, Card[]>;
   turnOrder: PlayerID[];
-  playedCards: Card[];
   numberOfSuccessiveSkipSaid: number;
   dealer: PlayerID;
   nextDealer: PlayerID;
   expectedPoints?: number;
   trumpMode?: TrumpMode;
+
+  // turn state
+  playersCardsPlayedInCurrentTurn: Record<PlayerID, Card | undefined>;
 }
 
 export interface Moves {
@@ -231,7 +236,7 @@ const getTrumpModeAssociatedToPlayingCardColor = (color: PlayingCardColor): Trum
   }
 };
 
-export const getCardPoints = (card: Card, trumpMode: TrumpMode): number => {
+const getCardPoints = (card: Card, trumpMode: TrumpMode): number => {
   switch (card.name) {
     case PlayingCardName.Ace:
       return trumpMode === TrumpMode.NoTrump ? 19 : 11;
@@ -263,16 +268,63 @@ const getTurnOrder = (dealer: PlayerID): PlayerID[] => {
   }
 };
 
+const getEmptyPlayersCardsPlayedInCurrentTurn = () => ({
+  [PlayerID.North]: undefined,
+  [PlayerID.East]: undefined,
+  [PlayerID.South]: undefined,
+  [PlayerID.West]: undefined,
+});
+
+export const validExpectedPoints = [
+  82,
+  85,
+  90,
+  95,
+  100,
+  105,
+  110,
+  115,
+  120,
+  125,
+  130,
+  135,
+  140,
+  145,
+  150,
+  155,
+  160,
+  165,
+  170,
+  175,
+  180,
+  185,
+  190,
+  195,
+  200,
+  205,
+  210,
+  215,
+  220,
+  225,
+  230,
+  235,
+  240,
+  245,
+  250,
+];
+
 export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>, setupData: object): GameState => {
+  const howManyPlayers = Object.keys(PlayerID).length;
   const dealer = PlayerID.North;
   const availableCards = getCards();
-  const numCards = availableCards.length;
-  const howManyCardsToDistributeToEachPlayerBeforeTalking = 6;
-  const howManyCardsToDistributeToEachPlayerAfterTalking = Math.floor(numCards / ctx.numPlayers) - howManyCardsToDistributeToEachPlayerBeforeTalking;
+  const howManyCards = availableCards.length;
+  const howManyCardsToDealToEachPlayerBeforeTalking = 6;
+  const howManyCardsToDealToEachPlayerAfterTalking = Math.floor(howManyCards / howManyPlayers) - howManyCardsToDealToEachPlayerBeforeTalking;
 
   return {
+    howManyPlayers,
+    howManyCards,
     availableCards,
-    numCards,
     playedCards: [],
     playersCards: {
       [PlayerID.North]: [],
@@ -287,10 +339,11 @@ export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>, setupData: ob
     dealer,
     nextDealer: dealer,
     turnOrder: getTurnOrder(dealer),
-    howManyCardsToDistributeToEachPlayerBeforeTalking,
-    howManyCardsToDistributeToEachPlayerAfterTalking,
+    howManyCardsToDealToEachPlayerBeforeTalking,
+    howManyCardsToDealToEachPlayerAfterTalking,
     howManyPointsATeamMustReachToEndTheGame: 2000,
     numberOfSuccessiveSkipSaid: 0,
+    playersCardsPlayedInCurrentTurn: getEmptyPlayersCardsPlayedInCurrentTurn(),
   };
 };
 
@@ -324,7 +377,7 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
           G.nextDealer = getTurnOrder(G.dealer)[1];
           G.availableCards = shuffleCards(getCards(), ctx.random.Shuffle);
           G.turnOrder.forEach(playerID => {
-            for (let i = 0; i < G.howManyCardsToDistributeToEachPlayerBeforeTalking; i++) {
+            for (let i = 0; i < G.howManyCardsToDealToEachPlayerBeforeTalking; i++) {
               const card = G.availableCards.pop();
               if (!card) {
                 throw new Error();
@@ -341,10 +394,10 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
       [PhaseID.Talk]: {
         allowedMoves: ['saySkip', 'sayTake'] as (keyof Moves)[],
         endPhaseIf: (G, ctx) => {
-          if (G.numberOfSuccessiveSkipSaid >= ctx.numPlayers) {
+          if (G.numberOfSuccessiveSkipSaid >= G.howManyPlayers) {
             return { next: PhaseID.Deal };
           }
-          if (G.expectedPoints && G.trumpMode && G.numberOfSuccessiveSkipSaid >= (ctx.numPlayers - 1)) {
+          if (G.expectedPoints && G.trumpMode && G.numberOfSuccessiveSkipSaid >= (G.howManyPlayers - 1)) {
             return { next: PhaseID.PlayCards };
           }
 
@@ -357,8 +410,9 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
       },
       [PhaseID.PlayCards]: {
         onPhaseBegin: (G, ctx) => {
+          ctx.events.endTurn({ next: G.nextDealer });
           G.turnOrder.forEach(playerID => {
-            for (let i = 0; i < G.howManyCardsToDistributeToEachPlayerAfterTalking; i++) {
+            for (let i = 0; i < G.howManyCardsToDealToEachPlayerAfterTalking; i++) {
               const card = G.availableCards.pop();
               if (!card) {
                 throw new Error();
@@ -366,17 +420,30 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
               G.playersCards[playerID].push(card);
             }
           });
-
-          ctx.events.endPhase();
         },
         allowedMoves: [],
+        endPhaseIf: (G, ctx) => {
+          if (Object.values(G.playersCardsPlayedInCurrentTurn).every( card => typeof card !== 'undefined')) {
+            return { next: PhaseID.EarnPoints };
+          }
+
+          return false;
+        },
         onPhaseEnd: (G, ctx) => ({
           ...G,
+          playersCardsPlayedInCurrentTurn: getEmptyPlayersCardsPlayedInCurrentTurn(),
         }),
       },
       [PhaseID.EarnPoints]: {
         allowedMoves: [],
-        endPhaseIf: G => Boolean(G.playedCards.length >= G.numCards),
+        onPhaseBegin: (G, ctx) => {
+          if (G.playedCards.length >= G.howManyCards) {
+            ctx.events.endPhase({ next: PhaseID.Deal });
+            return;
+          }
+
+          ctx.events.endPhase({ next: PhaseID.PlayCards });
+        },
       },
     },
     endGameIf: (G, ctx) => {

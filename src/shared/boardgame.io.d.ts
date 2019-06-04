@@ -37,7 +37,7 @@ declare module 'boardgame.io/core' {
     events: {
       endGame: () => void;
       endPhase: (options?: { next: PhaseID }) => void;
-      endTurn: () => void;
+      endTurn: (options?: { next: PlayerID }) => void;
     };
   }
 
@@ -49,7 +49,7 @@ declare module 'boardgame.io/core' {
   > {
     endPhaseIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => boolean | { next: PhaseID };
     next?: PhaseID;
-    endTurnIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => boolean;
+    endTurnIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => boolean | { next: PlayerID };
     endGameIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => boolean;
     onTurnBegin?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
     onTurnEnd?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
@@ -71,7 +71,7 @@ declare module 'boardgame.io/core' {
     turnOrder?: object;
     startingPhase?: PhaseID;
     phases?: Record<PhaseID, GameFlowPhase<GameState, Moves, PlayerID, PhaseID>>;
-    endTurnIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => boolean;
+    endTurnIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => boolean | { next: PlayerID };
     endGameIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => any;
     onTurnBegin?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
     onTurnEnd?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;

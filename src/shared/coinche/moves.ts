@@ -1,5 +1,5 @@
 import { Context } from 'boardgame.io/core';
-import { GameState, TrumpMode, PlayerID, PhaseID } from './index';
+import {GameState, TrumpMode, PlayerID, PhaseID, validExpectedPoints, validTrumpModes} from './index';
 
 export const saySkip = (
   G: GameState,
@@ -15,6 +15,13 @@ export const sayTake = (
   expectedPoints: number,
   trumpMode: TrumpMode,
 ) => {
+  if (!validExpectedPoints.includes(expectedPoints)) {
+    throw new Error();
+  }
+  if (!validTrumpModes.includes(trumpMode)) {
+    throw new Error();
+  }
+
   G.numberOfSuccessiveSkipSaid = 0;
   G.expectedPoints = expectedPoints;
   G.trumpMode = trumpMode;

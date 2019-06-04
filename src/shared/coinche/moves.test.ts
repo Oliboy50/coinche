@@ -1,8 +1,16 @@
 import {Context} from 'boardgame.io/core';
-import {GameState, getSetupGameState, PhaseID, PlayerID, TrumpMode} from './index';
+import {
+  GameState,
+  getSetupGameState,
+  PhaseID,
+  PlayerID,
+  TrumpMode,
+  validExpectedPoints,
+  validTrumpModes,
+} from './index';
 import {saySkip, sayTake} from './moves';
 
-describe('coinche/moves', () => {
+describe(`coinche/moves`, () => {
   let G: GameState;
   let ctx: Context<PlayerID, PhaseID>;
 
@@ -46,14 +54,15 @@ describe('coinche/moves', () => {
     G = getSetupGameState(ctx, {});
   });
 
-  describe('saySkip', () => {
-    it('increases number of successive skip said', () => {
+  describe(`saySkip`, () => {
+    it(`increases number of successive skip said`, () => {
       G = {
         ...G,
         numberOfSuccessiveSkipSaid: 0,
       };
 
       const endTurn = jest.spyOn(ctx.events, 'endTurn');
+
       saySkip(G, ctx);
 
       expect(endTurn).toHaveBeenCalledTimes(1);
@@ -61,22 +70,56 @@ describe('coinche/moves', () => {
     });
   });
 
-  describe('sayTake', () => {
-    it('set expected points and trump mode and reset number of successive skip said', () => {
+  describe(`sayTake`, () => {
+    beforeEach(() => {
       G = {
         ...G,
         numberOfSuccessiveSkipSaid: 3,
         expectedPoints: undefined,
         trumpMode: undefined,
       };
+    });
 
-      const endTurn = jest.spyOn(ctx.events, 'endTurn');
-      sayTake(G, ctx, 160, TrumpMode.NoTrump);
+    validExpectedPoints.forEach((expectedPoints) => {
+      validTrumpModes.forEach((trumpMode) => {
+        it(`set expected points to ${expectedPoints} and trump mode to ${trumpMode} and reset number of successive skip said`, () => {
+          const endTurn = jest.spyOn(ctx.events, 'endTurn');
 
-      expect(endTurn).toHaveBeenCalledTimes(1);
-      expect(G.numberOfSuccessiveSkipSaid).toBe(0);
-      expect(G.expectedPoints).toBe(160);
-      expect(G.trumpMode).toBe(TrumpMode.NoTrump);
+          sayTake(G, ctx, expectedPoints, trumpMode);
+
+          expect(endTurn).toHaveBeenCalledTimes(1);
+          expect(G.numberOfSuccessiveSkipSaid).toBe(0);
+          expect(G.expectedPoints).toBe(expectedPoints);
+          expect(G.trumpMode).toBe(trumpMode);
+        });
+      });
+    });
+
+    [
+      -1,
+      0,
+      80,
+      81,
+      100.5,
+      251,
+      255,
+    ].forEach((expectedPoints) => {
+      it(`throws if expected points is ${expectedPoints}`, () => {
+        expect(() => {
+          sayTake(G, ctx, expectedPoints, TrumpMode.NoTrump);
+        }).toThrow();
+      });
+    });
+
+    [
+      -1,
+      100,
+    ].forEach((trumpMode) => {
+      it(`throws if trump mode is ${trumpMode}`, () => {
+        expect(() => {
+          sayTake(G, ctx, validExpectedPoints[0], trumpMode);
+        }).toThrow();
+      });
     });
   });
 });
