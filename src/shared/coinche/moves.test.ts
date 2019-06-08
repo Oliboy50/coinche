@@ -4,11 +4,13 @@ import {
   getSetupGameState,
   PhaseID,
   PlayerID,
+  PlayingCardColor,
+  PlayingCardName,
   TrumpMode,
   validExpectedPoints,
   validTrumpModes,
 } from './index';
-import {saySkip, sayTake} from './moves';
+import {playCard, saySkip, sayTake} from './moves';
 
 describe(`coinche/moves`, () => {
   let G: GameState;
@@ -119,6 +121,38 @@ describe(`coinche/moves`, () => {
         expect(() => {
           sayTake(G, ctx, validExpectedPoints[0], trumpMode);
         }).toThrow();
+      });
+    });
+  });
+
+  describe(`playCard`, () => {
+    // @TODO more tests
+    it(`plays card in current turn`, () => {
+      ctx = {
+        ...ctx,
+        currentPlayer: PlayerID.North,
+      };
+      G = {
+        ...G,
+        playersCardsPlayedInCurrentTurn: {
+          [PlayerID.North]: undefined,
+          [PlayerID.East]: undefined,
+          [PlayerID.South]: undefined,
+          [PlayerID.West]: undefined,
+        },
+      };
+
+      const endTurn = jest.spyOn(ctx.events, 'endTurn');
+
+      const card = { color: PlayingCardColor.Club, name: PlayingCardName.King };
+      playCard(G, ctx, card);
+
+      expect(endTurn).toHaveBeenCalledTimes(1);
+      expect(G.playersCardsPlayedInCurrentTurn).toEqual({
+        [PlayerID.North]: card,
+        [PlayerID.East]: undefined,
+        [PlayerID.South]: undefined,
+        [PlayerID.West]: undefined,
       });
     });
   });

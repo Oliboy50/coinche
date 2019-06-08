@@ -1,8 +1,8 @@
 import {Context, Game, TurnOrder} from 'boardgame.io/core';
-import { shuffleCards } from './actions';
 import {
   saySkip,
   sayTake,
+  playCard,
 } from './moves';
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
@@ -46,7 +46,7 @@ export enum PhaseID {
   Deal = 'Deal',
   Talk = 'Talk',
   PlayCards = 'PlayCards',
-  EarnPoints = 'EarnPoints',
+  CountPoints = 'CountPoints',
 }
 
 export enum TeamID {
@@ -86,6 +86,7 @@ export interface GameState {
 export interface Moves {
   saySkip: () => void;
   sayTake: (expectedPoints: number, mode: TrumpMode) => void;
+  playCard: (card: Card) => void;
 }
 
 export type GameStatePlayerView = Omit<GameState, 'playersCards'> & {
@@ -268,7 +269,14 @@ const getTurnOrder = (dealer: PlayerID): PlayerID[] => {
   }
 };
 
-const getEmptyPlayersCardsPlayedInCurrentTurn = () => ({
+const getDefaultPlayersCards = () => ({
+  [PlayerID.North]: [],
+  [PlayerID.East]: [],
+  [PlayerID.South]: [],
+  [PlayerID.West]: [],
+});
+
+const getDefaultPlayersCardsPlayedInCurrentTurn = () => ({
   [PlayerID.North]: undefined,
   [PlayerID.East]: undefined,
   [PlayerID.South]: undefined,
@@ -326,12 +334,7 @@ export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>, setupData: ob
     howManyCards,
     availableCards,
     playedCards: [],
-    playersCards: {
-      [PlayerID.North]: [],
-      [PlayerID.East]: [],
-      [PlayerID.South]: [],
-      [PlayerID.West]: [],
-    },
+    playersCards: getDefaultPlayersCards(),
     teamsPoints: {
       [TeamID.NorthSouth]: 0,
       [TeamID.EastWest]: 0,
@@ -343,7 +346,7 @@ export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>, setupData: ob
     howManyCardsToDealToEachPlayerAfterTalking,
     howManyPointsATeamMustReachToEndTheGame: 2000,
     numberOfSuccessiveSkipSaid: 0,
-    playersCardsPlayedInCurrentTurn: getEmptyPlayersCardsPlayedInCurrentTurn(),
+    playersCardsPlayedInCurrentTurn: getDefaultPlayersCardsPlayedInCurrentTurn(),
   };
 };
 
@@ -353,6 +356,7 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
   moves: {
     saySkip,
     sayTake,
+    playCard,
   },
 
   flow: {
@@ -367,15 +371,10 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
           G.playedCards = [];
           G.expectedPoints = undefined;
           G.trumpMode = undefined;
-          G.playersCards = {
-            [PlayerID.North]: [],
-            [PlayerID.East]: [],
-            [PlayerID.South]: [],
-            [PlayerID.West]: [],
-          };
+          G.playersCards = getDefaultPlayersCards();
           G.dealer = G.nextDealer;
           G.nextDealer = getTurnOrder(G.dealer)[1];
-          G.availableCards = shuffleCards(getCards(), ctx.random.Shuffle);
+          G.availableCards = ctx.random.Shuffle(getCards());
           G.turnOrder.forEach(playerID => {
             for (let i = 0; i < G.howManyCardsToDealToEachPlayerBeforeTalking; i++) {
               const card = G.availableCards.pop();
@@ -386,9 +385,9 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
             }
           });
 
-          ctx.events.endPhase();
+          ctx.events.endTurn({ next: G.nextDealer });
+          ctx.events.endPhase({ next: PhaseID.Talk });
         },
-        next: PhaseID.Talk,
         allowedMoves: [],
       },
       [PhaseID.Talk]: {
@@ -410,7 +409,6 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
       },
       [PhaseID.PlayCards]: {
         onPhaseBegin: (G, ctx) => {
-          ctx.events.endTurn({ next: G.nextDealer });
           G.turnOrder.forEach(playerID => {
             for (let i = 0; i < G.howManyCardsToDealToEachPlayerAfterTalking; i++) {
               const card = G.availableCards.pop();
@@ -424,24 +422,26 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
         allowedMoves: [],
         endPhaseIf: (G, ctx) => {
           if (Object.values(G.playersCardsPlayedInCurrentTurn).every( card => typeof card !== 'undefined')) {
-            return { next: PhaseID.EarnPoints };
+            return { next: PhaseID.CountPoints };
           }
 
           return false;
         },
         onPhaseEnd: (G, ctx) => ({
           ...G,
-          playersCardsPlayedInCurrentTurn: getEmptyPlayersCardsPlayedInCurrentTurn(),
+          playersCardsPlayedInCurrentTurn: getDefaultPlayersCardsPlayedInCurrentTurn(),
         }),
       },
-      [PhaseID.EarnPoints]: {
+      [PhaseID.CountPoints]: {
         allowedMoves: [],
         onPhaseBegin: (G, ctx) => {
           if (G.playedCards.length >= G.howManyCards) {
+            // @TODO count turn points
             ctx.events.endPhase({ next: PhaseID.Deal });
             return;
           }
 
+          // @TODO count cards points
           ctx.events.endPhase({ next: PhaseID.PlayCards });
         },
       },
