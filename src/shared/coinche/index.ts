@@ -1,20 +1,23 @@
-import {Context, Game, TurnOrder} from 'boardgame.io/core';
 import {
-  saySkip,
-  sayTake,
-  playCard,
-} from './moves';
+  Context,
+  Game,
+  TurnOrder,
+} from 'boardgame.io/core';
+import saySkip from './move/saySkip';
+import sayTake from './move/sayTake';
+import playCard from './move/playCard';
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
-export enum PlayingCardColor {
+export enum CardColor {
   Spade,
   Diamond,
   Heart,
   Club,
 }
+export const validCardColor = Object.values(CardColor).filter(k => typeof k === 'number');
 
-export enum PlayingCardName {
+export enum CardName {
   Ace,
   Seven,
   Eight,
@@ -24,6 +27,7 @@ export enum PlayingCardName {
   Queen,
   King,
 }
+export const validCardName = Object.values(CardName).filter(k => typeof k === 'number');
 
 export enum TrumpMode {
   TrumpSpade,
@@ -55,8 +59,8 @@ export enum TeamID {
 }
 
 export interface Card {
-  color: PlayingCardColor;
-  name: PlayingCardName;
+  color: CardColor;
+  name: CardName;
 }
 
 export interface GameState {
@@ -80,6 +84,7 @@ export interface GameState {
   trumpMode?: TrumpMode;
 
   // turn state
+  firstPlayerInCurrentTurn: PlayerID;
   playersCardsPlayedInCurrentTurn: Record<PlayerID, Card | undefined>;
 }
 
@@ -93,195 +98,168 @@ export type GameStatePlayerView = Omit<GameState, 'playersCards'> & {
   playerCards: Card[];
 }
 
-const getCards = (): Card[] => [
+export const getCards = (): Card[] => [
   {
-    color: PlayingCardColor.Spade,
-    name: PlayingCardName.Ace,
+    color: CardColor.Spade,
+    name: CardName.Ace,
   },
   {
-    color: PlayingCardColor.Spade,
-    name: PlayingCardName.Seven,
+    color: CardColor.Spade,
+    name: CardName.Seven,
   },
   {
-    color: PlayingCardColor.Spade,
-    name: PlayingCardName.Eight,
+    color: CardColor.Spade,
+    name: CardName.Eight,
   },
   {
-    color: PlayingCardColor.Spade,
-    name: PlayingCardName.Nine,
+    color: CardColor.Spade,
+    name: CardName.Nine,
   },
   {
-    color: PlayingCardColor.Spade,
-    name: PlayingCardName.Ten,
+    color: CardColor.Spade,
+    name: CardName.Ten,
   },
   {
-    color: PlayingCardColor.Spade,
-    name: PlayingCardName.Jack,
+    color: CardColor.Spade,
+    name: CardName.Jack,
   },
   {
-    color: PlayingCardColor.Spade,
-    name: PlayingCardName.Queen,
+    color: CardColor.Spade,
+    name: CardName.Queen,
   },
   {
-    color: PlayingCardColor.Spade,
-    name: PlayingCardName.King,
+    color: CardColor.Spade,
+    name: CardName.King,
   },
   {
-    color: PlayingCardColor.Diamond,
-    name: PlayingCardName.Ace,
+    color: CardColor.Diamond,
+    name: CardName.Ace,
   },
   {
-    color: PlayingCardColor.Diamond,
-    name: PlayingCardName.Seven,
+    color: CardColor.Diamond,
+    name: CardName.Seven,
   },
   {
-    color: PlayingCardColor.Diamond,
-    name: PlayingCardName.Eight,
+    color: CardColor.Diamond,
+    name: CardName.Eight,
   },
   {
-    color: PlayingCardColor.Diamond,
-    name: PlayingCardName.Nine,
+    color: CardColor.Diamond,
+    name: CardName.Nine,
   },
   {
-    color: PlayingCardColor.Diamond,
-    name: PlayingCardName.Ten,
+    color: CardColor.Diamond,
+    name: CardName.Ten,
   },
   {
-    color: PlayingCardColor.Diamond,
-    name: PlayingCardName.Jack,
+    color: CardColor.Diamond,
+    name: CardName.Jack,
   },
   {
-    color: PlayingCardColor.Diamond,
-    name: PlayingCardName.Queen,
+    color: CardColor.Diamond,
+    name: CardName.Queen,
   },
   {
-    color: PlayingCardColor.Diamond,
-    name: PlayingCardName.King,
+    color: CardColor.Diamond,
+    name: CardName.King,
   },
   {
-    color: PlayingCardColor.Heart,
-    name: PlayingCardName.Ace,
+    color: CardColor.Heart,
+    name: CardName.Ace,
   },
   {
-    color: PlayingCardColor.Heart,
-    name: PlayingCardName.Seven,
+    color: CardColor.Heart,
+    name: CardName.Seven,
   },
   {
-    color: PlayingCardColor.Heart,
-    name: PlayingCardName.Eight,
+    color: CardColor.Heart,
+    name: CardName.Eight,
   },
   {
-    color: PlayingCardColor.Heart,
-    name: PlayingCardName.Nine,
+    color: CardColor.Heart,
+    name: CardName.Nine,
   },
   {
-    color: PlayingCardColor.Heart,
-    name: PlayingCardName.Ten,
+    color: CardColor.Heart,
+    name: CardName.Ten,
   },
   {
-    color: PlayingCardColor.Heart,
-    name: PlayingCardName.Jack,
+    color: CardColor.Heart,
+    name: CardName.Jack,
   },
   {
-    color: PlayingCardColor.Heart,
-    name: PlayingCardName.Queen,
+    color: CardColor.Heart,
+    name: CardName.Queen,
   },
   {
-    color: PlayingCardColor.Heart,
-    name: PlayingCardName.King,
+    color: CardColor.Heart,
+    name: CardName.King,
   },
   {
-    color: PlayingCardColor.Club,
-    name: PlayingCardName.Ace,
+    color: CardColor.Club,
+    name: CardName.Ace,
   },
   {
-    color: PlayingCardColor.Club,
-    name: PlayingCardName.Seven,
+    color: CardColor.Club,
+    name: CardName.Seven,
   },
   {
-    color: PlayingCardColor.Club,
-    name: PlayingCardName.Eight,
+    color: CardColor.Club,
+    name: CardName.Eight,
   },
   {
-    color: PlayingCardColor.Club,
-    name: PlayingCardName.Nine,
+    color: CardColor.Club,
+    name: CardName.Nine,
   },
   {
-    color: PlayingCardColor.Club,
-    name: PlayingCardName.Ten,
+    color: CardColor.Club,
+    name: CardName.Ten,
   },
   {
-    color: PlayingCardColor.Club,
-    name: PlayingCardName.Jack,
+    color: CardColor.Club,
+    name: CardName.Jack,
   },
   {
-    color: PlayingCardColor.Club,
-    name: PlayingCardName.Queen,
+    color: CardColor.Club,
+    name: CardName.Queen,
   },
   {
-    color: PlayingCardColor.Club,
-    name: PlayingCardName.King,
+    color: CardColor.Club,
+    name: CardName.King,
   },
 ];
 
-const getTrumpModeAssociatedToPlayingCardColor = (color: PlayingCardColor): TrumpMode => {
+const getTrumpModeAssociatedToCardColor = (color: CardColor): TrumpMode => {
   switch (color) {
-    case PlayingCardColor.Spade:
+    case CardColor.Spade:
       return TrumpMode.TrumpSpade;
-    case PlayingCardColor.Diamond:
+    case CardColor.Diamond:
       return TrumpMode.TrumpDiamond;
-    case PlayingCardColor.Heart:
+    case CardColor.Heart:
       return TrumpMode.TrumpHeart;
-    case PlayingCardColor.Club:
+    case CardColor.Club:
       return TrumpMode.TrumpClub;
   }
 };
 
 const getCardPoints = (card: Card, trumpMode: TrumpMode): number => {
   switch (card.name) {
-    case PlayingCardName.Ace:
+    case CardName.Ace:
       return trumpMode === TrumpMode.NoTrump ? 19 : 11;
-    case PlayingCardName.Nine:
-      return trumpMode === getTrumpModeAssociatedToPlayingCardColor(card.color) ? 14 : 0;
-    case PlayingCardName.Ten:
+    case CardName.Nine:
+      return trumpMode === getTrumpModeAssociatedToCardColor(card.color) ? 14 : 0;
+    case CardName.Ten:
       return 10;
-    case PlayingCardName.Jack:
-      return trumpMode === getTrumpModeAssociatedToPlayingCardColor(card.color) ? 20 : 2;
-    case PlayingCardName.Queen:
+    case CardName.Jack:
+      return trumpMode === getTrumpModeAssociatedToCardColor(card.color) ? 20 : 2;
+    case CardName.Queen:
       return 3;
-    case PlayingCardName.King:
+    case CardName.King:
       return 4;
     default:
       return 0;
   }
 };
-
-const getTurnOrder = (dealer: PlayerID): PlayerID[] => {
-  switch (dealer) {
-    case PlayerID.North:
-      return [PlayerID.North, PlayerID.West, PlayerID.South, PlayerID.East];
-    case PlayerID.East:
-      return [PlayerID.East, PlayerID.North, PlayerID.West, PlayerID.South];
-    case PlayerID.South:
-      return [PlayerID.South, PlayerID.East, PlayerID.North, PlayerID.West];
-    case PlayerID.West:
-      return [PlayerID.West, PlayerID.South, PlayerID.East, PlayerID.North];
-  }
-};
-
-const getDefaultPlayersCards = () => ({
-  [PlayerID.North]: [],
-  [PlayerID.East]: [],
-  [PlayerID.South]: [],
-  [PlayerID.West]: [],
-});
-
-const getDefaultPlayersCardsPlayedInCurrentTurn = () => ({
-  [PlayerID.North]: undefined,
-  [PlayerID.East]: undefined,
-  [PlayerID.South]: undefined,
-  [PlayerID.West]: undefined,
-});
 
 export const validExpectedPoints = [
   82,
@@ -321,6 +299,33 @@ export const validExpectedPoints = [
   250,
 ];
 
+const getTurnOrder = (dealer: PlayerID): PlayerID[] => {
+  switch (dealer) {
+    case PlayerID.North:
+      return [PlayerID.North, PlayerID.West, PlayerID.South, PlayerID.East];
+    case PlayerID.East:
+      return [PlayerID.East, PlayerID.North, PlayerID.West, PlayerID.South];
+    case PlayerID.South:
+      return [PlayerID.South, PlayerID.East, PlayerID.North, PlayerID.West];
+    case PlayerID.West:
+      return [PlayerID.West, PlayerID.South, PlayerID.East, PlayerID.North];
+  }
+};
+
+const getDefaultPlayersCards = () => ({
+  [PlayerID.North]: [],
+  [PlayerID.East]: [],
+  [PlayerID.South]: [],
+  [PlayerID.West]: [],
+});
+
+const getDefaultPlayersCardsPlayedInCurrentTurn = () => ({
+  [PlayerID.North]: undefined,
+  [PlayerID.East]: undefined,
+  [PlayerID.South]: undefined,
+  [PlayerID.West]: undefined,
+});
+
 export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>, setupData: object): GameState => {
   const howManyPlayers = Object.keys(PlayerID).length;
   const dealer = PlayerID.North;
@@ -342,6 +347,7 @@ export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>, setupData: ob
     dealer,
     nextDealer: dealer,
     turnOrder: getTurnOrder(dealer),
+    firstPlayerInCurrentTurn: dealer,
     howManyCardsToDealToEachPlayerBeforeTalking,
     howManyCardsToDealToEachPlayerAfterTalking,
     howManyPointsATeamMustReachToEndTheGame: 2000,
@@ -368,12 +374,16 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
     phases: {
       [PhaseID.Deal]: {
         onPhaseBegin: (G, ctx) => {
+          const newDealer = G.nextDealer;
+          const newNextDealer = getTurnOrder(newDealer)[1];
+
           G.playedCards = [];
           G.expectedPoints = undefined;
           G.trumpMode = undefined;
           G.playersCards = getDefaultPlayersCards();
-          G.dealer = G.nextDealer;
-          G.nextDealer = getTurnOrder(G.dealer)[1];
+          G.dealer = newDealer;
+          G.nextDealer = newNextDealer;
+          G.firstPlayerInCurrentTurn = newNextDealer;
           G.availableCards = ctx.random.Shuffle(getCards());
           G.turnOrder.forEach(playerID => {
             for (let i = 0; i < G.howManyCardsToDealToEachPlayerBeforeTalking; i++) {
@@ -385,7 +395,7 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
             }
           });
 
-          ctx.events.endTurn({ next: G.nextDealer });
+          ctx.events.endTurn({ next: newNextDealer });
           ctx.events.endPhase({ next: PhaseID.Talk });
         },
         allowedMoves: [],
@@ -442,6 +452,7 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
           }
 
           // @TODO count cards points
+          // @TODO set new firstPlayerInCurrentTurn depending on who won the last turn
           ctx.events.endPhase({ next: PhaseID.PlayCards });
         },
       },
