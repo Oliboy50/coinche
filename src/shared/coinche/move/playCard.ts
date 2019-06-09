@@ -11,7 +11,7 @@ export default (
   ctx: Context<PlayerID, PhaseID>,
   card: Card,
 ) => {
-  if (!card) {
+  if (!card || !G.playersCards[ctx.currentPlayer].includes(card)) {
     throw new Error();
   }
 

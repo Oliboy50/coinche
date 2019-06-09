@@ -3,6 +3,7 @@ import {
   CardName,
   GameState,
   getCards,
+  getTrumpModeAssociatedToCardColor,
   PhaseID,
   PlayerID,
   validTrumpModes,
@@ -42,6 +43,12 @@ describe(`move/playCard`, () => {
                 [PlayerID.South]: undefined,
                 [PlayerID.West]: undefined,
               },
+              playersCards: {
+                ...G.playersCards,
+                [PlayerID.North]: [
+                  card,
+                ],
+              },
             };
 
             const endTurn = jest.spyOn(ctx.events, 'endTurn');
@@ -59,7 +66,7 @@ describe(`move/playCard`, () => {
         });
       });
 
-      getCards().forEach((firstCardPlayed) => {
+      getCards().filter(({ color }) => getTrumpModeAssociatedToCardColor(color) !== trumpMode).forEach((firstCardPlayed) => {
         describe(`1 card with color ${firstCardPlayed.color} and name ${firstCardPlayed.name} has already been played in the current turn`, () => {
           beforeEach(() => {
             G = {
@@ -74,6 +81,71 @@ describe(`move/playCard`, () => {
             };
           });
 
+          getCards().filter(({ color }) => color === firstCardPlayed.color).forEach((card) => {
+            it(`can play card with color ${card.color} and name ${card.name}`, () => {
+              G = {
+                ...G,
+                playersCards: {
+                  ...G.playersCards,
+                  [PlayerID.North]: [
+                    card,
+                  ],
+                },
+              };
+              const endTurn = jest.spyOn(ctx.events, 'endTurn');
+
+              playCard(G, ctx, card);
+
+              expect(endTurn).toHaveBeenCalledTimes(1);
+              expect(G.playersCardsPlayedInCurrentTurn).toEqual({
+                [PlayerID.North]: card,
+                [PlayerID.East]: undefined,
+                [PlayerID.South]: undefined,
+                [PlayerID.West]: firstCardPlayed,
+              });
+            });
+          });
+
+          getCards().filter(({ color }) => color !== firstCardPlayed.color).forEach((card) => {
+            it(`can't play card with color ${card.color} and name ${card.name} if has at least 1 card with color ${firstCardPlayed.color}`, () => {
+              G = {
+                ...G,
+                playersCards: {
+                  ...G.playersCards,
+                  [PlayerID.North]: [
+                    card,
+                    { color: firstCardPlayed.color, name: CardName.Seven },
+                  ],
+                },
+              };
+              const endTurn = jest.spyOn(ctx.events, 'endTurn');
+
+              expect(() => {
+                playCard(G, ctx, card);
+              }).toThrow();
+
+              expect(endTurn).toHaveBeenCalledTimes(0);
+            });
+          });
+        });
+      });
+
+      getCards().filter(({ color }) => getTrumpModeAssociatedToCardColor(color) === trumpMode).forEach((firstCardPlayed) => {
+        describe(`1 card with color ${firstCardPlayed.color} and name ${firstCardPlayed.name} has already been played in the current turn`, () => {
+          beforeEach(() => {
+            G = {
+              ...G,
+              firstPlayerInCurrentTurn: PlayerID.West,
+              playersCardsPlayedInCurrentTurn: {
+                [PlayerID.North]: undefined,
+                [PlayerID.East]: undefined,
+                [PlayerID.South]: undefined,
+                [PlayerID.West]: firstCardPlayed,
+              },
+            };
+          });
+
+          // @TODO use isCardBeatingTheOtherCards to filter tests
           getCards().filter(({ color }) => color === firstCardPlayed.color).forEach((card) => {
             it(`can play card with color ${card.color} and name ${card.name}`, () => {
               G = {
