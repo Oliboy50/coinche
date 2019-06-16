@@ -14,7 +14,7 @@
     "eject": "react-scripts eject"
   },
   "engines": {
-    "node": "^11.12.0",
+    "node": "^12.4.0",
     "yarn": "^1.13.0"
   },
   "dependencies": {

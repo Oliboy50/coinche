@@ -4,12 +4,18 @@ import {
   GameState,
   getCards,
   getTrumpModeAssociatedToCardColor,
+  isCardBeatingTheOtherCards,
+  isSameCard,
   PhaseID,
   PlayerID,
+  TrumpMode,
   validTrumpModes,
 } from '../index';
 import playCard from './playCard';
-import { getDefaultContext, getDefaultGameState } from './__testHelper/__moves';
+import {
+  getDefaultContext,
+  getDefaultGameState,
+} from './__testHelper/__moves';
 
 describe(`move/playCard`, () => {
   let G: GameState;
@@ -23,7 +29,10 @@ describe(`move/playCard`, () => {
     };
   });
 
-  validTrumpModes.forEach((trumpMode) => {
+  // single color trump modes
+  validTrumpModes
+  .filter(trumpMode => [TrumpMode.TrumpSpade, TrumpMode.TrumpDiamond, TrumpMode.TrumpHeart, TrumpMode.TrumpClub].includes(trumpMode))
+  .forEach((trumpMode) => {
     describe(`trump mode ${trumpMode}`, () => {
       beforeEach(() => {
         G = {
@@ -32,8 +41,11 @@ describe(`move/playCard`, () => {
         };
       });
 
+      // no card have been played
       describe(`no card have been played in the current turn`, () => {
-        getCards().forEach((card) => {
+        // can play any cards
+        getCards()
+        .forEach((card) => {
           it(`can play card with color ${card.color} and name ${card.name}`, () => {
             G = {
               ...G,
@@ -66,7 +78,10 @@ describe(`move/playCard`, () => {
         });
       });
 
-      getCards().filter(({ color }) => getTrumpModeAssociatedToCardColor(color) !== trumpMode).forEach((firstCardPlayed) => {
+      // first card played was not trump
+      getCards()
+      .filter((card) => getTrumpModeAssociatedToCardColor(card.color) !== trumpMode && card.name === CardName.Ten)
+      .forEach((firstCardPlayed) => {
         describe(`1 card with color ${firstCardPlayed.color} and name ${firstCardPlayed.name} has already been played in the current turn`, () => {
           beforeEach(() => {
             G = {
@@ -81,7 +96,11 @@ describe(`move/playCard`, () => {
             };
           });
 
-          getCards().filter(({ color }) => color === firstCardPlayed.color).forEach((card) => {
+          // can play card with same color than first card
+          getCards()
+          .filter((card) => !isSameCard(card, firstCardPlayed))
+          .filter((card) => card.color === firstCardPlayed.color && card.name === CardName.Ace)
+          .forEach((card) => {
             it(`can play card with color ${card.color} and name ${card.name}`, () => {
               G = {
                 ...G,
@@ -106,7 +125,40 @@ describe(`move/playCard`, () => {
             });
           });
 
-          getCards().filter(({ color }) => color !== firstCardPlayed.color).forEach((card) => {
+          // can play card with other color than first card if player does not have a card with same color
+          getCards()
+          .filter((card) => !isSameCard(card, firstCardPlayed))
+          .filter((card) => card.color !== firstCardPlayed.color && card.name === CardName.Ace)
+          .forEach((card) => {
+            it(`can play card with color ${card.color} and name ${card.name} if does not have card with color ${firstCardPlayed.color}`, () => {
+              G = {
+                ...G,
+                playersCards: {
+                  ...G.playersCards,
+                  [PlayerID.North]: [
+                    card,
+                  ],
+                },
+              };
+              const endTurn = jest.spyOn(ctx.events, 'endTurn');
+
+              playCard(G, ctx, card);
+
+              expect(endTurn).toHaveBeenCalledTimes(1);
+              expect(G.playersCardsPlayedInCurrentTurn).toEqual({
+                [PlayerID.North]: card,
+                [PlayerID.East]: undefined,
+                [PlayerID.South]: undefined,
+                [PlayerID.West]: firstCardPlayed,
+              });
+            });
+          });
+
+          // can't play card with other color than first card if player has a card with same color
+          getCards()
+          .filter((card) => !isSameCard(card, firstCardPlayed))
+          .filter((card) => card.color !== firstCardPlayed.color && card.name === CardName.Ace)
+          .forEach((card) => {
             it(`can't play card with color ${card.color} and name ${card.name} if has at least 1 card with color ${firstCardPlayed.color}`, () => {
               G = {
                 ...G,
@@ -114,7 +166,7 @@ describe(`move/playCard`, () => {
                   ...G.playersCards,
                   [PlayerID.North]: [
                     card,
-                    { color: firstCardPlayed.color, name: CardName.Seven },
+                    { color: firstCardPlayed.color, name: CardName.Ace },
                   ],
                 },
               };
@@ -130,7 +182,10 @@ describe(`move/playCard`, () => {
         });
       });
 
-      getCards().filter(({ color }) => getTrumpModeAssociatedToCardColor(color) === trumpMode).forEach((firstCardPlayed) => {
+      // first card played was trump
+      getCards()
+      .filter((card) => getTrumpModeAssociatedToCardColor(card.color) === trumpMode)
+      .forEach((firstCardPlayed) => {
         describe(`1 card with color ${firstCardPlayed.color} and name ${firstCardPlayed.name} has already been played in the current turn`, () => {
           beforeEach(() => {
             G = {
@@ -145,8 +200,221 @@ describe(`move/playCard`, () => {
             };
           });
 
-          // @TODO use isCardBeatingTheOtherCards to filter tests
-          getCards().filter(({ color }) => color === firstCardPlayed.color).forEach((card) => {
+          // can play card with other color than first card if player does not have a card with same color
+          getCards()
+          .filter((card) => !isSameCard(card, firstCardPlayed))
+          .filter((card) => card.color !== firstCardPlayed.color && card.name === CardName.Ace)
+          .forEach((card) => {
+            it(`can play card with color ${card.color} and name ${card.name} if does not have card with color ${firstCardPlayed.color}`, () => {
+              G = {
+                ...G,
+                playersCards: {
+                  ...G.playersCards,
+                  [PlayerID.North]: [
+                    card,
+                  ],
+                },
+              };
+              const endTurn = jest.spyOn(ctx.events, 'endTurn');
+
+              playCard(G, ctx, card);
+
+              expect(endTurn).toHaveBeenCalledTimes(1);
+              expect(G.playersCardsPlayedInCurrentTurn).toEqual({
+                [PlayerID.North]: card,
+                [PlayerID.East]: undefined,
+                [PlayerID.South]: undefined,
+                [PlayerID.West]: firstCardPlayed,
+              });
+            });
+          });
+
+          // can't play card with other color than first card if player has a card with same color
+          getCards()
+          .filter((card) => !isSameCard(card, firstCardPlayed))
+          .filter((card) => card.color !== firstCardPlayed.color && card.name === CardName.Ace)
+          .forEach((card) => {
+            it(`can't play card with color ${card.color} and name ${card.name} if has at least 1 card with color ${firstCardPlayed.color}`, () => {
+              G = {
+                ...G,
+                playersCards: {
+                  ...G.playersCards,
+                  [PlayerID.North]: [
+                    card,
+                    { color: firstCardPlayed.color, name: CardName.Ace },
+                  ],
+                },
+              };
+              const endTurn = jest.spyOn(ctx.events, 'endTurn');
+
+              expect(() => {
+                playCard(G, ctx, card);
+              }).toThrow();
+
+              expect(endTurn).toHaveBeenCalledTimes(0);
+            });
+          });
+
+          // can play less powerful card with same color than first card if player does not have a more powerful card
+          getCards()
+          .filter((card) => !isSameCard(card, firstCardPlayed))
+          .filter((card) => card.color === firstCardPlayed.color && !isCardBeatingTheOtherCards(card, [firstCardPlayed], trumpMode, firstCardPlayed.color))
+          .forEach((card) => {
+            it(`can play card with color ${card.color} and name ${card.name} if does not have a more powerful card`, () => {
+              G = {
+                ...G,
+                playersCards: {
+                  ...G.playersCards,
+                  [PlayerID.North]: [
+                    card,
+                  ],
+                },
+              };
+              const endTurn = jest.spyOn(ctx.events, 'endTurn');
+
+              playCard(G, ctx, card);
+
+              expect(endTurn).toHaveBeenCalledTimes(1);
+              expect(G.playersCardsPlayedInCurrentTurn).toEqual({
+                [PlayerID.North]: card,
+                [PlayerID.East]: undefined,
+                [PlayerID.South]: undefined,
+                [PlayerID.West]: firstCardPlayed,
+              });
+            });
+          });
+
+          // can't play less powerful card with same color than first card if player has a more powerful card
+          getCards()
+          .filter((card) => !isSameCard(card, firstCardPlayed))
+          .filter((card) => card.color === firstCardPlayed.color && !isCardBeatingTheOtherCards(card, [firstCardPlayed], trumpMode, firstCardPlayed.color))
+          .forEach((card) => {
+            it(`can't play card with color ${card.color} and name ${card.name} if has a more powerful card`, () => {
+              G = {
+                ...G,
+                playersCards: {
+                  ...G.playersCards,
+                  [PlayerID.North]: [
+                    card,
+                    { color: firstCardPlayed.color, name: CardName.Jack },
+                  ],
+                },
+              };
+              const endTurn = jest.spyOn(ctx.events, 'endTurn');
+
+              expect(() => {
+                playCard(G, ctx, card);
+              }).toThrow();
+
+              expect(endTurn).toHaveBeenCalledTimes(0);
+            });
+          });
+
+          // can play more powerful card with same color than first card
+          getCards()
+          .filter((card) => !isSameCard(card, firstCardPlayed))
+          .filter((card) => isCardBeatingTheOtherCards(card, [firstCardPlayed], trumpMode, firstCardPlayed.color))
+          .forEach((card) => {
+            it(`can play card with color ${card.color} and name ${card.name}`, () => {
+              G = {
+                ...G,
+                playersCards: {
+                  ...G.playersCards,
+                  [PlayerID.North]: [
+                    card,
+                  ],
+                },
+              };
+              const endTurn = jest.spyOn(ctx.events, 'endTurn');
+
+              playCard(G, ctx, card);
+
+              expect(endTurn).toHaveBeenCalledTimes(1);
+              expect(G.playersCardsPlayedInCurrentTurn).toEqual({
+                [PlayerID.North]: card,
+                [PlayerID.East]: undefined,
+                [PlayerID.South]: undefined,
+                [PlayerID.West]: firstCardPlayed,
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
+  // trump mode "NoTrump"
+  validTrumpModes
+  .filter(trumpMode => trumpMode === TrumpMode.NoTrump)
+  .forEach((trumpMode) => {
+    describe(`trump mode ${trumpMode}`, () => {
+      beforeEach(() => {
+        G = {
+          ...G,
+          trumpMode,
+        };
+      });
+
+      // no card have been played
+      describe(`no card have been played in the current turn`, () => {
+        // can play any cards
+        getCards()
+        .forEach((card) => {
+          it(`can play card with color ${card.color} and name ${card.name}`, () => {
+            G = {
+              ...G,
+              playersCardsPlayedInCurrentTurn: {
+                [PlayerID.North]: undefined,
+                [PlayerID.East]: undefined,
+                [PlayerID.South]: undefined,
+                [PlayerID.West]: undefined,
+              },
+              playersCards: {
+                ...G.playersCards,
+                [PlayerID.North]: [
+                  card,
+                ],
+              },
+            };
+
+            const endTurn = jest.spyOn(ctx.events, 'endTurn');
+
+            playCard(G, ctx, card);
+
+            expect(endTurn).toHaveBeenCalledTimes(1);
+            expect(G.playersCardsPlayedInCurrentTurn).toEqual({
+              [PlayerID.North]: card,
+              [PlayerID.East]: undefined,
+              [PlayerID.South]: undefined,
+              [PlayerID.West]: undefined,
+            });
+          });
+        });
+      });
+
+      // first card have been played
+      getCards()
+      .filter((card) => card.name === CardName.Ten)
+      .forEach((firstCardPlayed) => {
+        describe(`1 card with color ${firstCardPlayed.color} and name ${firstCardPlayed.name} has already been played in the current turn`, () => {
+          beforeEach(() => {
+            G = {
+              ...G,
+              firstPlayerInCurrentTurn: PlayerID.West,
+              playersCardsPlayedInCurrentTurn: {
+                [PlayerID.North]: undefined,
+                [PlayerID.East]: undefined,
+                [PlayerID.South]: undefined,
+                [PlayerID.West]: firstCardPlayed,
+              },
+            };
+          });
+
+          // can play card with same color than first card
+          getCards()
+          .filter((card) => !isSameCard(card, firstCardPlayed))
+          .filter((card) => card.color === firstCardPlayed.color && card.name === CardName.Ace)
+          .forEach((card) => {
             it(`can play card with color ${card.color} and name ${card.name}`, () => {
               G = {
                 ...G,
@@ -171,7 +439,40 @@ describe(`move/playCard`, () => {
             });
           });
 
-          getCards().filter(({ color }) => color !== firstCardPlayed.color).forEach((card) => {
+          // can play card with other color than first card if player does not have a card with same color
+          getCards()
+          .filter((card) => !isSameCard(card, firstCardPlayed))
+          .filter((card) => card.color !== firstCardPlayed.color && card.name === CardName.Ace)
+          .forEach((card) => {
+            it(`can play card with color ${card.color} and name ${card.name} if does not have card with color ${firstCardPlayed.color}`, () => {
+              G = {
+                ...G,
+                playersCards: {
+                  ...G.playersCards,
+                  [PlayerID.North]: [
+                    card,
+                  ],
+                },
+              };
+              const endTurn = jest.spyOn(ctx.events, 'endTurn');
+
+              playCard(G, ctx, card);
+
+              expect(endTurn).toHaveBeenCalledTimes(1);
+              expect(G.playersCardsPlayedInCurrentTurn).toEqual({
+                [PlayerID.North]: card,
+                [PlayerID.East]: undefined,
+                [PlayerID.South]: undefined,
+                [PlayerID.West]: firstCardPlayed,
+              });
+            });
+          });
+
+          // can't play card with other color than first card if player has a card with same color
+          getCards()
+          .filter((card) => !isSameCard(card, firstCardPlayed))
+          .filter((card) => card.color !== firstCardPlayed.color && card.name === CardName.Ace)
+          .forEach((card) => {
             it(`can't play card with color ${card.color} and name ${card.name} if has at least 1 card with color ${firstCardPlayed.color}`, () => {
               G = {
                 ...G,
@@ -179,7 +480,7 @@ describe(`move/playCard`, () => {
                   ...G.playersCards,
                   [PlayerID.North]: [
                     card,
-                    { color: firstCardPlayed.color, name: CardName.Seven },
+                    { color: firstCardPlayed.color, name: CardName.Ace },
                   ],
                 },
               };

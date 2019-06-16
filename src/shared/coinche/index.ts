@@ -10,33 +10,41 @@ import playCard from './move/playCard';
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 export enum CardColor {
-  Spade,
-  Diamond,
-  Heart,
-  Club,
+  Spade = 'Spade',
+  Diamond = 'Diamond',
+  Heart = 'Heart',
+  Club = 'Club',
 }
-export const validCardColor: number[] = Object.values(CardColor).filter(k => typeof k === 'number');
+export const validCardColor: CardColor[] = Object.values(CardColor);
 
 export enum CardName {
-  Ace,
-  Seven,
-  Eight,
-  Nine,
-  Ten,
-  Jack,
-  Queen,
-  King,
+  Ace = 'Ace',
+  Seven = 'Seven',
+  Eight = 'Eight',
+  Nine = 'Nine',
+  Ten = 'Ten',
+  Jack = 'Jack',
+  Queen = 'Queen',
+  King = 'King',
 }
-export const validCardName: number[] = Object.values(CardName).filter(k => typeof k === 'number');
+export const validCardName: CardName[] = Object.values(CardName);
+
+export interface Card {
+  color: CardColor;
+  name: CardName;
+}
+export const isSameCard = (card: Card, otherCard: Card): boolean => {
+  return card.color === otherCard.color && card.name === otherCard.name;
+};
 
 export enum TrumpMode {
-  TrumpSpade,
-  TrumpDiamond,
-  TrumpHeart,
-  TrumpClub,
-  NoTrump,
+  TrumpSpade = 'TrumpSpade',
+  TrumpDiamond = 'TrumpDiamond',
+  TrumpHeart = 'TrumpHeart',
+  TrumpClub = 'TrumpClub',
+  NoTrump = 'NoTrump',
 }
-export const validTrumpModes: number[] = Object.values(TrumpMode).filter(k => typeof k === 'number');
+export const validTrumpModes: TrumpMode[] = Object.values(TrumpMode);
 
 export enum PlayerID {
   North = '0',
@@ -44,22 +52,15 @@ export enum PlayerID {
   South = '2',
   West = '3',
 }
-
 export enum PhaseID {
   Deal = 'Deal',
   Talk = 'Talk',
   PlayCards = 'PlayCards',
   CountPoints = 'CountPoints',
 }
-
 export enum TeamID {
   NorthSouth = 'NorthSouth',
   EastWest = 'EastWest',
-}
-
-export interface Card {
-  color: CardColor;
-  name: CardName;
 }
 
 export interface GameState {
@@ -79,22 +80,21 @@ export interface GameState {
   numberOfSuccessiveSkipSaid: number;
   dealer: PlayerID;
   nextDealer: PlayerID;
-  expectedPoints?: number;
-  trumpMode?: TrumpMode;
+  expectedPoints: number;
+  trumpMode: TrumpMode;
 
   // turn state
   firstPlayerInCurrentTurn: PlayerID;
   playersCardsPlayedInCurrentTurn: Record<PlayerID, Card | undefined>;
+}
+export type GameStatePlayerView = Omit<GameState, 'playersCards'> & {
+  playerCards: Card[];
 }
 
 export interface Moves {
   saySkip: () => void;
   sayTake: (expectedPoints: number, mode: TrumpMode) => void;
   playCard: (card: Card) => void;
-}
-
-export type GameStatePlayerView = Omit<GameState, 'playersCards'> & {
-  playerCards: Card[];
 }
 
 export const getCards = (): Card[] => [
@@ -253,116 +253,62 @@ export const getCardColorAssociatedToTrumpMode = (trumpMode: TrumpMode): CardCol
   }
 };
 
-const isCardBeatingTheOtherCards = (trumpMode: TrumpMode, card: Card, otherCards: Card[]): boolean => {
+export const isCardBeatingTheOtherCards = (card: Card, otherCards: Card[], trumpMode: TrumpMode, firstCardColor: CardColor): boolean => {
+  if (!otherCards.length) {
+    return true;
+  }
+
   const cardColorAssociatedToTrumpMode = getCardColorAssociatedToTrumpMode(trumpMode);
 
-  switch (card.name) {
-    case CardName.Ace:
-      if (
-        card.color === cardColorAssociatedToTrumpMode
-        && otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode || ![CardName.Nine, CardName.Jack].includes(name))
-      ) {
+  if (card.color === cardColorAssociatedToTrumpMode) {
+    switch (card.name) {
+      case CardName.Ace:
+        return otherCards.every(({color, name}) => color !== cardColorAssociatedToTrumpMode || ![CardName.Nine, CardName.Jack].includes(name));
+      case CardName.Seven:
+        return otherCards.every(({color}) => color !== cardColorAssociatedToTrumpMode);
+      case CardName.Eight:
+        return otherCards.every(({color, name}) => color !== cardColorAssociatedToTrumpMode || name === CardName.Seven);
+      case CardName.Nine:
+        return otherCards.every(({color, name}) => color !== cardColorAssociatedToTrumpMode || name !== CardName.Jack);
+      case CardName.Ten:
+        return otherCards.every(({color, name}) => color !== cardColorAssociatedToTrumpMode || ![CardName.Ace, CardName.Nine, CardName.Jack].includes(name));
+      case CardName.Jack:
         return true;
-      }
-      if (
-        card.color !== cardColorAssociatedToTrumpMode
-        && otherCards.every(({ color }) => color !== cardColorAssociatedToTrumpMode)
-      ) {
-        return true;
-      }
-      return false;
-    case CardName.Seven:
-      if (
-        card.color === cardColorAssociatedToTrumpMode
-        && otherCards.every(({ color }) => color !== cardColorAssociatedToTrumpMode)
-      ) {
-        return true;
-      }
-      return false;
-    case CardName.Eight:
-      if (
-        card.color === cardColorAssociatedToTrumpMode
-        && otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode || name === CardName.Seven)
-      ) {
-        return true;
-      }
-      if (
-        card.color !== cardColorAssociatedToTrumpMode
-        && otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && name === CardName.Seven)
-      ) {
-        return true;
-      }
-      return false;
-    case CardName.Nine:
-      if (
-        card.color === cardColorAssociatedToTrumpMode
-        && otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode || name !== CardName.Jack)
-      ) {
-        return true;
-      }
-      if (
-        card.color !== cardColorAssociatedToTrumpMode
-        && otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && [CardName.Seven, CardName.Eight].includes(name))
-      ) {
-        return true;
-      }
-      return false;
-    case CardName.Ten:
-      if (
-        card.color === cardColorAssociatedToTrumpMode
-        && otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode || ![CardName.Ace, CardName.Nine, CardName.Jack].includes(name))
-      ) {
-        return true;
-      }
-      if (
-        card.color !== cardColorAssociatedToTrumpMode
-        && otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && name !== CardName.Ace)
-      ) {
-        return true;
-      }
-      return false;
-    case CardName.Jack:
-      if (card.color === cardColorAssociatedToTrumpMode) {
-        return true;
-      }
-      if (
-        card.color !== cardColorAssociatedToTrumpMode
-        && otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && [CardName.Seven, CardName.Eight, CardName.Nine].includes(name))
-      ) {
-        return true;
-      }
-      return false;
-    case CardName.Queen:
-      if (
-        card.color === cardColorAssociatedToTrumpMode
-        && otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode || ![CardName.King, CardName.Ten, CardName.Ace, CardName.Nine, CardName.Jack].includes(name))
-      ) {
-        return true;
-      }
-      if (
-        card.color !== cardColorAssociatedToTrumpMode
-        && otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && [CardName.Seven, CardName.Eight, CardName.Nine, CardName.Jack].includes(name))
-      ) {
-        return true;
-      }
-      return false;
-    case CardName.King:
-      if (
-        card.color === cardColorAssociatedToTrumpMode
-        && otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode || ![CardName.Ten, CardName.Ace, CardName.Nine, CardName.Jack].includes(name))
-      ) {
-        return true;
-      }
-      if (
-        card.color !== cardColorAssociatedToTrumpMode
-        && otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && [CardName.Seven, CardName.Eight, CardName.Nine, CardName.Jack].includes(name))
-      ) {
-        return true;
-      }
-      return false;
+      case CardName.Queen:
+        return otherCards.every(({color, name}) => color !== cardColorAssociatedToTrumpMode || [CardName.Seven, CardName.Eight].includes(name));
+      case CardName.King:
+        return otherCards.every(({color, name}) => color !== cardColorAssociatedToTrumpMode || [CardName.Seven, CardName.Eight, CardName.Queen].includes(name));
+    }
   }
+
+  if (card.color !== cardColorAssociatedToTrumpMode) {
+    if (card.color !== firstCardColor) {
+      return false;
+    }
+
+    switch (card.name) {
+      case CardName.Ace:
+        return otherCards.every(({ color }) => color !== cardColorAssociatedToTrumpMode);
+      case CardName.Seven:
+        return false;
+      case CardName.Eight:
+        return otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && name === CardName.Seven);
+      case CardName.Nine:
+        return otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && [CardName.Seven, CardName.Eight].includes(name));
+      case CardName.Ten:
+        return otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && name !== CardName.Ace);
+      case CardName.Jack:
+        return otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && [CardName.Seven, CardName.Eight, CardName.Nine].includes(name));
+      case CardName.Queen:
+        return otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && ![CardName.King, CardName.Ten, CardName.Ace].includes(name));
+      case CardName.King:
+        return otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && ![CardName.Ten, CardName.Ace].includes(name));
+    }
+  }
+
+  throw new Error();
 };
-const getCardPoints = (trumpMode: TrumpMode, card: Card): number => {
+const getCardPoints = (card: Card, trumpMode: TrumpMode): number => {
   switch (card.name) {
     case CardName.Ace:
       return trumpMode === TrumpMode.NoTrump ? 19 : 11;
@@ -430,21 +376,18 @@ const getTurnOrder = (dealer: PlayerID): PlayerID[] => {
       return [PlayerID.West, PlayerID.South, PlayerID.East, PlayerID.North];
   }
 };
-
 const getDefaultPlayersCards = () => ({
   [PlayerID.North]: [],
   [PlayerID.East]: [],
   [PlayerID.South]: [],
   [PlayerID.West]: [],
 });
-
 const getDefaultPlayersCardsPlayedInCurrentTurn = () => ({
   [PlayerID.North]: undefined,
   [PlayerID.East]: undefined,
   [PlayerID.South]: undefined,
   [PlayerID.West]: undefined,
 });
-
 export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>, setupData: object): GameState => {
   const howManyPlayers = Object.keys(PlayerID).length;
   const dealer = PlayerID.North;
@@ -467,6 +410,8 @@ export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>, setupData: ob
     nextDealer: dealer,
     turnOrder: getTurnOrder(dealer),
     firstPlayerInCurrentTurn: dealer,
+    trumpMode: TrumpMode.NoTrump,
+    expectedPoints: 0,
     howManyCardsToDealToEachPlayerBeforeTalking,
     howManyCardsToDealToEachPlayerAfterTalking,
     howManyPointsATeamMustReachToEndTheGame: 2000,
@@ -497,8 +442,8 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
           const newNextDealer = getTurnOrder(newDealer)[1];
 
           G.playedCards = [];
-          G.expectedPoints = undefined;
-          G.trumpMode = undefined;
+          G.expectedPoints = 0;
+          G.trumpMode = TrumpMode.NoTrump;
           G.playersCards = getDefaultPlayersCards();
           G.dealer = newDealer;
           G.nextDealer = newNextDealer;
@@ -525,7 +470,7 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
           if (G.numberOfSuccessiveSkipSaid >= G.howManyPlayers) {
             return { next: PhaseID.Deal };
           }
-          if (G.expectedPoints && G.trumpMode && G.numberOfSuccessiveSkipSaid >= (G.howManyPlayers - 1)) {
+          if (G.expectedPoints && G.numberOfSuccessiveSkipSaid >= (G.howManyPlayers - 1)) {
             return { next: PhaseID.PlayCards };
           }
 
@@ -548,7 +493,7 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
             }
           });
         },
-        allowedMoves: [],
+        allowedMoves: ['playCard'],
         endPhaseIf: (G, ctx) => {
           if (Object.values(G.playersCardsPlayedInCurrentTurn).every( card => typeof card !== 'undefined')) {
             return { next: PhaseID.CountPoints };
