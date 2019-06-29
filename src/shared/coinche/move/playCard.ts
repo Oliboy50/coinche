@@ -6,7 +6,7 @@ import {
   Card,
   TrumpMode,
   getCardColorAssociatedToTrumpMode,
-  isCardBeatingTheOtherCards,
+  isCardBeatingTheOtherCards, getPlayerPartner, isSameCard, getWinningCard,
 } from '../index';
 
 export default (
@@ -22,7 +22,8 @@ export default (
   if (G.playersCardsPlayedInCurrentTurn[G.firstPlayerInCurrentTurn]) {
     const firstCardColor = G.playersCardsPlayedInCurrentTurn[G.firstPlayerInCurrentTurn]!.color;
 
-    // must play same color if possible
+    // if player has a card with same color than first card played
+    // can't play a card with other color
     if (
       card.color !== firstCardColor
       && G.playersCards[ctx.currentPlayer].some(c => c.color === firstCardColor)
@@ -34,14 +35,31 @@ export default (
     const firstCardColorIsAssociatedToTrumpMode = firstCardColor === getCardColorAssociatedToTrumpMode(G.trumpMode);
     const otherCards = Object.values(G.playersCardsPlayedInCurrentTurn).filter(c => c !== undefined) as Card[];
 
-    // if single color trump mode, must play more powerful card if possible
+    // if single color trump mode
+    // if player has a more powerful card
+    // if player is trying to play a less powerful card
     if (
       isSingleColorTrumpMode
-      && firstCardColorIsAssociatedToTrumpMode
-      && !isCardBeatingTheOtherCards(card, otherCards, G.trumpMode, firstCardColor)
       && G.playersCards[ctx.currentPlayer].some(c => isCardBeatingTheOtherCards(c, otherCards, G.trumpMode, firstCardColor))
+      && !isCardBeatingTheOtherCards(card, otherCards, G.trumpMode, firstCardColor)
     ) {
-      throw new Error();
+      // if first card played is trump
+      if (firstCardColorIsAssociatedToTrumpMode) {
+        throw new Error();
+      }
+
+      const playerPartnerCard = G.playersCardsPlayedInCurrentTurn[getPlayerPartner(ctx.currentPlayer)];
+      const currentWinningCard = getWinningCard(otherCards, G.trumpMode, firstCardColor);
+      const currentWinningCardIsFromPartner = Boolean(playerPartnerCard && isSameCard(playerPartnerCard, currentWinningCard));
+
+      // if current winning card is not from partner
+      // if player does not have a card with same color than first card
+      if (
+        !currentWinningCardIsFromPartner
+        && !G.playersCards[ctx.currentPlayer].some(c => c.color === firstCardColor)
+      ) {
+        throw new Error();
+      }
     }
   }
 

@@ -1,7 +1,8 @@
 import { Context } from 'boardgame.io/core';
 import {
+  CardColor,
   CardName,
-  GameState,
+  GameState, getCardColorAssociatedToTrumpMode,
   getCards,
   getTrumpModeAssociatedToCardColor,
   isCardBeatingTheOtherCards,
@@ -125,7 +126,8 @@ describe(`move/playCard`, () => {
             });
           });
 
-          // can play card with other color than first card if player does not have a card with same color
+          // if player does not have a card with same color than first card
+          // can play card with other color
           getCards()
           .filter((card) => !isSameCard(card, firstCardPlayed))
           .filter((card) => card.color !== firstCardPlayed.color && card.name === CardName.Ace)
@@ -154,7 +156,8 @@ describe(`move/playCard`, () => {
             });
           });
 
-          // can't play card with other color than first card if player has a card with same color
+          // if player has a card with same color than first card
+          // can't play card with other color
           getCards()
           .filter((card) => !isSameCard(card, firstCardPlayed))
           .filter((card) => card.color !== firstCardPlayed.color && card.name === CardName.Ace)
@@ -177,6 +180,52 @@ describe(`move/playCard`, () => {
               }).toThrow();
 
               expect(endTurn).toHaveBeenCalledTimes(0);
+            });
+          });
+
+          // if current winning card is not from partner
+          // if player does not have a card with same color than first card
+          // if player has a more powerful card
+          describe(`if current winning card is not from partner
+        if player does not have a card with same color than first card
+        if player has a more powerful card`, () => {
+            beforeEach(() => {
+              G = {
+                ...G,
+                playersCards: {
+                  ...G.playersCards,
+                  [PlayerID.North]: [
+                    { color: getCardColorAssociatedToTrumpMode(trumpMode)!, name: CardName.Jack },
+                  ],
+                },
+              };
+            });
+
+            // can't play a less powerful card
+            getCards()
+            .filter((card) => !isSameCard(card, firstCardPlayed))
+            .filter((card) => card.color !== firstCardPlayed.color)
+            .filter((card) => !isCardBeatingTheOtherCards(card, [firstCardPlayed], trumpMode, firstCardPlayed.color))
+            .forEach((card) => {
+              it(`can't play card with color ${card.color} and name ${card.name}`, () => {
+                G = {
+                  ...G,
+                  playersCards: {
+                    ...G.playersCards,
+                    [PlayerID.North]: [
+                      ...G.playersCards[PlayerID.North],
+                      card,
+                    ],
+                  },
+                };
+                const endTurn = jest.spyOn(ctx.events, 'endTurn');
+
+                expect(() => {
+                  playCard(G, ctx, card);
+                }).toThrow();
+
+                expect(endTurn).toHaveBeenCalledTimes(0);
+              });
             });
           });
         });
@@ -200,7 +249,37 @@ describe(`move/playCard`, () => {
             };
           });
 
-          // can play card with other color than first card if player does not have a card with same color
+          // can play more powerful card
+          getCards()
+          .filter((card) => !isSameCard(card, firstCardPlayed))
+          .filter((card) => isCardBeatingTheOtherCards(card, [firstCardPlayed], trumpMode, firstCardPlayed.color))
+          .forEach((card) => {
+            it(`can play card with color ${card.color} and name ${card.name}`, () => {
+              G = {
+                ...G,
+                playersCards: {
+                  ...G.playersCards,
+                  [PlayerID.North]: [
+                    card,
+                  ],
+                },
+              };
+              const endTurn = jest.spyOn(ctx.events, 'endTurn');
+
+              playCard(G, ctx, card);
+
+              expect(endTurn).toHaveBeenCalledTimes(1);
+              expect(G.playersCardsPlayedInCurrentTurn).toEqual({
+                [PlayerID.North]: card,
+                [PlayerID.East]: undefined,
+                [PlayerID.South]: undefined,
+                [PlayerID.West]: firstCardPlayed,
+              });
+            });
+          });
+
+          // if player does not have a card with same color than first card
+          // can play card with other color
           getCards()
           .filter((card) => !isSameCard(card, firstCardPlayed))
           .filter((card) => card.color !== firstCardPlayed.color && card.name === CardName.Ace)
@@ -229,7 +308,8 @@ describe(`move/playCard`, () => {
             });
           });
 
-          // can't play card with other color than first card if player has a card with same color
+          // if player has a card with same color than first card
+          // can't play card with other color
           getCards()
           .filter((card) => !isSameCard(card, firstCardPlayed))
           .filter((card) => card.color !== firstCardPlayed.color && card.name === CardName.Ace)
@@ -255,7 +335,8 @@ describe(`move/playCard`, () => {
             });
           });
 
-          // can play less powerful card with same color than first card if player does not have a more powerful card
+          // if player does not have a more powerful card
+          // can play less powerful card
           getCards()
           .filter((card) => !isSameCard(card, firstCardPlayed))
           .filter((card) => card.color === firstCardPlayed.color && !isCardBeatingTheOtherCards(card, [firstCardPlayed], trumpMode, firstCardPlayed.color))
@@ -284,7 +365,8 @@ describe(`move/playCard`, () => {
             });
           });
 
-          // can't play less powerful card with same color than first card if player has a more powerful card
+          // if player has a more powerful card
+          // can't play less powerful card
           getCards()
           .filter((card) => !isSameCard(card, firstCardPlayed))
           .filter((card) => card.color === firstCardPlayed.color && !isCardBeatingTheOtherCards(card, [firstCardPlayed], trumpMode, firstCardPlayed.color))
@@ -307,35 +389,6 @@ describe(`move/playCard`, () => {
               }).toThrow();
 
               expect(endTurn).toHaveBeenCalledTimes(0);
-            });
-          });
-
-          // can play more powerful card with same color than first card
-          getCards()
-          .filter((card) => !isSameCard(card, firstCardPlayed))
-          .filter((card) => isCardBeatingTheOtherCards(card, [firstCardPlayed], trumpMode, firstCardPlayed.color))
-          .forEach((card) => {
-            it(`can play card with color ${card.color} and name ${card.name}`, () => {
-              G = {
-                ...G,
-                playersCards: {
-                  ...G.playersCards,
-                  [PlayerID.North]: [
-                    card,
-                  ],
-                },
-              };
-              const endTurn = jest.spyOn(ctx.events, 'endTurn');
-
-              playCard(G, ctx, card);
-
-              expect(endTurn).toHaveBeenCalledTimes(1);
-              expect(G.playersCardsPlayedInCurrentTurn).toEqual({
-                [PlayerID.North]: card,
-                [PlayerID.East]: undefined,
-                [PlayerID.South]: undefined,
-                [PlayerID.West]: firstCardPlayed,
-              });
             });
           });
         });
@@ -439,7 +492,8 @@ describe(`move/playCard`, () => {
             });
           });
 
-          // can play card with other color than first card if player does not have a card with same color
+          // if player does not have a card with same color than first card
+          // can play card with other color
           getCards()
           .filter((card) => !isSameCard(card, firstCardPlayed))
           .filter((card) => card.color !== firstCardPlayed.color && card.name === CardName.Ace)
@@ -468,7 +522,8 @@ describe(`move/playCard`, () => {
             });
           });
 
-          // can't play card with other color than first card if player has a card with same color
+          // if player has a card with same color than first card
+          // can't play card with other color
           getCards()
           .filter((card) => !isSameCard(card, firstCardPlayed))
           .filter((card) => card.color !== firstCardPlayed.color && card.name === CardName.Ace)

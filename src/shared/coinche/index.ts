@@ -97,6 +97,43 @@ export interface Moves {
   playCard: (card: Card) => void;
 }
 
+export const getTrumpModeAssociatedToCardColor = (color: CardColor): TrumpMode => {
+  switch (color) {
+    case CardColor.Spade:
+      return TrumpMode.TrumpSpade;
+    case CardColor.Diamond:
+      return TrumpMode.TrumpDiamond;
+    case CardColor.Heart:
+      return TrumpMode.TrumpHeart;
+    case CardColor.Club:
+      return TrumpMode.TrumpClub;
+  }
+};
+export const getCardColorAssociatedToTrumpMode = (trumpMode: TrumpMode): CardColor | undefined => {
+  switch (trumpMode) {
+    case TrumpMode.TrumpSpade:
+      return CardColor.Spade;
+    case TrumpMode.TrumpDiamond:
+      return CardColor.Diamond;
+    case TrumpMode.TrumpHeart:
+      return CardColor.Heart;
+    case TrumpMode.TrumpClub:
+      return CardColor.Club;
+  }
+};
+
+export const getPlayerPartner = (player: PlayerID): PlayerID => {
+  switch (player) {
+    case PlayerID.North:
+      return PlayerID.South;
+    case PlayerID.East:
+      return PlayerID.West;
+    case PlayerID.South:
+      return PlayerID.North;
+    case PlayerID.West:
+      return PlayerID.East;
+  }
+};
 export const getCards = (): Card[] => [
   {
     color: CardColor.Spade,
@@ -228,31 +265,6 @@ export const getCards = (): Card[] => [
   },
 ];
 
-export const getTrumpModeAssociatedToCardColor = (color: CardColor): TrumpMode => {
-  switch (color) {
-    case CardColor.Spade:
-      return TrumpMode.TrumpSpade;
-    case CardColor.Diamond:
-      return TrumpMode.TrumpDiamond;
-    case CardColor.Heart:
-      return TrumpMode.TrumpHeart;
-    case CardColor.Club:
-      return TrumpMode.TrumpClub;
-  }
-};
-export const getCardColorAssociatedToTrumpMode = (trumpMode: TrumpMode): CardColor | undefined => {
-  switch (trumpMode) {
-    case TrumpMode.TrumpSpade:
-      return CardColor.Spade;
-    case TrumpMode.TrumpDiamond:
-      return CardColor.Diamond;
-    case TrumpMode.TrumpHeart:
-      return CardColor.Heart;
-    case TrumpMode.TrumpClub:
-      return CardColor.Club;
-  }
-};
-
 export const isCardBeatingTheOtherCards = (card: Card, otherCards: Card[], trumpMode: TrumpMode, firstCardColor: CardColor): boolean => {
   if (!otherCards.length) {
     return true;
@@ -307,6 +319,21 @@ export const isCardBeatingTheOtherCards = (card: Card, otherCards: Card[], trump
   }
 
   throw new Error();
+};
+export const getWinningCard = (cards: Card[], trumpMode: TrumpMode, firstCardColor: CardColor): Card => {
+  if (!cards.length) {
+    throw new Error();
+  }
+
+  let winningCard: Card;
+  cards.forEach((card) => {
+    if (isCardBeatingTheOtherCards(card, cards.filter(c => isSameCard(c, card)), trumpMode, firstCardColor)) {
+      winningCard = card;
+    }
+  });
+
+  // @ts-ignore
+  return winningCard;
 };
 const getCardPoints = (card: Card, trumpMode: TrumpMode): number => {
   switch (card.name) {
