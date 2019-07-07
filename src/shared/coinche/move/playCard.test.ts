@@ -1,6 +1,5 @@
 import { Context } from 'boardgame.io/core';
 import {
-  CardColor,
   CardName,
   GameState, getCardColorAssociatedToTrumpMode,
   getCards,

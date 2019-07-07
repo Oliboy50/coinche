@@ -7,8 +7,6 @@ import saySkip from './move/saySkip';
 import sayTake from './move/sayTake';
 import playCard from './move/playCard';
 
-type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-
 export enum CardColor {
   Spade = 'Spade',
   Diamond = 'Diamond',
@@ -33,7 +31,11 @@ export interface Card {
   color: CardColor;
   name: CardName;
 }
-export const isSameCard = (card: Card, otherCard: Card): boolean => {
+export const isSameCard = (card: Card | undefined, otherCard: Card | undefined): boolean => {
+  if (!card || !otherCard) {
+    return false;
+  }
+
   return card.color === otherCard.color && card.name === otherCard.name;
 };
 
@@ -52,6 +54,8 @@ export enum PlayerID {
   South = '2',
   West = '3',
 }
+export const validPlayerIDs: PlayerID[] = Object.values(PlayerID);
+
 export enum PhaseID {
   Deal = 'Deal',
   Talk = 'Talk',
@@ -76,6 +80,7 @@ export interface GameState {
   availableCards: Card[];
   playedCards: Card[];
   playersCards: Record<PlayerID, Card[]>;
+  wonTeamsCards: Record<TeamID, Card[]>;
   turnOrder: PlayerID[];
   numberOfSuccessiveSkipSaid: number;
   dealer: PlayerID;
@@ -134,6 +139,7 @@ export const getPlayerPartner = (player: PlayerID): PlayerID => {
       return PlayerID.East;
   }
 };
+
 export const getCards = (): Card[] => [
   {
     color: CardColor.Spade,
@@ -293,33 +299,32 @@ export const isCardBeatingTheOtherCards = (card: Card, otherCards: Card[], trump
     }
   }
 
-  if (card.color !== cardColorAssociatedToTrumpMode) {
-    if (card.color !== firstCardColor) {
-      return false;
-    }
+  if (card.color !== firstCardColor) {
+    return false;
+  }
 
-    switch (card.name) {
-      case CardName.Ace:
-        return otherCards.every(({ color }) => color !== cardColorAssociatedToTrumpMode);
-      case CardName.Seven:
-        return false;
-      case CardName.Eight:
-        return otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && name === CardName.Seven);
-      case CardName.Nine:
-        return otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && [CardName.Seven, CardName.Eight].includes(name));
-      case CardName.Ten:
-        return otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && name !== CardName.Ace);
-      case CardName.Jack:
-        return otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && [CardName.Seven, CardName.Eight, CardName.Nine].includes(name));
-      case CardName.Queen:
-        return otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && ![CardName.King, CardName.Ten, CardName.Ace].includes(name));
-      case CardName.King:
-        return otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && ![CardName.Ten, CardName.Ace].includes(name));
-    }
+  switch (card.name) {
+    case CardName.Ace:
+      return otherCards.every(({ color }) => color !== cardColorAssociatedToTrumpMode);
+    case CardName.Seven:
+      return false;
+    case CardName.Eight:
+      return otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && name === CardName.Seven);
+    case CardName.Nine:
+      return otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && [CardName.Seven, CardName.Eight].includes(name));
+    case CardName.Ten:
+      return otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && name !== CardName.Ace);
+    case CardName.Jack:
+      return otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && [CardName.Seven, CardName.Eight, CardName.Nine].includes(name));
+    case CardName.Queen:
+      return otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && ![CardName.King, CardName.Ten, CardName.Ace].includes(name));
+    case CardName.King:
+      return otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && ![CardName.Ten, CardName.Ace].includes(name));
   }
 
   throw new Error();
 };
+
 export const getWinningCard = (cards: Card[], trumpMode: TrumpMode, firstCardColor: CardColor): Card => {
   if (!cards.length) {
     throw new Error();
@@ -335,6 +340,23 @@ export const getWinningCard = (cards: Card[], trumpMode: TrumpMode, firstCardCol
   // @ts-ignore
   return winningCard;
 };
+
+export const getWinner = (playersCardsPlayedInCurrentTurn: Record<PlayerID, Card | undefined>, trumpMode: TrumpMode, firstCardColor: CardColor): PlayerID => {
+  const winningCard = getWinningCard(
+    Object.values(playersCardsPlayedInCurrentTurn).filter(c => c !== undefined) as Card[],
+    trumpMode,
+    firstCardColor,
+  );
+
+  for (const playerID of validPlayerIDs) {
+    if (isSameCard(winningCard, playersCardsPlayedInCurrentTurn[playerID])) {
+      return playerID;
+    }
+  }
+
+  throw new Error();
+};
+
 const getCardPoints = (card: Card, trumpMode: TrumpMode): number => {
   switch (card.name) {
     case CardName.Ace:
@@ -353,6 +375,7 @@ const getCardPoints = (card: Card, trumpMode: TrumpMode): number => {
       return 0;
   }
 };
+
 export const validExpectedPoints = [
   82,
   85,
@@ -403,18 +426,26 @@ const getTurnOrder = (dealer: PlayerID): PlayerID[] => {
       return [PlayerID.West, PlayerID.South, PlayerID.East, PlayerID.North];
   }
 };
+
 const getDefaultPlayersCards = () => ({
   [PlayerID.North]: [],
   [PlayerID.East]: [],
   [PlayerID.South]: [],
   [PlayerID.West]: [],
 });
+
+const getDefaultWonTeamsCards = () => ({
+  [TeamID.NorthSouth]: [],
+  [TeamID.EastWest]: [],
+});
+
 const getDefaultPlayersCardsPlayedInCurrentTurn = () => ({
   [PlayerID.North]: undefined,
   [PlayerID.East]: undefined,
   [PlayerID.South]: undefined,
   [PlayerID.West]: undefined,
 });
+
 export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>, setupData: object): GameState => {
   const howManyPlayers = Object.keys(PlayerID).length;
   const dealer = PlayerID.North;
@@ -429,6 +460,7 @@ export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>, setupData: ob
     availableCards,
     playedCards: [],
     playersCards: getDefaultPlayersCards(),
+    wonTeamsCards: getDefaultWonTeamsCards(),
     teamsPoints: {
       [TeamID.NorthSouth]: 0,
       [TeamID.EastWest]: 0,
@@ -522,16 +554,12 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
         },
         allowedMoves: ['playCard'],
         endPhaseIf: (G, ctx) => {
-          if (Object.values(G.playersCardsPlayedInCurrentTurn).every( card => typeof card !== 'undefined')) {
+          if (Object.values(G.playersCardsPlayedInCurrentTurn).every( card => card !== undefined)) {
             return { next: PhaseID.CountPoints };
           }
 
           return false;
         },
-        onPhaseEnd: (G, ctx) => ({
-          ...G,
-          playersCardsPlayedInCurrentTurn: getDefaultPlayersCardsPlayedInCurrentTurn(),
-        }),
       },
       [PhaseID.CountPoints]: {
         allowedMoves: [],
@@ -542,10 +570,21 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
             return;
           }
 
-          // @TODO count cards points
-          // @TODO set new firstPlayerInCurrentTurn depending on who won the last turn
+          const winner = getWinner(G.playersCardsPlayedInCurrentTurn, G.trumpMode, G.playersCardsPlayedInCurrentTurn[G.firstPlayerInCurrentTurn]!.color);
+
+          // push played cards to winner team cards
+          const winnerTeam = [PlayerID.North, PlayerID.South].includes(winner) ? TeamID.NorthSouth : TeamID.EastWest;
+          (Object.values(G.playersCardsPlayedInCurrentTurn).filter(c => c !== undefined) as Card[]).forEach(card => G.wonTeamsCards[winnerTeam].push(card));
+
+          // winner becomes next first player
+          G.firstPlayerInCurrentTurn = winner;
+
           ctx.events.endPhase({ next: PhaseID.PlayCards });
         },
+        onPhaseEnd: (G, ctx) => ({
+          ...G,
+          playersCardsPlayedInCurrentTurn: getDefaultPlayersCardsPlayedInCurrentTurn(),
+        }),
       },
     },
     endGameIf: (G, ctx) => {
