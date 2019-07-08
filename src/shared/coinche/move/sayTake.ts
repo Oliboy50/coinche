@@ -6,6 +6,7 @@ import {
   PhaseID,
   validExpectedPoints,
   validTrumpModes,
+  getPlayerTeam,
 } from '../index';
 
 export default (
@@ -22,6 +23,7 @@ export default (
   }
 
   G.numberOfSuccessiveSkipSaid = 0;
+  G.takingTeam = getPlayerTeam(ctx.currentPlayer);
   G.expectedPoints = expectedPoints;
   G.trumpMode = trumpMode;
 

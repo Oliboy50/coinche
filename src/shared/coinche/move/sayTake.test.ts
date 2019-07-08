@@ -1,5 +1,5 @@
 import {Context} from 'boardgame.io/core';
-import {GameState, PhaseID, PlayerID, TrumpMode, validExpectedPoints, validTrumpModes} from '../index';
+import {GameState, PhaseID, PlayerID, TeamID, TrumpMode, validExpectedPoints, validTrumpModes} from '../index';
 import sayTake from './sayTake';
 import {getDefaultContext, getDefaultGameState} from './__testHelper/__moves';
 
@@ -14,18 +14,22 @@ describe(`move/sayTake`, () => {
       expectedPoints: 0,
       trumpMode: TrumpMode.NoTrump,
     };
-    ctx = getDefaultContext();
+    ctx = {
+      ...getDefaultContext(),
+      currentPlayer: PlayerID.North,
+    };
   });
 
   validExpectedPoints.forEach((expectedPoints) => {
     validTrumpModes.forEach((trumpMode) => {
-      it(`set expected points to ${expectedPoints} and trump mode to ${trumpMode} and reset number of successive skip said`, () => {
+      it(`sets taking team, expected points to ${expectedPoints} and trump mode to ${trumpMode} and reset number of successive skip said`, () => {
         const endTurn = jest.spyOn(ctx.events, 'endTurn');
 
         sayTake(G, ctx, expectedPoints, trumpMode);
 
         expect(endTurn).toHaveBeenCalledTimes(1);
         expect(G.numberOfSuccessiveSkipSaid).toBe(0);
+        expect(G.takingTeam).toBe(TeamID.NorthSouth);
         expect(G.expectedPoints).toBe(expectedPoints);
         expect(G.trumpMode).toBe(trumpMode);
       });
@@ -41,7 +45,7 @@ describe(`move/sayTake`, () => {
     251,
     255,
   ].forEach((expectedPoints) => {
-    it(`throws if expected points is ${expectedPoints}`, () => {
+    it(`throws if expected number of points is ${expectedPoints}`, () => {
       const endTurn = jest.spyOn(ctx.events, 'endTurn');
 
       expect(() => {
