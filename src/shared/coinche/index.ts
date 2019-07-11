@@ -83,7 +83,8 @@ export interface GameState {
   turnOrder: PlayerID[];
   dealer: PlayerID;
   nextDealer: PlayerID;
-  takingTeam: TeamID;
+  attackingTeam: TeamID;
+  defensingTeam: TeamID;
   expectedPoints: number;
   trumpMode: TrumpMode;
   numberOfSuccessiveSkipSaid: number;
@@ -358,6 +359,22 @@ export const getWinner = (playersCardsPlayedInCurrentTurn: Record<PlayerID, Card
   throw new Error();
 };
 
+export const getGameWinnerTeam = (teamsPoints: Record<TeamID, number>, howManyPointsATeamMustReachToEndTheGame: number): TeamID | null | undefined => {
+  if (Object.values(teamsPoints).every(points => points < howManyPointsATeamMustReachToEndTheGame)) {
+    return;
+  }
+
+  if (teamsPoints[TeamID.NorthSouth] === teamsPoints[TeamID.EastWest]) {
+    return null;
+  }
+
+  if (teamsPoints[TeamID.NorthSouth] >= howManyPointsATeamMustReachToEndTheGame) {
+    return TeamID.NorthSouth;
+  }
+
+  return TeamID.EastWest;
+};
+
 const getCardPoints = (card: Card, trumpMode: TrumpMode): number => {
   switch (card.name) {
     case CardName.Ace:
@@ -470,7 +487,8 @@ export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>, setupData: ob
     turnOrder: getTurnOrder(dealer),
     firstPlayerInCurrentTurn: dealer,
     trumpMode: TrumpMode.NoTrump,
-    takingTeam: TeamID.NorthSouth,
+    attackingTeam: TeamID.NorthSouth,
+    defensingTeam: TeamID.EastWest,
     expectedPoints: 0,
     howManyCardsToDealToEachPlayerBeforeTalking,
     howManyCardsToDealToEachPlayerAfterTalking,
@@ -553,6 +571,7 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
         onPhaseBegin: (G, ctx) => {
           ctx.events.endTurn({ next: G.firstPlayerInCurrentTurn });
         },
+        // @TODO sayAnnonce
         allowedMoves: ['playCard'],
         endPhaseIf: (G, ctx) => {
           if (Object.values(G.playersCardsPlayedInCurrentTurn).every( card => card !== undefined)) {
@@ -581,21 +600,34 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
             return;
           }
 
-          // check which team won the round
-          const takingTeamPoints = G.wonTeamsCards[G.takingTeam].reduce((acc, card) => acc + getCardPoints(card, G.trumpMode), 0);
-          if (takingTeamPoints >= G.expectedPoints) {
-            // @TODO increase both teams points
+          // winning team of the last turn get extra points
+          let defensingTeamPoints = G.wonTeamsCards[G.defensingTeam].reduce((acc, card) => acc + getCardPoints(card, G.trumpMode), 0);
+          let attackingTeamPoints = G.wonTeamsCards[G.attackingTeam].reduce((acc, card) => acc + getCardPoints(card, G.trumpMode), 0);
+          if (winnerTeam === G.attackingTeam) {
+            attackingTeamPoints += (!G.wonTeamsCards[G.defensingTeam].length) ? 100 : 10;
           } else {
-            // @TODO increase not taking team points
+            defensingTeamPoints += (!G.wonTeamsCards[G.attackingTeam].length) ? 100 : 10;
+          }
+
+          // check which team won the round
+          // @TODO add said annonce points
+          if (attackingTeamPoints >= G.expectedPoints && attackingTeamPoints >= defensingTeamPoints) {
+            G.teamsPoints[G.attackingTeam] += attackingTeamPoints;
+            G.teamsPoints[G.defensingTeam] += defensingTeamPoints;
+          } else {
+            // @TODO add attacking team annonces to defensing team points
+            G.teamsPoints[G.defensingTeam] += defensingTeamPoints;
           }
 
           // check if the end of the game has been reached
-          if (Object.values(G.teamsPoints).every(points => points < G.howManyPointsATeamMustReachToEndTheGame)) {
+          const gameWinnerTeam = getGameWinnerTeam(G.teamsPoints, G.howManyPointsATeamMustReachToEndTheGame);
+          if (gameWinnerTeam === undefined) {
             ctx.events.endPhase({ next: PhaseID.Deal });
             return;
           }
 
           // @TODO congrats winning team
+          console.log(`The winner is... ${gameWinnerTeam || 'both'}!`);
           ctx.events.endGame();
         },
       },

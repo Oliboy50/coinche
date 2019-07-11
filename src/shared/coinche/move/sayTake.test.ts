@@ -22,14 +22,15 @@ describe(`move/sayTake`, () => {
 
   validExpectedPoints.forEach((expectedPoints) => {
     validTrumpModes.forEach((trumpMode) => {
-      it(`sets taking team, expected points to ${expectedPoints} and trump mode to ${trumpMode} and reset number of successive skip said`, () => {
+      it(`sets attacking and defensing team, expected points to ${expectedPoints} and trump mode to ${trumpMode} and reset number of successive skip said`, () => {
         const endTurn = jest.spyOn(ctx.events, 'endTurn');
 
         sayTake(G, ctx, expectedPoints, trumpMode);
 
         expect(endTurn).toHaveBeenCalledTimes(1);
         expect(G.numberOfSuccessiveSkipSaid).toBe(0);
-        expect(G.takingTeam).toBe(TeamID.NorthSouth);
+        expect(G.attackingTeam).toBe(TeamID.NorthSouth);
+        expect(G.defensingTeam).toBe(TeamID.EastWest);
         expect(G.expectedPoints).toBe(expectedPoints);
         expect(G.trumpMode).toBe(trumpMode);
       });

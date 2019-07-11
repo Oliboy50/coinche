@@ -6,7 +6,7 @@ import {
   PhaseID,
   validExpectedPoints,
   validTrumpModes,
-  getPlayerTeam,
+  getPlayerTeam, TeamID,
 } from '../index';
 
 export default (
@@ -23,7 +23,8 @@ export default (
   }
 
   G.numberOfSuccessiveSkipSaid = 0;
-  G.takingTeam = getPlayerTeam(ctx.currentPlayer);
+  G.attackingTeam = getPlayerTeam(ctx.currentPlayer);
+  G.defensingTeam = G.attackingTeam === TeamID.NorthSouth ? TeamID.EastWest : TeamID.NorthSouth;
   G.expectedPoints = expectedPoints;
   G.trumpMode = trumpMode;
 
