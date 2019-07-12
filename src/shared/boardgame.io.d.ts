@@ -33,6 +33,8 @@ declare module 'boardgame.io/core' {
       };
     };
     allPlayed: boolean;
+    phase: PhaseID;
+    prevPhase?: PhaseID;
     playerID: PlayerID;
     events: {
       endGame: () => void;

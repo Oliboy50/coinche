@@ -13,5 +13,5 @@ export const CoincheClient = Client<GameStatePlayerView, Moves, PlayerID, PhaseI
   numPlayers: 4,
   multiplayer: { local: true },
   board: CoincheBoard,
-  debug: process.env.NODE_ENV === 'development',
+  debug: process.env.NODE_ENV !== 'production',
 });

@@ -35,6 +35,7 @@ export const getDefaultContext = (): Context<PlayerID, PhaseID> => ({
     },
   },
   allPlayed: false,
+  phase: PhaseID.Deal,
   playerID: PlayerID.North,
   events: {
     endGame: () => undefined,

@@ -93,9 +93,11 @@ export interface GameState {
   firstPlayerInCurrentTurn: PlayerID;
   playersCardsPlayedInCurrentTurn: Record<PlayerID, Card | undefined>;
 }
-export type GameStatePlayerView = Omit<GameState, 'playersCards'> & {
-  playerCards: Card[];
-}
+// @TODO retry to use a real GameStatePlayerView (first try was buggy)
+// export type GameStatePlayerView = Omit<GameState, 'playersCards'> & {
+//   playerCards: Card[];
+// }
+export type GameStatePlayerView = GameState;
 
 export interface Moves {
   saySkip: () => void;
@@ -529,10 +531,7 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
           G.turnOrder.forEach(playerID => {
             for (let i = 0; i < G.howManyCardsToDealToEachPlayerBeforeTalking; i++) {
               const card = G.availableCards.pop();
-              if (!card) {
-                throw new Error();
-              }
-              G.playersCards[playerID].push(card);
+              G.playersCards[playerID].push(card!);
             }
           });
 
@@ -634,8 +633,5 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
     },
   },
 
-  playerView: ({ playersCards, ...GWithoutPlayers }, ctx, playerID): GameStatePlayerView => ({
-    ...GWithoutPlayers,
-    playerCards: playersCards ? playersCards[playerID] : [],
-  }),
+  playerView: (G, ctx, playerID): GameStatePlayerView => G,
 });

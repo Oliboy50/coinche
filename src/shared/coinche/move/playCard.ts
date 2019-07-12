@@ -14,7 +14,7 @@ export default (
   ctx: Context<PlayerID, PhaseID>,
   card: Card,
 ) => {
-  if (!card || !G.playersCards[ctx.currentPlayer].includes(card)) {
+  if (!card || !G.playersCards[ctx.currentPlayer].find(c => isSameCard(c, card))) {
     throw new Error();
   }
 
