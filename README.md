@@ -9,8 +9,8 @@
 ### Production build
 
 ```shell
-yarn
-yarn build
+npm install
+npm run build
 ```
 
 ## Developer documentation
@@ -18,8 +18,8 @@ yarn build
 ### Start hacking
 
 ```shell
-yarn
-yarn dev
+npm install
+npm run dev
 ```
 
 ### Lint
@@ -29,11 +29,11 @@ You should already have the "fix lint on commit" feature available.
 If you still want to lint your code manually:
 
 ```shell
-yarn lint:fix
+npm run lint:fix
 ```
 
 ### Test
 
 ```shell
-yarn test
+npm run test
 ```

@@ -7,14 +7,13 @@
     "build": "node scripts/build.js",
     "test": "node scripts/test.js --verbose",
     "lint": "run-p lint:es lint:tsc",
-    "lint:fix": "yarn lint:fix:es",
+    "lint:fix": "run-p lint:fix:es",
     "lint:es": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
     "lint:fix:es": "eslint --fix 'src/**/*.{js,jsx,ts,tsx}'",
     "lint:tsc": "tsc"
   },
   "engines": {
-    "node": "^12.4.0",
-    "yarn": "^1.13.0"
+    "node": "^12.7.0"
   },
   "dependencies": {
     "boardgame.io": "0.32.1",
@@ -159,16 +158,10 @@
       "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy"
     },
     "moduleFileExtensions": [
-      "web.js",
       "js",
-      "web.ts",
       "ts",
-      "web.tsx",
       "tsx",
-      "json",
-      "web.jsx",
-      "jsx",
-      "node"
+      "json"
     ],
     "watchPlugins": [
       "jest-watch-typeahead/filename",
