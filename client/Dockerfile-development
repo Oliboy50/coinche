@@ -1,0 +1,16 @@
+FROM node:12.7.0-alpine
+
+ENV NODE_APP_DIR=/home/node/app
+ENV NODE_ENV=development
+
+WORKDIR $NODE_APP_DIR
+
+COPY package*.json ./
+
+RUN npm ci
+
+COPY . .
+
+EXPOSE 3000
+
+CMD npm run dev

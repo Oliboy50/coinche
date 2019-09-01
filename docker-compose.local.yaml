@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  server:
+    build:
+      dockerfile: server/Dockerfile-development
+    ports:
+      - '8000:8000'
+
+  client:
+    build:
+      dockerfile: Dockerfile-development
+    environment:
+      REACT_APP_API_BASE_URL: http://localhost:8000/
+    ports:
+      - '3000:3000'

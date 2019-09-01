@@ -1,0 +1,23 @@
+{
+  "include": [
+    "src",
+    "../client/src/shared"
+  ],
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": true,
+    "skipLibCheck": true,
+    "rootDir": "..",
+    "outDir": "./build",
+    "sourceMap": true,
+    "inlineSources": true
+  },
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.e2e-test.ts",
+    "../client/**/*.test.ts",
+    "../client/**/__*"
+  ]
+}

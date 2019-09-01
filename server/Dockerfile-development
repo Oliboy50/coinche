@@ -1,0 +1,24 @@
+FROM node:12.7.0-alpine
+
+ENV NODE_APP_DIR=/home/node/app
+ENV NODE_ENV=development
+
+# install shared dependencies
+WORKDIR $NODE_APP_DIR
+COPY client/package*.json ./client/
+WORKDIR $NODE_APP_DIR/client
+RUN npm install --production
+
+WORKDIR $NODE_APP_DIR
+COPY server/package*.json ./server/
+
+WORKDIR $NODE_APP_DIR/server
+RUN npm ci
+
+WORKDIR $NODE_APP_DIR
+COPY . .
+
+EXPOSE 8000
+
+WORKDIR $NODE_APP_DIR/server
+CMD npm run dev
