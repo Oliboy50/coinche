@@ -1,0 +1,10 @@
+# ignore everything except server and client directories
+*/
+
+!server
+server/node_modules
+server/build
+
+!client
+client/node_modules
+client/build
