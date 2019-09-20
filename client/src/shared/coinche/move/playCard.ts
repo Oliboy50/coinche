@@ -4,65 +4,35 @@ import {
   PlayerID,
   PhaseID,
   Card,
-  TrumpMode,
-  getCardColorAssociatedToTrumpMode,
-  isCardBeatingTheOtherCards, getPlayerPartner, isSameCard, getWinningCard,
+  getPlayerPartner,
+  isSameCard,
+  isPlayableCard,
 } from '../index';
 
 export default (
   G: GameState,
   ctx: Context<PlayerID, PhaseID>,
   card: Card,
-) => {
-  if (!card || !G.playersCards[ctx.currentPlayer].find(c => isSameCard(c, card))) {
-    throw new Error();
+): void => {
+  const cardIndexInPlayerCards = G.playersCards[ctx.currentPlayer].findIndex(c => isSameCard(c, card));
+  const playerPartner = getPlayerPartner(ctx.currentPlayer);
+
+  if (cardIndexInPlayerCards < 0 || !isPlayableCard(
+    card,
+    G.playersCards[ctx.currentPlayer],
+    G.trumpMode,
+    G.playersCardsPlayedInCurrentTurn,
+    G.firstPlayerInCurrentTurn,
+    playerPartner
+  )) {
+    throw new Error(`Player can't play this card`);
   }
 
-  // a card has already been played
-  if (G.playersCardsPlayedInCurrentTurn[G.firstPlayerInCurrentTurn]) {
-    const firstCardColor = G.playersCardsPlayedInCurrentTurn[G.firstPlayerInCurrentTurn]!.color;
-
-    // if player has a card with same color than first card played
-    // can't play a card with other color
-    if (
-      card.color !== firstCardColor
-      && G.playersCards[ctx.currentPlayer].some(c => c.color === firstCardColor)
-    ) {
-      throw new Error();
-    }
-
-    const isSingleColorTrumpMode = [TrumpMode.TrumpSpade, TrumpMode.TrumpDiamond, TrumpMode.TrumpHeart, TrumpMode.TrumpClub].includes(G.trumpMode);
-    const firstCardColorIsAssociatedToTrumpMode = firstCardColor === getCardColorAssociatedToTrumpMode(G.trumpMode);
-    const otherCards = Object.values(G.playersCardsPlayedInCurrentTurn).filter(c => c !== undefined) as Card[];
-
-    // if single color trump mode
-    // if player has a more powerful card
-    // if player is trying to play a less powerful card
-    if (
-      isSingleColorTrumpMode
-      && G.playersCards[ctx.currentPlayer].some(c => isCardBeatingTheOtherCards(c, otherCards, G.trumpMode, firstCardColor))
-      && !isCardBeatingTheOtherCards(card, otherCards, G.trumpMode, firstCardColor)
-    ) {
-      // if first card played is trump
-      if (firstCardColorIsAssociatedToTrumpMode) {
-        throw new Error();
-      }
-
-      const playerPartnerCard = G.playersCardsPlayedInCurrentTurn[getPlayerPartner(ctx.currentPlayer)];
-      const currentWinningCard = getWinningCard(otherCards, G.trumpMode, firstCardColor);
-      const currentWinningCardIsFromPartner = Boolean(playerPartnerCard && isSameCard(playerPartnerCard, currentWinningCard));
-
-      // if current winning card is not from partner
-      // if player does not have a card with same color than first card
-      if (
-        !currentWinningCardIsFromPartner
-        && !G.playersCards[ctx.currentPlayer].some(c => c.color === firstCardColor)
-      ) {
-        throw new Error();
-      }
-    }
-  }
-
+  // move card from playersCards to playersCardsPlayedInCurrentTurn
+  G.playersCards[ctx.currentPlayer] = [
+    ...G.playersCards[ctx.currentPlayer].slice(0, cardIndexInPlayerCards),
+    ...G.playersCards[ctx.currentPlayer].slice(cardIndexInPlayerCards + 1),
+  ];
   G.playersCardsPlayedInCurrentTurn[ctx.currentPlayer] = card;
 
   ctx.events.endTurn();

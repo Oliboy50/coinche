@@ -18,9 +18,17 @@ export const CoincheBoard: React.FunctionComponent<BoardProps<GameStatePlayerVie
 
       {ctx.phase === PhaseID.PlayCards && (
         <React.Fragment>
-          {G.playersCards[ctx.currentPlayer].map(card => (
-            <button key={`${card.color}${card.name}`} onClick={() => moves.playCard(card)}>Color {card.color} / Name {card.name}</button>
-          ))}
+          {G.playerCards.map(card => {
+            if (card.isNotPlayable) {
+              return (
+                <button disabled={true} key={`${card.color}${card.name}`}>Color {card.color} / Name {card.name}</button>
+              );
+            }
+
+            return (
+              <button key={`${card.color}${card.name}`} onClick={() => moves.playCard(card)}>Color {card.color} / Name {card.name}</button>
+            );
+          })}
         </React.Fragment>
       )}
     </div>

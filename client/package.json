@@ -102,15 +102,15 @@
     },
     "rules": {
       "semi": [
-        "error",
+        "warn",
         "always"
       ],
       "comma-dangle": [
-        "error",
+        "warn",
         "always-multiline"
       ],
       "quotes": [
-        "error",
+        "warn",
         "single",
         {
           "allowTemplateLiterals": true

@@ -16,10 +16,10 @@ export default (
   trumpMode: TrumpMode,
 ) => {
   if (!validExpectedPoints.includes(expectedPoints)) {
-    throw new Error();
+    throw new Error('Expected points are not valid');
   }
   if (!validTrumpModes.includes(trumpMode)) {
-    throw new Error();
+    throw new Error('Trump mode is not valid');
   }
 
   G.numberOfSuccessiveSkipSaid = 0;

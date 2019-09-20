@@ -30,7 +30,9 @@ export const validCardName: CardName[] = Object.values(CardName);
 export interface Card {
   color: CardColor;
   name: CardName;
+  isNotPlayable?: boolean; // to give the player the information that he is not allowed to play this card
 }
+export type SecretCard = true; // SecretCard are Card with hidden properties
 export const isSameCard = (card: Card | undefined, otherCard: Card | undefined): boolean => {
   if (!card || !otherCard) {
     return false;
@@ -93,11 +95,11 @@ export interface GameState {
   firstPlayerInCurrentTurn: PlayerID;
   playersCardsPlayedInCurrentTurn: Record<PlayerID, Card | undefined>;
 }
-// @TODO retry to use a real GameStatePlayerView (first try was buggy)
-// export type GameStatePlayerView = Omit<GameState, 'playersCards'> & {
-//   playerCards: Card[];
-// }
-export type GameStatePlayerView = GameState;
+export type GameStatePlayerView = Omit<GameState, 'availableCards' | 'playersCards'> & {
+  availableCards: SecretCard[];
+  playersCards: Record<PlayerID, Card[] | SecretCard[]>;
+  playerCards: Card[]; // Syntactic sugar for playersCards[playerID]
+}
 
 export interface Moves {
   saySkip: () => void;
@@ -466,6 +468,64 @@ const getDefaultPlayersCardsPlayedInCurrentTurn = () => ({
   [PlayerID.West]: undefined,
 });
 
+export const isPlayableCard = (
+  card: Card,
+  playerCards: Card[],
+  trumpMode: TrumpMode,
+  playersCardsPlayedInCurrentTurn: GameState['playersCardsPlayedInCurrentTurn'],
+  firstPlayerInCurrentTurn: PlayerID,
+  playerPartner: PlayerID,
+): boolean => {
+  // if a card has already been played
+  if (playersCardsPlayedInCurrentTurn[firstPlayerInCurrentTurn]) {
+    const firstCardColor = playersCardsPlayedInCurrentTurn[firstPlayerInCurrentTurn]!.color;
+
+    // if player has a card with same color than first card played
+    if (
+      card.color !== firstCardColor
+      && playerCards.some(c => c.color === firstCardColor)
+    ) {
+      // must play a card of the same color
+      return false;
+    }
+
+    const isSingleColorTrumpMode = [TrumpMode.TrumpSpade, TrumpMode.TrumpDiamond, TrumpMode.TrumpHeart, TrumpMode.TrumpClub].includes(trumpMode);
+    const firstCardColorIsAssociatedToTrumpMode = firstCardColor === getCardColorAssociatedToTrumpMode(trumpMode);
+    const otherCards = Object.values(playersCardsPlayedInCurrentTurn).filter(c => c !== undefined) as Card[];
+
+    // if single color trump mode
+    // and player has a more powerful card
+    // and player is trying to play a less powerful card
+    if (
+      isSingleColorTrumpMode
+      && playerCards.some(c => isCardBeatingTheOtherCards(c, otherCards, trumpMode, firstCardColor))
+      && !isCardBeatingTheOtherCards(card, otherCards, trumpMode, firstCardColor)
+    ) {
+      // if first card played is trump
+      if (firstCardColorIsAssociatedToTrumpMode) {
+        // must play a more powerful trump card
+        return false;
+      }
+
+      const playerPartnerCard = playersCardsPlayedInCurrentTurn[playerPartner];
+      const currentWinningCard = getWinningCard(otherCards, trumpMode, firstCardColor);
+      const currentWinningCardIsFromPartner = Boolean(playerPartnerCard && isSameCard(playerPartnerCard, currentWinningCard));
+
+      // if current winning card is not from partner
+      // and player does not have a card with same color than first card
+      if (
+        !currentWinningCardIsFromPartner
+        && !playerCards.some(c => c.color === firstCardColor)
+      ) {
+        // must play a trump card
+        return false;
+      }
+    }
+  }
+
+  return true;
+};
+
 export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>, setupData: object): GameState => {
   const howManyPlayers = Object.keys(PlayerID).length;
   const dealer = PlayerID.North;
@@ -570,6 +630,35 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
         onPhaseBegin: (G, ctx) => {
           ctx.events.endTurn({ next: G.firstPlayerInCurrentTurn });
         },
+        onTurnBegin: (G, ctx) => {
+          // set players cards playability
+          const player = ctx.currentPlayer;
+          const playerPartner = getPlayerPartner(player);
+          const setPlayerCardsAsPlayable = (playerCards: Card[]): Card[] => playerCards.map(card => ({
+            ...card,
+            isNotPlayable: false,
+          }));
+          const setPlayerCardsAsPlayableOrNot = (playerCards: Card[]): Card[] => playerCards.map(card => ({
+            ...card,
+            isNotPlayable: !isPlayableCard(
+              card,
+              G.playersCards[player],
+              G.trumpMode,
+              G.playersCardsPlayedInCurrentTurn,
+              G.firstPlayerInCurrentTurn,
+              playerPartner
+            ),
+          }));
+          return {
+            ...G,
+            playersCards: {
+              [PlayerID.North]: PlayerID.North === player ? setPlayerCardsAsPlayableOrNot(G.playersCards[player]) : setPlayerCardsAsPlayable(G.playersCards[PlayerID.North]),
+              [PlayerID.East]: PlayerID.East === player ? setPlayerCardsAsPlayableOrNot(G.playersCards[player]) : setPlayerCardsAsPlayable(G.playersCards[PlayerID.East]),
+              [PlayerID.South]: PlayerID.South === player ? setPlayerCardsAsPlayableOrNot(G.playersCards[player]) : setPlayerCardsAsPlayable(G.playersCards[PlayerID.South]),
+              [PlayerID.West]: PlayerID.West === player ? setPlayerCardsAsPlayableOrNot(G.playersCards[player]) : setPlayerCardsAsPlayable(G.playersCards[PlayerID.West]),
+            },
+          };
+        },
         // @TODO sayAnnonce
         allowedMoves: ['playCard'],
         endPhaseIf: (G, ctx) => {
@@ -614,7 +703,7 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
             G.teamsPoints[G.attackingTeam] += attackingTeamPoints;
             G.teamsPoints[G.defensingTeam] += defensingTeamPoints;
           } else {
-            // @TODO add attacking team annonces to defensing team points
+            // @TODO add attacking team said annonces to defensing team points
             G.teamsPoints[G.defensingTeam] += defensingTeamPoints;
           }
 
@@ -633,5 +722,29 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
     },
   },
 
-  playerView: (G, ctx, playerID): GameStatePlayerView => G,
+  playerView: (
+    {
+      playersCards,
+      availableCards,
+      ...GWithoutSecretData
+    },
+    ctx,
+    playerID,
+  ): GameStatePlayerView => {
+    if (!validPlayerIDs.includes(playerID)) {
+      throw new Error(`Invalid player ${playerID}`);
+    }
+
+    return {
+      ...GWithoutSecretData,
+      availableCards: new Array(availableCards.length).fill(true),
+      playersCards: {
+        [PlayerID.North]: PlayerID.North === playerID ? playersCards[playerID] : new Array(playersCards[PlayerID.North].length).fill(true),
+        [PlayerID.East]: PlayerID.East === playerID ? playersCards[playerID] : new Array(playersCards[PlayerID.East].length).fill(true),
+        [PlayerID.South]: PlayerID.South === playerID ? playersCards[playerID] : new Array(playersCards[PlayerID.South].length).fill(true),
+        [PlayerID.West]: PlayerID.West === playerID ? playersCards[playerID] : new Array(playersCards[PlayerID.West].length).fill(true),
+      },
+      playerCards: playersCards[playerID] as Card[],
+    };
+  },
 });
