@@ -22,6 +22,8 @@ export default (
     throw new Error('Trump mode is not valid');
   }
 
+  // @TODO check that expectedPoints are greater than previous expectedPoints (and disable unselectable expected points on frontend)
+
   G.numberOfSuccessiveSkipSaid = 0;
   G.attackingTeam = getPlayerTeam(ctx.currentPlayer);
   G.defensingTeam = G.attackingTeam === TeamID.NorthSouth ? TeamID.EastWest : TeamID.NorthSouth;

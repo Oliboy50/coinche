@@ -1,0 +1,12 @@
+.card {
+  font-size: calc(100vw / 8);
+  line-height: 1;
+}
+
+.black {
+  color: black;
+}
+
+.red {
+  color: rgb(220, 0, 0);
+}

@@ -1,0 +1,1 @@
+export { MyCardsComponent } from './MyCards';

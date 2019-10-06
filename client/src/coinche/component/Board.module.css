@@ -1,0 +1,14 @@
+.board {
+  position: absolute;
+  display: grid;
+  height: calc(100vh - 4px);
+  width: calc(100vw - 4px);
+  border: 2px solid black;
+}
+.player {
+  /* @TODO
+       - top player should scale a bit less than bottom player
+       - left player should rotate -90deg and scale half less than bottom player
+       - right player should rotate 90deg and scale half less than bottom player
+  */
+}

@@ -33,6 +33,7 @@ export interface Card {
   isNotPlayable?: boolean; // to give the player the information that he is not allowed to play this card
 }
 export type SecretCard = true; // SecretCard are Card with hidden properties
+export const secretCard: SecretCard = true;
 export const isSameCard = (card: Card | undefined, otherCard: Card | undefined): boolean => {
   if (!card || !otherCard) {
     return false;
@@ -343,8 +344,7 @@ export const getWinningCard = (cards: Card[], trumpMode: TrumpMode, firstCardCol
     }
   });
 
-  // @ts-ignore
-  return winningCard;
+  return winningCard!;
 };
 
 export const getWinner = (playersCardsPlayedInCurrentTurn: Record<PlayerID, Card | undefined>, trumpMode: TrumpMode, firstCardColor: CardColor): PlayerID => {
@@ -603,7 +603,7 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
       [PhaseID.Talk]: {
         // @TODO sayCoinche and saySurcoinche
         allowedMoves: ['saySkip', 'sayTake'] as (keyof Moves)[],
-        endPhaseIf: (G, ctx) => {
+        endPhaseIf: (G) => {
           if (G.numberOfSuccessiveSkipSaid >= G.howManyPlayers) {
             return { next: PhaseID.Deal };
           }
@@ -621,7 +621,7 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
 
           return false;
         },
-        onPhaseEnd: (G, ctx) => ({
+        onPhaseEnd: (G) => ({
           ...G,
           numberOfSuccessiveSkipSaid: 0,
         }),
@@ -661,7 +661,7 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
         },
         // @TODO sayAnnonce
         allowedMoves: ['playCard'],
-        endPhaseIf: (G, ctx) => {
+        endPhaseIf: (G) => {
           if (Object.values(G.playersCardsPlayedInCurrentTurn).every( card => card !== undefined)) {
             return { next: PhaseID.CountPoints };
           }
