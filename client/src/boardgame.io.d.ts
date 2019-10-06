@@ -9,7 +9,7 @@ declare module 'boardgame.io/react' {
     PhaseID = DefaultPhaseID,
   > {
     G: GameStatePlayerView;
-    ctx: Context<PlayerID, PhaseID>;
+    ctx: Omit<Context<PlayerID, PhaseID>, 'playerID'>;
     moves: Moves;
     gameID: string;
     playerID: PlayerID;

@@ -99,7 +99,7 @@ export interface GameState {
 export type GameStatePlayerView = Omit<GameState, 'availableCards' | 'playersCards'> & {
   availableCards: SecretCard[];
   playersCards: Record<PlayerID, Card[] | SecretCard[]>;
-  playerCards: Card[]; // Syntactic sugar for playersCards[playerID]
+  playerCards: Card[]; // Syntactic sugar for playersCards[myPlayerID]
 }
 
 export interface Moves {
@@ -436,7 +436,7 @@ export const validExpectedPoints = [
   250,
 ];
 
-const getTurnOrder = (dealer: PlayerID): PlayerID[] => {
+export const getTurnOrder = (dealer: PlayerID): PlayerID[] => {
   switch (dealer) {
     case PlayerID.North:
       return [PlayerID.North, PlayerID.West, PlayerID.South, PlayerID.East];

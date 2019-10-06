@@ -2,26 +2,50 @@ import React from 'react';
 import {BoardProps} from 'boardgame.io/react';
 import styles from './Board.module.css';
 import {
-  GameStatePlayerView,
+  GameStatePlayerView, getTurnOrder,
   Moves,
   PhaseID,
   PlayerID,
 } from '../../shared/coinche';
 import {TalkMenuComponent} from './TalkMenu';
 import {MyCardsComponent} from './Cards';
+import {OtherPlayerCardsComponent} from './Cards/OtherPlayerCards';
+
+const getPlayerIDForPosition = (bottomPlayerID: PlayerID, position: 'top' | 'left' | 'right' | 'bottom'): PlayerID => {
+  if (position === 'bottom') {
+    return bottomPlayerID;
+  }
+
+  const turnOrder = getTurnOrder(bottomPlayerID);
+  if (position === 'right') {
+    return turnOrder[1];
+  }
+  if (position === 'top') {
+    return turnOrder[2];
+  }
+
+  return turnOrder[3];
+};
 
 export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>> = ({
   G,
   ctx,
   moves,
+  playerID,
 }) => {
   return (
     <React.Fragment>
       <div className={styles.board}>
-        <div className={styles.player}>top</div>
-        <div className={styles.player}>left</div>
-        <div className={styles.player}>right</div>
-        <div className={styles.player}>
+        <div className={`${styles.player} ${styles.top}`}>
+          <OtherPlayerCardsComponent cards={G.playersCards[getPlayerIDForPosition(playerID, 'top')]} />
+        </div>
+        <div className={`${styles.player} ${styles.left}`}>
+          <OtherPlayerCardsComponent cards={G.playersCards[getPlayerIDForPosition(playerID, 'left')]} />
+        </div>
+        <div className={`${styles.player} ${styles.right}`}>
+          <OtherPlayerCardsComponent cards={G.playersCards[getPlayerIDForPosition(playerID, 'right')]} />
+        </div>
+        <div className={`${styles.player} ${styles.bottom}`}>
           <MyCardsComponent cards={G.playerCards} isPlayCardsPhase={ctx.phase === 'PlayCards'} playCard={moves.playCard} />
           {ctx.phase === PhaseID.Talk && (
             <TalkMenuComponent moves={moves} />
