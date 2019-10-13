@@ -45,8 +45,8 @@ export const isSameCard = (card: Card | undefined, otherCard: Card | undefined):
 export enum TrumpMode {
   TrumpSpade = 'TrumpSpade',
   TrumpDiamond = 'TrumpDiamond',
-  TrumpHeart = 'TrumpHeart',
   TrumpClub = 'TrumpClub',
+  TrumpHeart = 'TrumpHeart',
   NoTrump = 'NoTrump',
 }
 export const validTrumpModes: TrumpMode[] = Object.values(TrumpMode);

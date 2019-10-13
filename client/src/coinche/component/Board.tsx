@@ -10,6 +10,7 @@ import {
 import {TalkMenuComponent} from './TalkMenu';
 import {MyCardsComponent} from './Cards';
 import {OtherPlayerCardsComponent} from './Cards/OtherPlayerCards';
+import {StupidTypescript} from '../../shared/errors';
 
 const getPlayerIDForPosition = (bottomPlayerID: PlayerID, position: 'top' | 'left' | 'right' | 'bottom'): PlayerID => {
   if (position === 'bottom') {
@@ -23,8 +24,11 @@ const getPlayerIDForPosition = (bottomPlayerID: PlayerID, position: 'top' | 'lef
   if (position === 'top') {
     return turnOrder[2];
   }
+  if (position === 'left') {
+    return turnOrder[3];
+  }
 
-  return turnOrder[3];
+  throw new StupidTypescript();
 };
 
 export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>> = ({
@@ -46,10 +50,10 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
           <OtherPlayerCardsComponent cards={G.playersCards[getPlayerIDForPosition(playerID, 'right')]} />
         </div>
         <div className={`${styles.player} ${styles.bottom}`}>
-          <MyCardsComponent cards={G.playerCards} isPlayCardsPhase={ctx.phase === 'PlayCards'} playCard={moves.playCard} />
-          {ctx.phase === PhaseID.Talk && (
+          {ctx.phase === PhaseID.Talk && playerID === ctx.currentPlayer && (
             <TalkMenuComponent moves={moves} />
           )}
+          <MyCardsComponent cards={G.playerCards} isPlayCardsPhase={ctx.phase === 'PlayCards'} playCard={moves.playCard} />
         </div>
       </div>
     </React.Fragment>

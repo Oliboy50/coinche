@@ -1,7 +1,6 @@
-import React, {useContext} from 'react';
+import React from 'react';
 import {Card, CardColor, CardName, Moves} from '../../../shared/coinche';
-import {UnicodeCardComponent} from '../Card';
-import {ThemeContext} from '../../context/theme';
+import {CardComponent} from '../Card';
 import styles from './MyCards.module.css';
 import {StupidTypescript} from '../../../shared/errors';
 
@@ -108,23 +107,19 @@ export const MyCardsComponent: React.FunctionComponent<ComponentProps> = ({
   isPlayCardsPhase,
   playCard,
 }) => {
-  const theme = useContext(ThemeContext);
-
   return (
     <div className={styles.cards}>
       {cards.sort(sortCardsFromSpadeToHeartAndFromAceToSeven).map(card => {
         const cardKey = `${card.color}${card.name}`;
         const isPlayableCard = isPlayCardsPhase && !card.isNotPlayable;
 
-        return theme.cardDisplay === 'unicode' && (
-          <UnicodeCardComponent
-            key={cardKey}
-            card={card}
-            {...(isPlayableCard && {
-              onClick: () => playCard(card),
-            })}
-          />
-        );
+        return <CardComponent
+          key={cardKey}
+          card={card}
+          {...(isPlayableCard && {
+            onClick: () => playCard(card),
+          })}
+        />;
       })}
     </div>
   );
