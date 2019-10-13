@@ -90,6 +90,7 @@ export interface GameState {
   defensingTeam: TeamID;
   expectedPoints: number;
   trumpMode: TrumpMode;
+  playersSaid: Record<PlayerID, 'skip' | { expectedPoints: number; trumpMode: TrumpMode } | undefined>;
   numberOfSuccessiveSkipSaid: number;
 
   // turn state
@@ -467,7 +468,22 @@ const getDefaultPlayersCardsPlayedInCurrentTurn = () => ({
   [PlayerID.South]: undefined,
   [PlayerID.West]: undefined,
 });
+const getDefaultPlayersSaid = () => ({
+  [PlayerID.North]: undefined,
+  [PlayerID.East]: undefined,
+  [PlayerID.South]: undefined,
+  [PlayerID.West]: undefined,
+});
 
+export const isSayableExpectedPoints = (
+  expectedPoints: number,
+  playersSaid: GameState['playersSaid'],
+): boolean => {
+  return Object.values(playersSaid)
+    .filter(said => Boolean(said && said !== 'skip' && said.expectedPoints))
+    // @ts-ignore StupidTypescript
+    .every(said => said.expectedPoints < expectedPoints);
+};
 export const isPlayableCard = (
   card: Card,
   playerCards: Card[],
@@ -555,6 +571,7 @@ export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>, setupData: ob
     howManyCardsToDealToEachPlayerBeforeTalking,
     howManyCardsToDealToEachPlayerAfterTalking,
     howManyPointsATeamMustReachToEndTheGame: 2000,
+    playersSaid: getDefaultPlayersSaid(),
     numberOfSuccessiveSkipSaid: 0,
     playersCardsPlayedInCurrentTurn: getDefaultPlayersCardsPlayedInCurrentTurn(),
   };

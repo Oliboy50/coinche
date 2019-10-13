@@ -28,5 +28,9 @@ describe(`move/saySkip`, () => {
 
     expect(endTurn).toHaveBeenCalledTimes(1);
     expect(G.numberOfSuccessiveSkipSaid).toBe(1);
+    expect(G.playersSaid).toEqual({
+      ...getDefaultGameState().playersSaid,
+      [PlayerID.North]: 'skip',
+    });
   });
 });

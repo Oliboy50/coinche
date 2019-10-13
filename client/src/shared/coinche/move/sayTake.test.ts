@@ -20,19 +20,41 @@ describe(`move/sayTake`, () => {
     };
   });
 
-  validExpectedPoints.forEach((expectedPoints) => {
-    validTrumpModes.forEach((trumpMode) => {
-      it(`sets attacking and defensing team, expected points to ${expectedPoints} and trump mode to ${trumpMode} and reset number of successive skip said`, () => {
-        const endTurn = jest.spyOn(ctx.events, 'endTurn');
+  validTrumpModes.forEach(trumpMode => {
+    validExpectedPoints.forEach(higherAlreadySaidExpectedPoints => {
+      describe(`when higher already said expected points is ${higherAlreadySaidExpectedPoints}`, () => {
+        validExpectedPoints.filter(expectedPoints => expectedPoints <= higherAlreadySaidExpectedPoints).forEach(expectedPoints => {
+          it(`throws if expected points is ${expectedPoints}`, () => {
+            const endTurn = jest.spyOn(ctx.events, 'endTurn');
+            G.playersSaid[PlayerID.West] = { expectedPoints: higherAlreadySaidExpectedPoints, trumpMode};
+            G.playersSaid[PlayerID.South] = 'skip';
 
-        sayTake(G, ctx, expectedPoints, trumpMode);
+            expect(() => {
+              sayTake(G, ctx, expectedPoints, trumpMode);
+            }).toThrow();
 
-        expect(endTurn).toHaveBeenCalledTimes(1);
-        expect(G.numberOfSuccessiveSkipSaid).toBe(0);
-        expect(G.attackingTeam).toBe(TeamID.NorthSouth);
-        expect(G.defensingTeam).toBe(TeamID.EastWest);
-        expect(G.expectedPoints).toBe(expectedPoints);
-        expect(G.trumpMode).toBe(trumpMode);
+            expect(endTurn).toHaveBeenCalledTimes(0);
+          });
+        });
+
+        validExpectedPoints.filter(expectedPoints => expectedPoints > higherAlreadySaidExpectedPoints).forEach(expectedPoints => {
+          it(`sets attacking and defensing team, expected points to ${expectedPoints} and trump mode to ${trumpMode} and reset number of successive skip said`, () => {
+            const endTurn = jest.spyOn(ctx.events, 'endTurn');
+
+            sayTake(G, ctx, expectedPoints, trumpMode);
+
+            expect(endTurn).toHaveBeenCalledTimes(1);
+            expect(G.numberOfSuccessiveSkipSaid).toBe(0);
+            expect(G.attackingTeam).toBe(TeamID.NorthSouth);
+            expect(G.defensingTeam).toBe(TeamID.EastWest);
+            expect(G.expectedPoints).toBe(expectedPoints);
+            expect(G.trumpMode).toBe(trumpMode);
+            expect(G.playersSaid).toEqual({
+              ...getDefaultGameState().playersSaid,
+              [PlayerID.North]: { expectedPoints, trumpMode },
+            });
+          });
+        });
       });
     });
   });

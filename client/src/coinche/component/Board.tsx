@@ -51,7 +51,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
         </div>
         <div className={`${styles.player} ${styles.bottom}`}>
           {ctx.phase === PhaseID.Talk && playerID === ctx.currentPlayer && (
-            <TalkMenuComponent moves={moves} />
+            <TalkMenuComponent moves={moves} playersSaid={G.playersSaid} />
           )}
           <MyCardsComponent cards={G.playerCards} isPlayCardsPhase={ctx.phase === 'PlayCards'} playCard={moves.playCard} />
         </div>

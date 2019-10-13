@@ -2,7 +2,7 @@ import React, {useContext, useState} from 'react';
 import {BoardProps} from 'boardgame.io/react';
 import styles from './TalkMenu.module.css';
 import {
-  GameStatePlayerView,
+  GameStatePlayerView, isSayableExpectedPoints,
   Moves,
   PhaseID,
   PlayerID, TrumpMode,
@@ -13,9 +13,11 @@ import {I18nContext} from '../context/i18n';
 
 type ComponentProps = {
   moves: BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>['moves'],
+  playersSaid: BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>['G']['playersSaid'],
 };
 export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
   moves,
+  playersSaid,
 }) => {
   const i18n = useContext(I18nContext);
   const [selectedTrumpMode, setTrumpMode] = useState(validTrumpModes[0]);
@@ -38,7 +40,7 @@ export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
     <div className={styles.menu}>
       <div className={styles.sayTake}>
         <select className={styles.sayTakeExpectedPoint} value={selectedExpectedPoint} onChange={onChangeExpectedPoint}>
-          {validExpectedPoints.map(expectedPoint => (
+          {validExpectedPoints.filter(expectedPoint => isSayableExpectedPoints(expectedPoint, playersSaid)).map(expectedPoint => (
             <option value={expectedPoint} key={`expectedPoint_${expectedPoint}`}>
               {expectedPoint}
             </option>
