@@ -6,6 +6,9 @@ export type I18n = {
     takeButton: string;
     skipButton: string;
   },
+  PlayerSaid: {
+    skip: string;
+  },
 };
 
 export { fr } from './fr';

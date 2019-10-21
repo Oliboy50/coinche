@@ -2,7 +2,8 @@ import React from 'react';
 import {BoardProps} from 'boardgame.io/react';
 import styles from './Board.module.css';
 import {
-  GameStatePlayerView, getTurnOrder,
+  GameStatePlayerView,
+  getTurnOrder,
   Moves,
   PhaseID,
   PlayerID,
@@ -11,6 +12,7 @@ import {TalkMenuComponent} from './TalkMenu';
 import {MyCardsComponent} from './Cards';
 import {OtherPlayerCardsComponent} from './Cards/OtherPlayerCards';
 import {StupidTypescript} from '../../shared/errors';
+import {PlayerSaidComponent} from './PlayerSaid';
 
 const getPlayerIDForPosition = (bottomPlayerID: PlayerID, position: 'top' | 'left' | 'right' | 'bottom'): PlayerID => {
   if (position === 'bottom') {
@@ -37,21 +39,38 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
   moves,
   playerID,
 }) => {
+  const topPlayerID = getPlayerIDForPosition(playerID, 'top');
+  const leftPlayerID = getPlayerIDForPosition(playerID, 'left');
+  const rightPlayerID = getPlayerIDForPosition(playerID, 'right');
+  const bottomPlayerID = playerID;
+
   return (
     <React.Fragment>
       <div className={styles.board}>
         <div className={`${styles.player} ${styles.top}`}>
-          <OtherPlayerCardsComponent cards={G.playersCards[getPlayerIDForPosition(playerID, 'top')]} />
+          {ctx.phase === PhaseID.Talk && G.playersSaid[topPlayerID] && (
+            <PlayerSaidComponent playerSaid={G.playersSaid[topPlayerID]}/>
+          )}
+          <OtherPlayerCardsComponent cards={G.playersCards[topPlayerID]} />
         </div>
         <div className={`${styles.player} ${styles.left}`}>
-          <OtherPlayerCardsComponent cards={G.playersCards[getPlayerIDForPosition(playerID, 'left')]} />
+          {ctx.phase === PhaseID.Talk && G.playersSaid[leftPlayerID] && (
+            <PlayerSaidComponent playerSaid={G.playersSaid[leftPlayerID]}/>
+          )}
+          <OtherPlayerCardsComponent cards={G.playersCards[leftPlayerID]} />
         </div>
         <div className={`${styles.player} ${styles.right}`}>
-          <OtherPlayerCardsComponent cards={G.playersCards[getPlayerIDForPosition(playerID, 'right')]} />
+          {ctx.phase === PhaseID.Talk && G.playersSaid[rightPlayerID] && (
+            <PlayerSaidComponent playerSaid={G.playersSaid[rightPlayerID]}/>
+          )}
+          <OtherPlayerCardsComponent cards={G.playersCards[rightPlayerID]} />
         </div>
         <div className={`${styles.player} ${styles.bottom}`}>
-          {ctx.phase === PhaseID.Talk && playerID === ctx.currentPlayer && (
+          {ctx.phase === PhaseID.Talk && bottomPlayerID === ctx.currentPlayer && (
             <TalkMenuComponent moves={moves} playersSaid={G.playersSaid} />
+          )}
+          {ctx.phase === PhaseID.Talk && bottomPlayerID !== ctx.currentPlayer && G.playersSaid[bottomPlayerID] && (
+            <PlayerSaidComponent playerSaid={G.playersSaid[bottomPlayerID]}/>
           )}
           <MyCardsComponent cards={G.playerCards} isPlayCardsPhase={ctx.phase === 'PlayCards'} playCard={moves.playCard} />
         </div>

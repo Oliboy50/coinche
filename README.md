@@ -30,7 +30,7 @@ npm install
 npm run dev
 
 # terminal 1
-REACT_APP_API_BASE_URL=http://localhost:8000/ npm run dev
+REACT_APP_API_BASE_URL=http://localhost:8000 npm run dev
 ```
 
 ## License

@@ -18,7 +18,7 @@ declare module 'boardgame.io/react' {
     isConnected: boolean;
   }
 
-  export interface Client<
+  export interface ClientConfig<
     GameStatePlayerView = DefaultGameStatePlayerView,
     Moves = DefaultMoves,
     PlayerID = DefaultPlayerID,
@@ -44,5 +44,7 @@ declare module 'boardgame.io/react' {
     Moves = DefaultMoves,
     PlayerID = DefaultPlayerID,
     PhaseID = DefaultPhaseID,
-  >(client: Client<GameStatePlayerView, Moves, PlayerID, PhaseID>): ComponentType<ClientProps<PlayerID>>;
+  >(config: ClientConfig<GameStatePlayerView, Moves, PlayerID, PhaseID>): ComponentType<ClientProps<PlayerID>>;
+
+  export const Lobby: ComponentType<{gameServer: string; lobbyServer: string; gameComponents: object[]}>;
 }

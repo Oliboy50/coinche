@@ -13,4 +13,7 @@ export const fr: I18n = {
     takeButton: 'Prendre',
     skipButton: 'Passer',
   },
+  PlayerSaid: {
+    skip: 'Je passe',
+  },
 };

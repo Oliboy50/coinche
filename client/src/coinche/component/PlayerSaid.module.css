@@ -1,0 +1,23 @@
+.bubble {
+  position: relative;
+  background: rgba(230, 230, 230, 1);
+  border-radius: 50%;
+  font-size: 5vh;
+  text-align: center;
+  max-width: 50%;
+  margin: 0 auto 20px;
+  padding: 20px;
+}
+.bubble:after {
+  content: '';
+  position: absolute;
+  bottom: 1px;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border: 20px solid transparent;
+  border-top-color: rgba(230, 230, 230, 1);
+  border-bottom: 0;
+  margin-left: -20px;
+  margin-bottom: -20px;
+}
