@@ -492,6 +492,8 @@ export const isPlayableCard = (
   firstPlayerInCurrentTurn: PlayerID,
   playerPartner: PlayerID,
 ): boolean => {
+  // @TODO fix (seems to be broken for multiplayer mode at least)
+
   // if a card has already been played
   if (playersCardsPlayedInCurrentTurn[firstPlayerInCurrentTurn]) {
     const firstCardColor = playersCardsPlayedInCurrentTurn[firstPlayerInCurrentTurn]!.color;
@@ -595,12 +597,15 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
     phases: {
       [PhaseID.Deal]: {
         onPhaseBegin: (G, ctx) => {
+          console.log('phase Deal');
+
           const newDealer = G.nextDealer;
           const newNextDealer = getTurnOrder(newDealer)[1];
 
           G.expectedPoints = 0;
           G.trumpMode = TrumpMode.NoTrump;
           G.playersCards = getDefaultPlayersCards();
+          G.playersSaid = getDefaultPlayersSaid();
           G.dealer = newDealer;
           G.nextDealer = newNextDealer;
           G.firstPlayerInCurrentTurn = newNextDealer;
@@ -618,6 +623,9 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
         allowedMoves: [],
       },
       [PhaseID.Talk]: {
+        onPhaseBegin: (G, ctx) => {
+          console.log('phase Talk');
+        },
         // @TODO sayCoinche and saySurcoinche
         allowedMoves: ['saySkip', 'sayTake'] as (keyof Moves)[],
         endPhaseIf: (G) => {
@@ -625,7 +633,12 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
             return { next: PhaseID.Deal };
           }
 
-          if (G.expectedPoints && G.numberOfSuccessiveSkipSaid >= (G.howManyPlayers - 1)) {
+          if (G.expectedPoints && (
+            // 3 successive skips
+            G.numberOfSuccessiveSkipSaid >= (G.howManyPlayers - 1)
+            // maximum validExpectedPoints
+            || G.expectedPoints === validExpectedPoints[validExpectedPoints.length - 1]
+          )) {
             G.turnOrder.forEach(playerID => {
               for (let i = 0; i < G.howManyCardsToDealToEachPlayerAfterTalking; i++) {
                 const card = G.availableCards.pop();
@@ -645,6 +658,8 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
       },
       [PhaseID.PlayCards]: {
         onPhaseBegin: (G, ctx) => {
+          console.log('phase PlayCards');
+
           ctx.events.endTurn({ next: G.firstPlayerInCurrentTurn });
         },
         onTurnBegin: (G, ctx) => {
@@ -689,6 +704,8 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
       [PhaseID.CountPoints]: {
         allowedMoves: [],
         onPhaseBegin: (G, ctx) => {
+          console.log('phase CountPoints');
+
           const winner = getWinner(G.playersCardsPlayedInCurrentTurn, G.trumpMode, G.playersCardsPlayedInCurrentTurn[G.firstPlayerInCurrentTurn]!.color);
           const winnerTeam = getPlayerTeam(winner);
 
