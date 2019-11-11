@@ -36,11 +36,17 @@ export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
     }
   };
 
+  const sayableExpectedPoints = validExpectedPoints.filter(expectedPoint => isSayableExpectedPoints(expectedPoint, playersSaid));
+  // Force selectedExpectedPoint to be at least the minimum sayable expectedPoints when playersSaid changes
+  if (sayableExpectedPoints.length && sayableExpectedPoints[0] > selectedExpectedPoint) {
+    setExpectedPoint(sayableExpectedPoints[0]);
+  }
+
   return (
     <div className={styles.menu}>
       <div className={styles.sayTake}>
         <select className={styles.sayTakeExpectedPoint} value={selectedExpectedPoint} onChange={onChangeExpectedPoint}>
-          {validExpectedPoints.filter(expectedPoint => isSayableExpectedPoints(expectedPoint, playersSaid)).map(expectedPoint => (
+          {sayableExpectedPoints.map(expectedPoint => (
             <option value={expectedPoint} key={`expectedPoint_${expectedPoint}`}>
               {expectedPoint}
             </option>
