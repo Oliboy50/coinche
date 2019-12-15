@@ -46,5 +46,5 @@ declare module 'boardgame.io/react' {
     PhaseID = DefaultPhaseID,
   >(config: ClientConfig<GameStatePlayerView, Moves, PlayerID, PhaseID>): ComponentType<ClientProps<PlayerID>>;
 
-  export const Lobby: ComponentType<{gameServer: string; lobbyServer: string; gameComponents: object[]}>;
+  export const Lobby: ComponentType<{gameServer: string; lobbyServer: string; gameComponents: { game: any; board: any }[]}>;
 }

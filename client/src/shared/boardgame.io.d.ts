@@ -87,6 +87,9 @@ declare module 'boardgame.io/core' {
     PlayerID = DefaultPlayerID,
     PhaseID = DefaultPhaseID,
   > {
+    name: string;
+    minPlayers: number;
+    maxPlayers: number;
     setup: (ctx: Context<PlayerID, PhaseID>, setupData: object) => GameState;
     moves: {
       [key in keyof Moves]: (G: GameState, ctx: Context<PlayerID, PhaseID>, ...args: Parameters<Moves[key]>) => GameState | void;

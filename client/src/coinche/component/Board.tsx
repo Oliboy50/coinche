@@ -1,18 +1,11 @@
 import React from 'react';
 import {BoardProps} from 'boardgame.io/react';
 import styles from './Board.module.css';
-import {
-  GameStatePlayerView,
-  getTurnOrder,
-  Moves,
-  PhaseID,
-  PlayerID,
-} from '../../shared/coinche';
+import {GameStatePlayerView, getTurnOrder, Moves, PhaseID, PlayerID} from '../../shared/coinche';
 import {TalkMenuComponent} from './TalkMenu';
-import {MyCardsComponent} from './Cards';
-import {OtherPlayerCardsComponent} from './Cards/OtherPlayerCards';
-import {StupidTypescript} from '../../shared/errors';
+import {MyCardsComponent, OtherPlayerCardsComponent} from './Cards';
 import {PlayerSaidComponent} from './PlayerSaid';
+import {PlayerTurnIndicatorComponent} from './PlayerTurnIndicator';
 
 const getPlayerIDForPosition = (bottomPlayerID: PlayerID, position: 'top' | 'left' | 'right' | 'bottom'): PlayerID => {
   if (position === 'bottom') {
@@ -20,17 +13,14 @@ const getPlayerIDForPosition = (bottomPlayerID: PlayerID, position: 'top' | 'lef
   }
 
   const turnOrder = getTurnOrder(bottomPlayerID);
-  if (position === 'right') {
-    return turnOrder[1];
+  switch (position) {
+    case 'right':
+      return turnOrder[1];
+    case 'top':
+      return turnOrder[2];
+    case 'left':
+      return turnOrder[3];
   }
-  if (position === 'top') {
-    return turnOrder[2];
-  }
-  if (position === 'left') {
-    return turnOrder[3];
-  }
-
-  throw new StupidTypescript();
 };
 
 export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>> = ({
@@ -44,35 +34,56 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
   const rightPlayerID = getPlayerIDForPosition(playerID, 'right');
   const bottomPlayerID = playerID;
 
+  const currentPlayerIsTopPlayer = topPlayerID === ctx.currentPlayer;
+  const currentPlayerIsLeftPlayer = leftPlayerID === ctx.currentPlayer;
+  const currentPlayerIsRightPlayer = rightPlayerID === ctx.currentPlayer;
+  const currentPlayerIsBottomPlayer = bottomPlayerID === ctx.currentPlayer;
+
+  const currentPhaseIsTalk = ctx.phase === PhaseID.Talk;
+  const currentPhaseIsPlayCards = ctx.phase === PhaseID.PlayCards;
+  const currentPhaseNeedsPlayerMove = currentPhaseIsTalk || currentPhaseIsPlayCards;
+
   return (
     <React.Fragment>
       <div className={styles.board}>
         <div className={`${styles.player} ${styles.top}`}>
-          {ctx.phase === PhaseID.Talk && G.playersSaid[topPlayerID] && (
+          {currentPhaseNeedsPlayerMove && currentPlayerIsTopPlayer && (
+            <PlayerTurnIndicatorComponent />
+          )}
+          {currentPhaseIsTalk && !currentPlayerIsTopPlayer && G.playersSaid[topPlayerID] && (
             <PlayerSaidComponent playerSaid={G.playersSaid[topPlayerID]}/>
           )}
           <OtherPlayerCardsComponent cards={G.playersCards[topPlayerID]} />
         </div>
         <div className={`${styles.player} ${styles.left}`}>
-          {ctx.phase === PhaseID.Talk && G.playersSaid[leftPlayerID] && (
+          {currentPhaseNeedsPlayerMove && currentPlayerIsLeftPlayer && (
+            <PlayerTurnIndicatorComponent />
+          )}
+          {currentPhaseIsTalk && !currentPlayerIsLeftPlayer && G.playersSaid[leftPlayerID] && (
             <PlayerSaidComponent playerSaid={G.playersSaid[leftPlayerID]}/>
           )}
           <OtherPlayerCardsComponent cards={G.playersCards[leftPlayerID]} />
         </div>
         <div className={`${styles.player} ${styles.right}`}>
-          {ctx.phase === PhaseID.Talk && G.playersSaid[rightPlayerID] && (
+          {currentPhaseNeedsPlayerMove && currentPlayerIsRightPlayer && (
+            <PlayerTurnIndicatorComponent />
+          )}
+          {currentPhaseIsTalk && !currentPlayerIsRightPlayer && G.playersSaid[rightPlayerID] && (
             <PlayerSaidComponent playerSaid={G.playersSaid[rightPlayerID]}/>
           )}
           <OtherPlayerCardsComponent cards={G.playersCards[rightPlayerID]} />
         </div>
         <div className={`${styles.player} ${styles.bottom}`}>
-          {ctx.phase === PhaseID.Talk && bottomPlayerID === ctx.currentPlayer && (
-            <TalkMenuComponent moves={moves} playersSaid={G.playersSaid} />
+          {currentPhaseNeedsPlayerMove && currentPlayerIsBottomPlayer && (
+            <PlayerTurnIndicatorComponent />
           )}
-          {ctx.phase === PhaseID.Talk && bottomPlayerID !== ctx.currentPlayer && G.playersSaid[bottomPlayerID] && (
+          {currentPhaseIsTalk && !currentPlayerIsBottomPlayer && G.playersSaid[bottomPlayerID] && (
             <PlayerSaidComponent playerSaid={G.playersSaid[bottomPlayerID]}/>
           )}
-          <MyCardsComponent cards={G.playerCards} isPlayCardsPhase={ctx.phase === 'PlayCards'} playCard={moves.playCard} />
+          {currentPhaseIsTalk && currentPlayerIsBottomPlayer && (
+            <TalkMenuComponent moves={moves} playersSaid={G.playersSaid} />
+          )}
+          <MyCardsComponent cards={G.playerCards} isPlayCardsPhase={currentPhaseIsPlayCards} playCard={moves.playCard} />
         </div>
       </div>
     </React.Fragment>

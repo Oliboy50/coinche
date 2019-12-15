@@ -112,14 +112,11 @@ export const MyCardsComponent: React.FunctionComponent<ComponentProps> = ({
       {cards.sort(sortCardsFromSpadeToHeartAndFromAceToSeven).map(card => {
         const cardKey = `${card.color}${card.name}`;
         const isPlayableCard = isPlayCardsPhase && !card.isNotPlayable;
+        const onCardClick = isPlayableCard ? () => playCard(card) : undefined;
 
-        return <CardComponent
-          key={cardKey}
-          card={card}
-          {...(isPlayableCard && {
-            onClick: () => playCard(card),
-          })}
-        />;
+        return <span onClick={onCardClick}>
+          <CardComponent key={cardKey} card={card} />
+        </span>;
       })}
     </div>
   );

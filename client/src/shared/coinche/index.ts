@@ -58,6 +58,7 @@ export enum PlayerID {
   West = '3',
 }
 export const validPlayerIDs: PlayerID[] = Object.values(PlayerID);
+const howManyPlayers = Object.keys(PlayerID).length;
 
 export enum PhaseID {
   Deal = 'Deal',
@@ -492,8 +493,6 @@ export const isPlayableCard = (
   firstPlayerInCurrentTurn: PlayerID,
   playerPartner: PlayerID,
 ): boolean => {
-  // @TODO fix (seems to be broken for multiplayer mode at least)
-
   // if a card has already been played
   if (playersCardsPlayedInCurrentTurn[firstPlayerInCurrentTurn]) {
     const firstCardColor = playersCardsPlayedInCurrentTurn[firstPlayerInCurrentTurn]!.color;
@@ -545,7 +544,6 @@ export const isPlayableCard = (
 };
 
 export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>, setupData: object): GameState => {
-  const howManyPlayers = Object.keys(PlayerID).length;
   const dealer = PlayerID.North;
   const availableCards = getCards();
   const howManyCards = availableCards.length;
@@ -580,6 +578,10 @@ export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>, setupData: ob
 };
 
 export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, PlayerID, PhaseID>({
+  name: 'coinche',
+  minPlayers: howManyPlayers,
+  maxPlayers: howManyPlayers,
+
   setup: getSetupGameState,
 
   moves: {
@@ -606,6 +608,7 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
           G.trumpMode = TrumpMode.NoTrump;
           G.playersCards = getDefaultPlayersCards();
           G.playersSaid = getDefaultPlayersSaid();
+          G.numberOfSuccessiveSkipSaid = 0;
           G.dealer = newDealer;
           G.nextDealer = newNextDealer;
           G.firstPlayerInCurrentTurn = newNextDealer;
@@ -617,7 +620,6 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
             }
           });
 
-          ctx.events.endTurn({ next: newNextDealer });
           ctx.events.endPhase({ next: PhaseID.Talk });
         },
         allowedMoves: [],
@@ -625,6 +627,8 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
       [PhaseID.Talk]: {
         onPhaseBegin: (G, ctx) => {
           console.log('phase Talk');
+
+          ctx.events.endTurn({ next: G.nextDealer });
         },
         // @TODO sayCoinche and saySurcoinche
         allowedMoves: ['saySkip', 'sayTake'] as (keyof Moves)[],
@@ -651,10 +655,6 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
 
           return false;
         },
-        onPhaseEnd: (G) => ({
-          ...G,
-          numberOfSuccessiveSkipSaid: 0,
-        }),
       },
       [PhaseID.PlayCards]: {
         onPhaseBegin: (G, ctx) => {
@@ -749,7 +749,7 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
           }
 
           // @TODO congrats winning team
-          console.log(`The winner is... ${gameWinnerTeam || 'both'}!`);
+          console.log(`The winner is... ${gameWinnerTeam || 'both'}!`, G, ctx);
           ctx.events.endGame();
         },
       },

@@ -1,7 +1,7 @@
 import React, {useContext} from 'react';
 import {Card, SecretCard} from '../../../shared/coinche';
 import {ThemeContext} from '../../context/theme';
-import { UnicodeCardComponent } from './UnicodeCard';
+import {UnicodeCardComponent} from './UnicodeCard';
 import {StupidTypescript} from '../../../shared/errors';
 
 type ComponentProps = {

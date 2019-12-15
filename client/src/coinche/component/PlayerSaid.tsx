@@ -7,7 +7,7 @@ import {
   PlayerID,
 } from '../../shared/coinche';
 import {I18nContext} from '../context/i18n';
-import styles from './PlayerSaid.module.css';
+import {BubbleComponent} from './Bubble';
 
 type ComponentProps = {
   playerSaid: BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>['G']['playersSaid'][PlayerID.North],
@@ -22,12 +22,12 @@ export const PlayerSaidComponent: React.FunctionComponent<ComponentProps> = ({
   }
 
   return (
-    <div className={styles.bubble}>
-      {playerSaid === 'skip' ? (
+    <BubbleComponent type="PlayerSaid" content={
+      playerSaid === 'skip' ? (
         i18n.PlayerSaid.skip
       ) : (
         `${playerSaid.expectedPoints} ${i18n.trumpMode[playerSaid.trumpMode]}`
-      )}
-    </div>
+      )
+    } />
   );
 };
