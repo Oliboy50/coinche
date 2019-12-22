@@ -114,8 +114,8 @@ export const MyCardsComponent: React.FunctionComponent<ComponentProps> = ({
         const isPlayableCard = isPlayCardsPhase && !card.isNotPlayable;
         const onCardClick = isPlayableCard ? () => playCard(card) : undefined;
 
-        return <span onClick={onCardClick}>
-          <CardComponent key={cardKey} card={card} />
+        return <span key={cardKey} onClick={onCardClick}>
+          <CardComponent card={card} />
         </span>;
       })}
     </div>
