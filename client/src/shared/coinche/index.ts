@@ -362,6 +362,8 @@ export const getWinner = (playersCardsPlayedInCurrentTurn: Record<PlayerID, Card
     }
   }
 
+  // @TODO to remove after debugging
+  console.log(winningCard, playersCardsPlayedInCurrentTurn);
   throw new Error();
 };
 
@@ -678,7 +680,7 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
               G.trumpMode,
               G.playersCardsPlayedInCurrentTurn,
               G.firstPlayerInCurrentTurn,
-              playerPartner
+              playerPartner,
             ),
           }));
           return {
