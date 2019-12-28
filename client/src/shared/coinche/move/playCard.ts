@@ -23,7 +23,7 @@ export default (
     G.trumpMode,
     G.playersCardsPlayedInCurrentTurn,
     G.firstPlayerInCurrentTurn,
-    playerPartner
+    playerPartner,
   )) {
     throw new Error(`Player can't play this card`);
   }

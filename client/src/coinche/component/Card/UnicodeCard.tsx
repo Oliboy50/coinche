@@ -116,6 +116,6 @@ export const UnicodeCardComponent: React.FunctionComponent<ComponentProps> = ({
   card,
 }) => {
   return (
-      <span className={`${styles.card} ${getClassForCard(card)}`}>{getUnicodeForCard(card)}</span>
+    <span className={`${styles.card} ${getClassForCard(card)}`}>{getUnicodeForCard(card)}</span>
   );
 };
