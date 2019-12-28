@@ -24,6 +24,10 @@ module.exports = {
       {
         allowTemplateLiterals: true
       }
-    ]
+    ],
+    '@typescript-eslint/indent': [
+      'warn',
+      2
+    ],
   }
 };
