@@ -35,6 +35,9 @@ jobs:
       - run:
           name: server lint
           command: cd server && npm run lint && cd -
+      - run:
+          name: client build
+          command: cd client && npm run build && cd -
   test:
     <<: *dockerImage
     steps:

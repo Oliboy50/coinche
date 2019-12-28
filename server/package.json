@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "ts-node-dev src/index.ts",
     "build": "tsc -p tsconfig.build.json",
-    "test": "npm run test:unit && npm run test:e2e",
+    "test": "run-p test:unit test:e2e",
     "test:unit": "jest --config ./jest.config.js --verbose",
     "test:e2e": "jest --config ./jest.e2e-config.js --verbose",
     "lint": "run-p lint:es lint:tsc",
@@ -21,52 +21,22 @@
     "boardgame.io": "0.32.1"
   },
   "devDependencies": {
-    "@types/jest": "24.0.18",
-    "@types/node": "12.7.3",
-    "@types/supertest": "^2.0.8",
-    "@typescript-eslint/eslint-plugin": "1.13.0",
-    "@typescript-eslint/parser": "1.13.0",
+    "@types/jest": "24.0.25",
+    "@types/node": "^12.7.12",
+    "@types/supertest": "2.0.8",
+    "@typescript-eslint/eslint-plugin": "2.13.0",
+    "@typescript-eslint/parser": "2.13.0",
     "babel-eslint": "10.0.3",
-    "eslint": "6.3.0",
-    "eslint-config-react-app": "5.0.1",
-    "eslint-plugin-flowtype": "3.13.0",
-    "eslint-plugin-import": "2.18.2",
-    "eslint-plugin-jsx-a11y": "6.2.3",
-    "eslint-plugin-react": "7.14.3",
-    "eslint-plugin-react-hooks": "1.7.0",
-    "husky": "3.0.4",
+    "eslint": "6.8.0",
+    "eslint-plugin-import": "2.19.1",
+    "husky": "3.1.0",
     "jest": "24.9.0",
-    "lint-staged": "9.2.5",
+    "lint-staged": "9.5.0",
     "npm-run-all": "4.1.5",
     "supertest": "4.0.2",
-    "ts-jest": "24.0.2",
-    "ts-node-dev": "1.0.0-pre.42",
-    "typescript": "3.6.2"
-  },
-  "eslintConfig": {
-    "extends": "react-app",
-    "settings": {
-      "react": {
-        "version": "16.9.0"
-      }
-    },
-    "rules": {
-      "semi": [
-        "warn",
-        "always"
-      ],
-      "comma-dangle": [
-        "warn",
-        "always-multiline"
-      ],
-      "quotes": [
-        "warn",
-        "single",
-        {
-          "allowTemplateLiterals": true
-        }
-      ]
-    }
+    "ts-jest": "24.2.0",
+    "ts-node-dev": "1.0.0-pre.44",
+    "typescript": "3.7.4"
   },
   "husky": {
     "hooks": {

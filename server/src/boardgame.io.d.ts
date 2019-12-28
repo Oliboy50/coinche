@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 declare module 'boardgame.io/server' {
   export interface ServerConfig {
     games: any[];
@@ -6,9 +8,9 @@ declare module 'boardgame.io/server' {
   }
 
   export function Server(server: ServerConfig): {
-    app: any,
-    db: any,
-    run(portOrConfig: any, callback?: () => any): Promise<{ appServer: { close(): void }; apiServer?: { close(): void } }>,
-    kill(servers: { appServer: { close(): void }; apiServer?: { close(): void } }): void,
+    app: any;
+    db: any;
+    run(portOrConfig: any, callback?: () => any): Promise<{ appServer: { close(): void }; apiServer?: { close(): void } }>;
+    kill(servers: { appServer: { close(): void }; apiServer?: { close(): void } }): void;
   };
 }
