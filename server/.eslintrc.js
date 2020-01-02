@@ -29,5 +29,25 @@ module.exports = {
       'warn',
       2
     ],
-  }
+  },
+  overrides: [
+    {
+      files: [
+        "jest.config.js",
+        "jest.e2e-config.js",
+      ],
+      env: {
+        node: true,
+      },
+    },
+    {
+      files: [
+        "**/*.test.ts",
+        "**/*.e2e-test.ts",
+      ],
+      env: {
+        jest: true,
+      },
+    },
+  ],
 };

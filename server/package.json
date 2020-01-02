@@ -10,8 +10,8 @@
     "test:e2e": "jest --config ./jest.e2e-config.js --verbose",
     "lint": "run-p lint:es lint:tsc",
     "lint:fix": "run-p lint:fix:es",
-    "lint:es": "eslint 'src/**/*.{js,ts}'",
-    "lint:fix:es": "eslint --fix 'src/**/*.{js,ts}'",
+    "lint:es": "eslint '**/*.{js,ts}'",
+    "lint:fix:es": "eslint --fix '**/*.{js,ts}'",
     "lint:tsc": "tsc"
   },
   "engines": {
@@ -43,7 +43,7 @@
     }
   },
   "lint-staged": {
-    "src/**/*.{js,jsx,ts,tsx}": [
+    "src/**/*.{js,ts}": [
       "eslint --fix",
       "git add"
     ]
