@@ -1,11 +1,22 @@
 .card {
+  display: inline-block;
   font-size: calc(100vw / 8);
 }
-
 .black {
   color: black;
 }
-
 .red {
   color: rgb(220, 0, 0);
+}
+
+.forbidden {
+  cursor: not-allowed;
+  opacity: .25;
+}
+
+.playable {
+  cursor: pointer;
+}
+.playable:hover {
+  transform: translateY(-5%);
 }

@@ -13,7 +13,6 @@ export enum CardColor {
   Heart = 'Heart',
   Club = 'Club',
 }
-export const validCardColor: CardColor[] = Object.values(CardColor);
 
 export enum CardName {
   Ace = 'Ace',
@@ -25,12 +24,10 @@ export enum CardName {
   Queen = 'Queen',
   King = 'King',
 }
-export const validCardName: CardName[] = Object.values(CardName);
 
 export interface Card {
   color: CardColor;
   name: CardName;
-  isNotPlayable?: boolean; // to give the player the information that he is not allowed to play this card
 }
 export type SecretCard = true; // SecretCard are Card with hidden properties
 export const secretCard: SecretCard = true;
@@ -668,28 +665,26 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
           // set players cards playability
           const player = ctx.currentPlayer;
           const playerPartner = getPlayerPartner(player);
-          const setPlayerCardsAsPlayable = (playerCards: Card[]): Card[] => playerCards.map(card => ({
+          const setCardsPlayability = (cards: Card[], playerIsCurrentPlayer: boolean): Card[] => cards.map(card => ({
             ...card,
-            isNotPlayable: false,
-          }));
-          const setPlayerCardsAsPlayableOrNot = (playerCards: Card[]): Card[] => playerCards.map(card => ({
-            ...card,
-            isNotPlayable: !isPlayableCard(
-              card,
-              G.playersCards[player],
-              G.trumpMode,
-              G.playersCardsPlayedInCurrentTurn,
-              G.firstPlayerInCurrentTurn,
-              playerPartner,
-            ),
+            isPlayable: !playerIsCurrentPlayer
+              ? false
+              : isPlayableCard(
+                card,
+                G.playersCards[player],
+                G.trumpMode,
+                G.playersCardsPlayedInCurrentTurn,
+                G.firstPlayerInCurrentTurn,
+                playerPartner,
+              ),
           }));
           return {
             ...G,
             playersCards: {
-              [PlayerID.North]: PlayerID.North === player ? setPlayerCardsAsPlayableOrNot(G.playersCards[player]) : setPlayerCardsAsPlayable(G.playersCards[PlayerID.North]),
-              [PlayerID.East]: PlayerID.East === player ? setPlayerCardsAsPlayableOrNot(G.playersCards[player]) : setPlayerCardsAsPlayable(G.playersCards[PlayerID.East]),
-              [PlayerID.South]: PlayerID.South === player ? setPlayerCardsAsPlayableOrNot(G.playersCards[player]) : setPlayerCardsAsPlayable(G.playersCards[PlayerID.South]),
-              [PlayerID.West]: PlayerID.West === player ? setPlayerCardsAsPlayableOrNot(G.playersCards[player]) : setPlayerCardsAsPlayable(G.playersCards[PlayerID.West]),
+              [PlayerID.North]: setCardsPlayability(G.playersCards[PlayerID.North], PlayerID.North === player),
+              [PlayerID.East]: setCardsPlayability(G.playersCards[PlayerID.East], PlayerID.East === player),
+              [PlayerID.South]: setCardsPlayability(G.playersCards[PlayerID.South], PlayerID.South === player),
+              [PlayerID.West]: setCardsPlayability(G.playersCards[PlayerID.West], PlayerID.West === player),
             },
           };
         },
@@ -773,12 +768,12 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
 
     return {
       ...GWithoutSecretData,
-      availableCards: new Array(availableCards.length).fill(true),
+      availableCards: new Array(availableCards.length).fill(secretCard),
       playersCards: {
-        [PlayerID.North]: PlayerID.North === playerID ? playersCards[playerID] : new Array(playersCards[PlayerID.North].length).fill(true),
-        [PlayerID.East]: PlayerID.East === playerID ? playersCards[playerID] : new Array(playersCards[PlayerID.East].length).fill(true),
-        [PlayerID.South]: PlayerID.South === playerID ? playersCards[playerID] : new Array(playersCards[PlayerID.South].length).fill(true),
-        [PlayerID.West]: PlayerID.West === playerID ? playersCards[playerID] : new Array(playersCards[PlayerID.West].length).fill(true),
+        [PlayerID.North]: PlayerID.North === playerID ? playersCards[playerID] : new Array(playersCards[PlayerID.North].length).fill(secretCard),
+        [PlayerID.East]: PlayerID.East === playerID ? playersCards[playerID] : new Array(playersCards[PlayerID.East].length).fill(secretCard),
+        [PlayerID.South]: PlayerID.South === playerID ? playersCards[playerID] : new Array(playersCards[PlayerID.South].length).fill(secretCard),
+        [PlayerID.West]: PlayerID.West === playerID ? playersCards[playerID] : new Array(playersCards[PlayerID.West].length).fill(secretCard),
       },
       playerCards: playersCards[playerID] as Card[],
     };

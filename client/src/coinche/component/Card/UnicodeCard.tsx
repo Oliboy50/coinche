@@ -1,9 +1,9 @@
 import React from 'react';
-import {Card, CardColor, CardName, secretCard, SecretCard} from '../../../shared/coinche';
-import {StupidTypescript} from '../../../shared/errors';
+import {CardColor, CardName, secretCard} from '../../../shared/coinche';
+import {CardComponentProps} from './index';
 import styles from './UnicodeCard.module.css';
 
-const getUnicodeForCard = (card: Card | SecretCard): string => {
+const getUnicode = (card: CardComponentProps['card']): string => {
   if (card === secretCard) {
     return '🂠';
   }
@@ -88,13 +88,10 @@ const getUnicodeForCard = (card: Card | SecretCard): string => {
         case CardName.King:
           return '🃞';
       }
-      break;
   }
-
-  throw new StupidTypescript();
 };
 
-const getClassForCard = (card: Card | SecretCard): string => {
+const getColorClass = (card: CardComponentProps['card']): string => {
   if (card === secretCard) {
     return '';
   }
@@ -109,13 +106,24 @@ const getClassForCard = (card: Card | SecretCard): string => {
   }
 };
 
-type ComponentProps = {
-  card: Card | SecretCard,
+const getPlayCardStateClass = (playCardState: CardComponentProps['playCardState']): string => {
+  switch (playCardState) {
+    case undefined:
+      return '';
+    case 'playable':
+      return styles.playable;
+    case 'forbidden':
+      return styles.forbidden;
+  }
 };
-export const UnicodeCardComponent: React.FunctionComponent<ComponentProps> = ({
+
+export const UnicodeCardComponent: React.FunctionComponent<CardComponentProps> = ({
   card,
+  playCardState,
 }) => {
   return (
-    <span className={`${styles.card} ${getClassForCard(card)}`}>{getUnicodeForCard(card)}</span>
+    <span className={`${styles.card} ${getColorClass(card)} ${getPlayCardStateClass(playCardState)}`}>{
+      getUnicode(card)
+    }</span>
   );
 };

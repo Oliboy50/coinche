@@ -4,16 +4,20 @@ import {ThemeContext} from '../../context/theme';
 import {UnicodeCardComponent} from './UnicodeCard';
 import {StupidTypescript} from '../../../shared/errors';
 
-type ComponentProps = {
+export type PlayCardState =
+  | 'playable' // when the player must play a card and the card is playable
+  | 'forbidden' // when the player must play a card and the card is not playable
+;
+
+export type CardComponentProps = {
   card: Card | SecretCard,
+  playCardState?: PlayCardState,
 };
-export const CardComponent: React.FunctionComponent<ComponentProps> = ({
-  card,
-}) => {
+export const CardComponent: React.FunctionComponent<CardComponentProps> = (props) => {
   const theme = useContext(ThemeContext);
 
   if (theme.cardDisplay === 'unicode') {
-    return <UnicodeCardComponent card={card}/>;
+    return <UnicodeCardComponent {...props}/>;
   }
 
   throw new StupidTypescript();

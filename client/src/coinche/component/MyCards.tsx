@@ -1,8 +1,8 @@
 import React from 'react';
-import {Card, CardColor, CardName, Moves} from '../../../shared/coinche';
-import {CardComponent} from '../Card';
+import {Card, CardColor, CardName, GameState, isPlayableCard, Moves, PlayerID, TrumpMode} from '../../shared/coinche';
+import {StupidTypescript} from '../../shared/errors';
+import {CardComponent} from './Card';
 import styles from './MyCards.module.css';
-import {StupidTypescript} from '../../../shared/errors';
 
 const sortCardsFromSpadeToHeartAndFromAceToSeven = (a: Card, b: Card): number => {
   // sort by color
@@ -99,23 +99,33 @@ const sortCardsFromSpadeToHeartAndFromAceToSeven = (a: Card, b: Card): number =>
 
 type ComponentProps = {
   cards: Card[],
-  isPlayCardsPhase: boolean,
+  isMyTurnToPlayACard: boolean,
   playCard: Moves['playCard'],
+  trumpMode: TrumpMode,
+  playersCardsPlayedInCurrentTurn: GameState['playersCardsPlayedInCurrentTurn'],
+  firstPlayerInCurrentTurn: PlayerID,
+  playerPartner: PlayerID,
 };
 export const MyCardsComponent: React.FunctionComponent<ComponentProps> = ({
   cards,
-  isPlayCardsPhase,
+  isMyTurnToPlayACard,
   playCard,
+  trumpMode,
+  playersCardsPlayedInCurrentTurn,
+  firstPlayerInCurrentTurn,
+  playerPartner,
 }) => {
   return (
     <div className={styles.cards}>
       {cards.sort(sortCardsFromSpadeToHeartAndFromAceToSeven).map(card => {
         const cardKey = `${card.color}${card.name}`;
-        const isPlayableCard = isPlayCardsPhase && !card.isNotPlayable;
-        const onCardClick = isPlayableCard ? () => playCard(card) : undefined;
+        const playCardState = isMyTurnToPlayACard
+          ? (isPlayableCard(card, cards, trumpMode, playersCardsPlayedInCurrentTurn, firstPlayerInCurrentTurn, playerPartner) ? 'playable' : 'forbidden')
+          : undefined;
+        const onCardClick = playCardState === 'playable' ? () => playCard(card) : undefined;
 
         return <span key={cardKey} onClick={onCardClick}>
-          <CardComponent card={card} />
+          <CardComponent card={card} playCardState={playCardState} />
         </span>;
       })}
     </div>

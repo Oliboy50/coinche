@@ -5,28 +5,26 @@
   border: 2px solid black;
 }
 
-.player.bottom {
+.player {
   position: absolute;
-  display: grid;
+}
+.player.bottom {
   bottom: 0;
   left: 0;
   right: 0;
 }
 .player.left {
-  position: absolute;
   top: 0;
   left: 0;
   transform: scale(0.5) rotate(90deg) translateX(50vh) translateY(40vw);
 }
 .player.top {
-  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   transform: scale(0.5) rotate(180deg);
 }
 .player.right {
-  position: absolute;
   top: 0;
   right: 0;
   transform: scale(0.5) rotate(270deg) translateX(-50vh) translateY(40vw);

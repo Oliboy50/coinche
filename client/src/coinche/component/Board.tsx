@@ -1,9 +1,10 @@
 import React from 'react';
 import {BoardProps} from 'boardgame.io/react';
 import styles from './Board.module.css';
-import {GameStatePlayerView, getTurnOrder, Moves, PhaseID, PlayerID} from '../../shared/coinche';
+import {GameStatePlayerView, getPlayerPartner, getTurnOrder, Moves, PhaseID, PlayerID} from '../../shared/coinche';
 import {TalkMenuComponent} from './TalkMenu';
-import {MyCardsComponent, OtherPlayerCardsComponent} from './Cards';
+import {MyCardsComponent} from './MyCards';
+import {OtherPlayerCardsComponent} from './OtherPlayerCards';
 import {PlayerSaidComponent} from './PlayerSaid';
 import {PlayerTurnIndicatorComponent} from './PlayerTurnIndicator';
 
@@ -83,7 +84,15 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
           {currentPhaseIsTalk && currentPlayerIsBottomPlayer && (
             <TalkMenuComponent moves={moves} playersSaid={G.playersSaid} />
           )}
-          <MyCardsComponent cards={G.playerCards} isPlayCardsPhase={currentPhaseIsPlayCards} playCard={moves.playCard} />
+          <MyCardsComponent
+            cards={G.playerCards}
+            isMyTurnToPlayACard={currentPhaseIsPlayCards && currentPlayerIsBottomPlayer}
+            playCard={moves.playCard}
+            trumpMode={G.trumpMode}
+            playersCardsPlayedInCurrentTurn={G.playersCardsPlayedInCurrentTurn}
+            firstPlayerInCurrentTurn={G.firstPlayerInCurrentTurn}
+            playerPartner={getPlayerPartner(playerID)}
+          />
         </div>
       </div>
     </React.Fragment>
