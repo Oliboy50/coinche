@@ -1,6 +1,5 @@
 import React from 'react';
 import {Card, CardColor, CardName, GameState, isPlayableCard, Moves, PlayerID, TrumpMode} from '../../shared/coinche';
-import {StupidTypescript} from '../../shared/errors';
 import {CardComponent} from './Card';
 import styles from './MyCards.module.css';
 
@@ -33,68 +32,60 @@ const sortCardsFromSpadeToHeartAndFromAceToSeven = (a: Card, b: Card): number =>
   // both cards have the same color
 
   // sort by name
-  if (a.name === CardName.Ace) {
-    return -1;
+  switch (a.name) {
+    case CardName.Ace:
+      return -1;
+    case CardName.King:
+      switch (b.name) {
+        case CardName.Ace:
+          return 1;
+        default:
+          return -1;
+      }
+    case CardName.Queen:
+      switch (b.name) {
+        case CardName.Ace:
+        case CardName.King:
+          return 1;
+        default:
+          return -1;
+      }
+    case CardName.Jack:
+      switch (b.name) {
+        case CardName.Ace:
+        case CardName.King:
+        case CardName.Queen:
+          return 1;
+        default:
+          return -1;
+      }
+    case CardName.Ten:
+      switch (b.name) {
+        case CardName.Nine:
+        case CardName.Eight:
+        case CardName.Seven:
+          return -1;
+        default:
+          return 1;
+      }
+    case CardName.Nine:
+      switch (b.name) {
+        case CardName.Eight:
+        case CardName.Seven:
+          return -1;
+        default:
+          return 1;
+      }
+    case CardName.Eight:
+      switch (b.name) {
+        case CardName.Seven:
+          return -1;
+        default:
+          return 1;
+      }
+    case CardName.Seven:
+      return 1;
   }
-  if (a.name === CardName.King) {
-    switch (b.name) {
-      case CardName.Ace:
-        return 1;
-      default:
-        return -1;
-    }
-  }
-  if (a.name === CardName.Queen) {
-    switch (b.name) {
-      case CardName.Ace:
-      case CardName.King:
-        return 1;
-      default:
-        return -1;
-    }
-  }
-  if (a.name === CardName.Jack) {
-    switch (b.name) {
-      case CardName.Ace:
-      case CardName.King:
-      case CardName.Queen:
-        return 1;
-      default:
-        return -1;
-    }
-  }
-  if (a.name === CardName.Ten) {
-    switch (b.name) {
-      case CardName.Nine:
-      case CardName.Eight:
-      case CardName.Seven:
-        return -1;
-      default:
-        return 1;
-    }
-  }
-  if (a.name === CardName.Nine) {
-    switch (b.name) {
-      case CardName.Eight:
-      case CardName.Seven:
-        return -1;
-      default:
-        return 1;
-    }
-  }
-  if (a.name === CardName.Eight) {
-    switch (b.name) {
-      case CardName.Seven:
-        return -1;
-      default:
-        return 1;
-    }
-  }
-  if (a.name === CardName.Seven) {
-    return 1;
-  }
-
-  throw new StupidTypescript();
 };
 
 type ComponentProps = {
