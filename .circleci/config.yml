@@ -51,6 +51,16 @@ jobs:
           name: server test
           command: cd server && npm run test && cd -
 
+  e2e:
+    <<: *dockerImage
+    steps:
+      - *addCertificates
+      - attach_workspace:
+          at: .
+      - run:
+          name: e2e test
+          command: cd client && npm run e2e:ci && cd -
+
 workflows:
   version: 2
   dev-worflow:
@@ -60,5 +70,8 @@ workflows:
           requires:
             - install
       - test:
+          requires:
+            - install
+      - e2e:
           requires:
             - install

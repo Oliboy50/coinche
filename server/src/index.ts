@@ -1,5 +1,5 @@
-import { app } from './app';
+import { server } from './server';
 
 (async(): Promise<void> => {
-  await app.run(process.env.PORT ? process.env.PORT : 8000);
+  await server.run(process.env.PORT ? process.env.PORT : 8000);
 })();

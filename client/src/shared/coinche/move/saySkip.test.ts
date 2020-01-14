@@ -5,7 +5,7 @@ import {
   PlayerID,
 } from '../index';
 import saySkip from './saySkip';
-import { getDefaultContext, getDefaultGameState } from './__testHelper/__moves';
+import { getDefaultContext, getDefaultGameState } from './__testHelper';
 
 describe(`move/saySkip`, () => {
   let G: GameState;

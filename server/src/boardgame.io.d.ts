@@ -1,6 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 declare module 'boardgame.io/server' {
+  import Application = require('koa');
+
+  export interface AppServer {
+    close(): void;
+  }
+
+  export interface ApiServer {
+    close(): void;
+  }
+
   export interface ServerConfig {
     games: any[];
     db?: { connect(): Promise<void> };
@@ -8,9 +18,9 @@ declare module 'boardgame.io/server' {
   }
 
   export function Server(server: ServerConfig): {
-    app: any;
+    app: Application;
     db: any;
-    run(portOrConfig: any, callback?: () => any): Promise<{ appServer: { close(): void }; apiServer?: { close(): void } }>;
-    kill(servers: { appServer: { close(): void }; apiServer?: { close(): void } }): void;
+    run(portOrConfig: any, callback?: () => any): Promise<{ appServer: AppServer; apiServer?: ApiServer }>;
+    kill(servers: { appServer: AppServer; apiServer?: ApiServer }): void;
   };
 }
