@@ -15,7 +15,7 @@ import playCard from './playCard';
 import {
   getDefaultContext,
   getDefaultGameState,
-} from './__testHelper/__moves';
+} from './__testHelper';
 
 describe(`move/playCard`, () => {
   let G: GameState;

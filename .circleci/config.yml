@@ -3,7 +3,7 @@ version: 2
 aliases:
   - &dockerImage
     docker:
-      - image: node:12.7.0-alpine
+      - image: node:12.14.0-alpine
   # fixes https://discuss.circleci.com/t/requesterror-x509-certificate-signed-by-unknown-authority-while-uploading-workspace/27908/3
   - &addCertificates
     run: apk add --no-cache ca-certificates
@@ -14,12 +14,22 @@ jobs:
     steps:
       - *addCertificates
       - checkout
+      - restore_cache:
+          keys:
+            - v1-install-{{ .Branch }}-{{ checksum "server/package.json" }}-{{ checksum "client/package.json" }}
+            - v1-install-{{ .Branch }}
+            - v1-install
       - run:
           name: client install
           command: cd client && npm ci && cd -
       - run:
           name: server install
           command: cd server && npm ci && cd -
+      - save_cache:
+          key: v1-install-{{ .Branch }}-{{ checksum "server/package.json" }}-{{ checksum "client/package.json" }}
+          paths:
+            - ~/.npm
+            - ~/.cache
       - persist_to_workspace:
           root: .
           paths: '*'
@@ -35,9 +45,6 @@ jobs:
       - run:
           name: server lint
           command: cd server && npm run lint && cd -
-      - run:
-          name: client build
-          command: cd client && npm run build && cd -
   test:
     <<: *dockerImage
     steps:
@@ -50,6 +57,34 @@ jobs:
       - run:
           name: server test
           command: cd server && npm run test && cd -
+  e2e:
+    # https://docs.cypress.io/guides/guides/continuous-integration.html#Example-circle-yml-v2-config-file
+    docker:
+      - image: cypress/base:12.14.0
+        environment:
+          TERM: xterm
+    steps:
+      - attach_workspace:
+          at: .
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-e2e-{{ .Branch }}-{{ checksum "e2e/package.json" }}
+            - v1-e2e-{{ .Branch }}
+            - v1-e2e
+      - run:
+          name: e2e install
+          command: cd e2e && npm ci && cd -
+      - save_cache:
+          key: v1-e2e-{{ .Branch }}-{{ checksum "e2e/package.json" }}
+          paths:
+            - ~/.npm
+            - ~/.cache
+      - run:
+          name: e2e test
+          command: cd e2e && npm run test && cd -
+      - store_artifacts:
+          path: e2e/src/screenshots
 
 workflows:
   version: 2
@@ -60,5 +95,8 @@ workflows:
           requires:
             - install
       - test:
+          requires:
+            - install
+      - e2e:
           requires:
             - install

@@ -15,14 +15,17 @@
     "lint:tsc": "tsc"
   },
   "engines": {
-    "node": "^12.7.0"
+    "node": "^12.14.0"
   },
   "dependencies": {
-    "boardgame.io": "0.32.1"
+    "boardgame.io": "0.32.1",
+    "koa-route": "3.2.0"
   },
   "devDependencies": {
     "@types/jest": "24.0.25",
-    "@types/node": "^12.7.12",
+    "@types/koa": "2.11.0",
+    "@types/koa-route": "3.2.4",
+    "@types/node": "12.12.25",
     "@types/supertest": "2.0.8",
     "@typescript-eslint/eslint-plugin": "2.13.0",
     "@typescript-eslint/parser": "2.13.0",
@@ -43,7 +46,7 @@
     }
   },
   "lint-staged": {
-    "src/**/*.{js,ts}": [
+    "**/*.{js,ts}": [
       "eslint --fix",
       "git add"
     ]
