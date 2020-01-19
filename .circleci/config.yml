@@ -14,12 +14,22 @@ jobs:
     steps:
       - *addCertificates
       - checkout
+      - restore_cache:
+          keys:
+            - v1-install-{{ .Branch }}-{{ checksum "server/package.json" }}-{{ checksum "client/package.json" }}
+            - v1-install-{{ .Branch }}
+            - v1-install
       - run:
           name: client install
           command: cd client && npm ci && cd -
       - run:
           name: server install
           command: cd server && npm ci && cd -
+      - save_cache:
+          key: v1-install-{{ .Branch }}-{{ checksum "server/package.json" }}-{{ checksum "client/package.json" }}
+          paths:
+            - ~/.npm
+            - ~/.cache
       - persist_to_workspace:
           root: .
           paths: '*'
@@ -35,9 +45,6 @@ jobs:
       - run:
           name: server lint
           command: cd server && npm run lint && cd -
-      - run:
-          name: client build
-          command: cd client && npm run build && cd -
   test:
     <<: *dockerImage
     steps:
@@ -57,26 +64,27 @@ jobs:
         environment:
           TERM: xterm
     steps:
-      - *addCertificates
       - attach_workspace:
           at: .
       - checkout
       - restore_cache:
           keys:
-            - v1-deps-{{ .Branch }}-{{ checksum "package.json" }}
-            - v1-deps-{{ .Branch }}
-            - v1-deps
+            - v1-e2e-{{ .Branch }}-{{ checksum "client/package.json" }}
+            - v1-e2e-{{ .Branch }}
+            - v1-e2e
       - run:
           name: e2e install
           command: cd client && npm ci && cd -
       - save_cache:
-          key: v1-deps-{{ .Branch }}-{{ checksum "package.json" }}
+          key: v1-e2e-{{ .Branch }}-{{ checksum "client/package.json" }}
           paths:
             - ~/.npm
             - ~/.cache
       - run:
           name: e2e test
           command: cd client && npm run e2e:ci && cd -
+      - store_artifacts:
+          path: client/e2e/screenshots
 
 workflows:
   version: 2

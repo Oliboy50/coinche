@@ -1,4 +1,5 @@
 /// <reference types="Cypress" />
+/* eslint-disable cypress/no-unnecessary-waiting */
 
 describe('Coinche - play', () => {
   beforeEach(() => {
@@ -15,16 +16,19 @@ describe('Coinche - play', () => {
     cy.contains('button', 'Enter').click();
     cy.contains('button', 'Create').click();
     cy.contains('button', 'Join').click();
+    cy.wait(500);
 
     // connect player 2 and join
     cy.get(`input[value=${currentPlayer}]`).clear().type(currentPlayer = '2');
     cy.contains('button', 'Enter').click();
     cy.contains('button', 'Join').click();
+    cy.wait(500);
 
     // connect player 3 and join
     cy.get(`input[value=${currentPlayer}]`).clear().type(currentPlayer = '3');
     cy.contains('button', 'Enter').click();
     cy.contains('button', 'Join').click();
+    cy.wait(500);
 
     // connect player 4, join and start playing
     cy.get(`input[value=${currentPlayer}]`).clear().type(currentPlayer = '4');
