@@ -20,7 +20,7 @@
     "eject": "react-scripts eject"
   },
   "engines": {
-    "node": "^12.7.0"
+    "node": "^12.14.0"
   },
   "dependencies": {
     "boardgame.io": "0.32.1",
