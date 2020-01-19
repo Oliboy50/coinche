@@ -69,22 +69,22 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-e2e-{{ .Branch }}-{{ checksum "client/package.json" }}
+            - v1-e2e-{{ .Branch }}-{{ checksum "e2e/package.json" }}
             - v1-e2e-{{ .Branch }}
             - v1-e2e
       - run:
           name: e2e install
-          command: cd client && npm ci && cd -
+          command: cd e2e && npm ci && cd -
       - save_cache:
-          key: v1-e2e-{{ .Branch }}-{{ checksum "client/package.json" }}
+          key: v1-e2e-{{ .Branch }}-{{ checksum "e2e/package.json" }}
           paths:
             - ~/.npm
             - ~/.cache
       - run:
           name: e2e test
-          command: cd client && npm run e2e:ci && cd -
+          command: cd e2e && npm run test && cd -
       - store_artifacts:
-          path: client/e2e/screenshots
+          path: e2e/src/screenshots
 
 workflows:
   version: 2

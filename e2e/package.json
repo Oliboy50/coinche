@@ -1,0 +1,41 @@
+{
+  "name": "coinche-e2e",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo '...assuming client is running on localhost:3000...' && CYPRESS_TEST_ENV=dev cypress open",
+    "test": "run-p test:server:build test:client:build && DEBUG=start-server-and-test start-server-and-test 'run-p test:server:run test:client:run' 'http://localhost:8000/healthz|http://localhost:3000' 'CYPRESS_TEST_ENV=ci cypress run'",
+    "test:server:build": "cd ../server && run-p build && cd -",
+    "test:server:run": "node ../server/build/server/src/index.js",
+    "test:client:build": "cd ../client && REACT_APP_API_BASE_URL=http://localhost:8000 run-p build && cd -",
+    "test:client:run": "npx serve -l 3000 -s ../client/build",
+    "lint": "run-p lint:es",
+    "lint:fix": "run-p lint:fix:es",
+    "lint:es": "eslint '**/*.{js,ts}'",
+    "lint:fix:es": "eslint --fix '**/*.{js,ts}'"
+  },
+  "engines": {
+    "node": "^12.14.0"
+  },
+  "devDependencies": {
+    "@types/node": "12.12.25",
+    "cypress": "3.8.2",
+    "eslint": "6.8.0",
+    "eslint-plugin-cypress": "2.8.1",
+    "husky": "3.1.0",
+    "lint-staged": "9.5.0",
+    "npm-run-all": "4.1.5",
+    "start-server-and-test": "1.10.6"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "**/*.{js,ts}": [
+      "eslint --fix",
+      "git add"
+    ]
+  }
+}

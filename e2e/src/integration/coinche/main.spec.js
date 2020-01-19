@@ -1,7 +1,7 @@
 /// <reference types="Cypress" />
 /* eslint-disable cypress/no-unnecessary-waiting */
 
-describe('Coinche - play', () => {
+describe('coinche', () => {
   beforeEach(() => {
     cy.clearData();
   });
