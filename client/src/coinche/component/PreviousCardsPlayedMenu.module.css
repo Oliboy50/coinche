@@ -1,0 +1,9 @@
+.menu {
+  display: grid;
+  align-content: center;
+  border: 2px solid yellow;
+}
+
+.toggleIsDisplayedPreviousCardsPlayed {
+  display: grid;
+}

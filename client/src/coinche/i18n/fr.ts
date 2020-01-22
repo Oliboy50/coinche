@@ -9,6 +9,10 @@ export const fr: I18n = {
     [TrumpMode.TrumpHeart]: 'Coeur',
     [TrumpMode.NoTrump]: 'Sans Atout',
   },
+  PreviousCardsPlayedMenu: {
+    displayPreviousCardsPlayed: 'Voir les cartes jouées au tour précédent',
+    doNotDisplayPreviousCardsPlayed: 'Ne plus voir les cartes jouées au tour précédent',
+  },
   TalkMenu: {
     takeButton: 'Prendre',
     skipButton: 'Passer',

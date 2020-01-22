@@ -6,6 +6,10 @@ export type I18n = {
     takeButton: string;
     skipButton: string;
   },
+  PreviousCardsPlayedMenu: {
+    displayPreviousCardsPlayed: string;
+    doNotDisplayPreviousCardsPlayed: string;
+  },
   PlayerSaid: {
     skip: string;
   },
