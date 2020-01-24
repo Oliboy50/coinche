@@ -328,8 +328,6 @@ export const isCardBeatingTheOtherCards = (card: Card, otherCards: Card[], trump
     case CardName.King:
       return otherCards.every(({ color, name }) => color !== cardColorAssociatedToTrumpMode && ![CardName.Ten, CardName.Ace].includes(name));
   }
-
-  throw new Error();
 };
 
 export const getWinningCard = (cards: Card[], trumpMode: TrumpMode, firstCardColor: CardColor): Card => {
@@ -337,14 +335,17 @@ export const getWinningCard = (cards: Card[], trumpMode: TrumpMode, firstCardCol
     throw new Error();
   }
 
-  let winningCard: Card;
-  cards.forEach((card) => {
-    if (isCardBeatingTheOtherCards(card, cards.filter(c => isSameCard(c, card)), trumpMode, firstCardColor)) {
-      winningCard = card;
+  return cards.reduce((currentWinningCard, card) => {
+    if (!currentWinningCard) {
+      return card;
     }
-  });
 
-  return winningCard!;
+    if (isCardBeatingTheOtherCards(card, cards.filter(c => !isSameCard(c, card)), trumpMode, firstCardColor)) {
+      return card;
+    }
+
+    return currentWinningCard;
+  });
 };
 
 export const getWinner = (playersCardsPlayedInCurrentTurn: Record<PlayerID, Card | undefined>, trumpMode: TrumpMode, firstCardColor: CardColor): PlayerID => {
@@ -613,6 +614,7 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
           G.dealer = newDealer;
           G.nextDealer = newNextDealer;
           G.firstPlayerInCurrentTurn = newNextDealer;
+          G.playersCardsPlayedInPreviousTurn = undefined;
           G.availableCards = ctx.random.Shuffle(getCards());
           G.turnOrder.forEach(playerID => {
             for (let i = 0; i < G.howManyCardsToDealToEachPlayerBeforeTalking; i++) {
@@ -743,7 +745,7 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
             G.teamsPoints[G.defensingTeam] += defensingTeamPoints;
           }
 
-          // check if the end of the game has been reached
+          // go to Deal phase if the end of the game has not been reached
           const gameWinnerTeam = getGameWinnerTeam(G.teamsPoints, G.howManyPointsATeamMustReachToEndTheGame);
           if (gameWinnerTeam === undefined) {
             ctx.events.endPhase({ next: PhaseID.Deal });
