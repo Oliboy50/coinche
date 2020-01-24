@@ -94,6 +94,7 @@ export interface GameState {
   // turn state
   firstPlayerInCurrentTurn: PlayerID;
   playersCardsPlayedInCurrentTurn: Record<PlayerID, Card | undefined>;
+  playersCardsPlayedInPreviousTurn: Record<PlayerID, Card> | undefined;
 }
 export type GameStatePlayerView = Omit<GameState, 'availableCards' | 'playersCards'> & {
   availableCards: SecretCard[];
@@ -573,6 +574,7 @@ export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>, setupData: ob
     playersSaid: getDefaultPlayersSaid(),
     numberOfSuccessiveSkipSaid: 0,
     playersCardsPlayedInCurrentTurn: getDefaultPlayersCardsPlayedInCurrentTurn(),
+    playersCardsPlayedInPreviousTurn: undefined,
   };
 };
 
@@ -705,6 +707,9 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
 
           const winner = getWinner(G.playersCardsPlayedInCurrentTurn, G.trumpMode, G.playersCardsPlayedInCurrentTurn[G.firstPlayerInCurrentTurn]!.color);
           const winnerTeam = getPlayerTeam(winner);
+
+          // fill cards played in previous turn
+          G.playersCardsPlayedInPreviousTurn = {...G.playersCardsPlayedInCurrentTurn} as Record<PlayerID, Card>; // cast because G.playersCardsPlayedInCurrentTurn can't contain "undefined" values at this point
 
           // move played cards to winner team cards
           (Object.values(G.playersCardsPlayedInCurrentTurn).filter(c => c !== undefined) as Card[]).forEach(card => G.wonTeamsCards[winnerTeam].push(card));

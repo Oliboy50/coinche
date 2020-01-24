@@ -1,12 +1,20 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {BoardProps} from 'boardgame.io/react';
 import styles from './Board.module.css';
-import {GameStatePlayerView, getPlayerPartner, getTurnOrder, Moves, PhaseID, PlayerID} from '../../shared/coinche';
+import {
+  GameStatePlayerView,
+  getPlayerPartner,
+  getTurnOrder,
+  Moves,
+  PhaseID,
+  PlayerID,
+} from '../../shared/coinche';
 import {TalkMenuComponent} from './TalkMenu';
 import {MyCardsComponent} from './MyCards';
 import {OtherPlayerCardsComponent} from './OtherPlayerCards';
 import {PlayerSaidComponent} from './PlayerSaid';
 import {PlayerTurnIndicatorComponent} from './PlayerTurnIndicator';
+import {PreviousCardsPlayedMenuComponent} from './PreviousCardsPlayedMenu';
 
 const getPlayerIDForPosition = (bottomPlayerID: PlayerID, position: 'top' | 'left' | 'right' | 'bottom'): PlayerID => {
   if (position === 'bottom') {
@@ -43,6 +51,11 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
   const currentPhaseIsTalk = ctx.phase === PhaseID.Talk;
   const currentPhaseIsPlayCards = ctx.phase === PhaseID.PlayCards;
   const currentPhaseNeedsPlayerMove = currentPhaseIsTalk || currentPhaseIsPlayCards;
+
+  const isFirstPlayCardTurn = G.playersCardsPlayedInPreviousTurn === undefined;
+
+  // @TODO use isDisplayedPreviousCardsPlayed to display previous cards played (when we'll be able to show the current cards played, it will replace the current cards by the previous... maybe)
+  const [isDisplayedPreviousCardsPlayed, setIsDisplayedPreviousCardsPlayed] = useState(false);
 
   return (
     <React.Fragment>
@@ -83,6 +96,9 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
           )}
           {currentPhaseIsTalk && currentPlayerIsBottomPlayer && (
             <TalkMenuComponent moves={moves} playersSaid={G.playersSaid} />
+          )}
+          {currentPhaseIsPlayCards && !isFirstPlayCardTurn && (
+            <PreviousCardsPlayedMenuComponent isDisplayedPreviousCardsPlayed={isDisplayedPreviousCardsPlayed} toggleIsDisplayedPreviousCardsPlayed={() => setIsDisplayedPreviousCardsPlayed(!isDisplayedPreviousCardsPlayed)} />
           )}
           <MyCardsComponent
             cards={G.playerCards}
