@@ -5,6 +5,15 @@
   border: 2px solid black;
 }
 
+.playedCardsArea {
+  position: absolute;
+  top: 20vh;
+  bottom: 20vh;
+  left: 20vw;
+  right: 20vw;
+  border: 2px solid blueviolet;
+}
+
 .player {
   position: absolute;
 }
@@ -16,7 +25,7 @@
 .player.left {
   top: 0;
   left: 0;
-  transform: scale(0.5) rotate(90deg) translateX(50vh) translateY(40vw);
+  transform: scale(0.5) rotate(90deg) translateX(62vh) translateY(44vw);
 }
 .player.top {
   top: 0;
@@ -27,5 +36,5 @@
 .player.right {
   top: 0;
   right: 0;
-  transform: scale(0.5) rotate(270deg) translateX(-50vh) translateY(40vw);
+  transform: scale(0.5) rotate(270deg) translateX(-50vh) translateY(38vw);
 }
