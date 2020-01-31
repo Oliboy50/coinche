@@ -68,6 +68,82 @@ export enum TeamID {
   EastWest = 'EastWest',
 }
 
+export enum AnnounceId {
+  SquareAce = 'SquareAce',
+  SquareNine = 'SquareNine',
+  SquareTen = 'SquareTen',
+  SquareJack = 'SquareJack',
+  SquareQueen = 'SquareQueen',
+  SquareKing = 'SquareKing',
+  TierceAceSpade = 'TierceAceSpade',
+  TierceAceDiamond = 'TierceAceDiamond',
+  TierceAceHeart = 'TierceAceHeart',
+  TierceAceClub = 'TierceAceClub',
+  TierceKingSpade = 'TierceKingSpade',
+  TierceKingDiamond = 'TierceKingDiamond',
+  TierceKingHeart = 'TierceKingHeart',
+  TierceKingClub = 'TierceKingClub',
+  TierceQueenSpade = 'TierceQueenSpade',
+  TierceQueenDiamond = 'TierceQueenDiamond',
+  TierceQueenHeart = 'TierceQueenHeart',
+  TierceQueenClub = 'TierceQueenClub',
+  TierceJackSpade = 'TierceJackSpade',
+  TierceJackDiamond = 'TierceJackDiamond',
+  TierceJackHeart = 'TierceJackHeart',
+  TierceJackClub = 'TierceJackClub',
+  TierceTenSpade = 'TierceTenSpade',
+  TierceTenDiamond = 'TierceTenDiamond',
+  TierceTenHeart = 'TierceTenHeart',
+  TierceTenClub = 'TierceTenClub',
+  TierceNineSpade = 'TierceNineSpade',
+  TierceNineDiamond = 'TierceNineDiamond',
+  TierceNineHeart = 'TierceNineHeart',
+  TierceNineClub = 'TierceNineClub',
+  QuarteAceSpade = 'QuarteAceSpade',
+  QuarteAceDiamond = 'QuarteAceDiamond',
+  QuarteAceHeart = 'QuarteAceHeart',
+  QuarteAceClub = 'QuarteAceClub',
+  QuarteKingSpade = 'QuarteKingSpade',
+  QuarteKingDiamond = 'QuarteKingDiamond',
+  QuarteKingHeart = 'QuarteKingHeart',
+  QuarteKingClub = 'QuarteKingClub',
+  QuarteQueenSpade = 'QuarteQueenSpade',
+  QuarteQueenDiamond = 'QuarteQueenDiamond',
+  QuarteQueenHeart = 'QuarteQueenHeart',
+  QuarteQueenClub = 'QuarteQueenClub',
+  QuarteJackSpade = 'QuarteJackSpade',
+  QuarteJackDiamond = 'QuarteJackDiamond',
+  QuarteJackHeart = 'QuarteJackHeart',
+  QuarteJackClub = 'QuarteJackClub',
+  QuarteTenSpade = 'QuarteTenSpade',
+  QuarteTenDiamond = 'QuarteTenDiamond',
+  QuarteTenHeart = 'QuarteTenHeart',
+  QuarteTenClub = 'QuarteTenClub',
+  QuinteAceSpade = 'QuinteAceSpade',
+  QuinteAceDiamond = 'QuinteAceDiamond',
+  QuinteAceHeart = 'QuinteAceHeart',
+  QuinteAceClub = 'QuinteAceClub',
+  QuinteKingSpade = 'QuinteKingSpade',
+  QuinteKingDiamond = 'QuinteKingDiamond',
+  QuinteKingHeart = 'QuinteKingHeart',
+  QuinteKingClub = 'QuinteKingClub',
+  QuinteQueenSpade = 'QuinteQueenSpade',
+  QuinteQueenDiamond = 'QuinteQueenDiamond',
+  QuinteQueenHeart = 'QuinteQueenHeart',
+  QuinteQueenClub = 'QuinteQueenClub',
+  QuinteJackSpade = 'QuinteJackSpade',
+  QuinteJackDiamond = 'QuinteJackDiamond',
+  QuinteJackHeart = 'QuinteJackHeart',
+  QuinteJackClub = 'QuinteJackClub',
+  // @TODO
+  // Belot = 'Belot',
+}
+
+export interface Announce {
+  id: AnnounceId;
+  cards: Card[];
+}
+
 export interface GameState {
   // global state
   howManyPlayers: number;
@@ -90,6 +166,7 @@ export interface GameState {
   trumpMode: TrumpMode;
   playersSaid: Record<PlayerID, 'skip' | { expectedPoints: number; trumpMode: TrumpMode } | undefined>;
   numberOfSuccessiveSkipSaid: number;
+  teamsAnnounces: Record<TeamID, { announce: Announce; value: number; isSaid: boolean; }[]>;
 
   // turn state
   firstPlayerInCurrentTurn: PlayerID;
@@ -146,6 +223,692 @@ export const getPlayerPartner = (player: PlayerID): PlayerID => {
   }
 };
 export const getPlayerTeam = (player: PlayerID): TeamID => [PlayerID.North, PlayerID.South].includes(player) ? TeamID.NorthSouth : TeamID.EastWest;
+
+export const getAnnounces = (): Announce[] => [
+  {
+    id: AnnounceId.SquareAce,
+    cards: [
+      { name: CardName.Ace, color: CardColor.Club },
+      { name: CardName.Ace, color: CardColor.Spade },
+      { name: CardName.Ace, color: CardColor.Heart },
+      { name: CardName.Ace, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.SquareKing,
+    cards: [
+      { name: CardName.King, color: CardColor.Club },
+      { name: CardName.King, color: CardColor.Spade },
+      { name: CardName.King, color: CardColor.Heart },
+      { name: CardName.King, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.SquareQueen,
+    cards: [
+      { name: CardName.Queen, color: CardColor.Club },
+      { name: CardName.Queen, color: CardColor.Spade },
+      { name: CardName.Queen, color: CardColor.Heart },
+      { name: CardName.Queen, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.SquareJack,
+    cards: [
+      { name: CardName.Jack, color: CardColor.Club },
+      { name: CardName.Jack, color: CardColor.Spade },
+      { name: CardName.Jack, color: CardColor.Heart },
+      { name: CardName.Jack, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.SquareTen,
+    cards: [
+      { name: CardName.Ten, color: CardColor.Club },
+      { name: CardName.Ten, color: CardColor.Spade },
+      { name: CardName.Ten, color: CardColor.Heart },
+      { name: CardName.Ten, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.SquareNine,
+    cards: [
+      { name: CardName.Nine, color: CardColor.Club },
+      { name: CardName.Nine, color: CardColor.Spade },
+      { name: CardName.Nine, color: CardColor.Heart },
+      { name: CardName.Nine, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.TierceAceSpade,
+    cards: [
+      { name: CardName.Ace, color: CardColor.Spade },
+      { name: CardName.King, color: CardColor.Spade },
+      { name: CardName.Queen, color: CardColor.Spade },
+    ],
+  },
+  {
+    id: AnnounceId.TierceAceDiamond,
+    cards: [
+      { name: CardName.Ace, color: CardColor.Diamond },
+      { name: CardName.King, color: CardColor.Diamond },
+      { name: CardName.Queen, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.TierceAceHeart,
+    cards: [
+      { name: CardName.Ace, color: CardColor.Heart },
+      { name: CardName.King, color: CardColor.Heart },
+      { name: CardName.Queen, color: CardColor.Heart },
+    ],
+  },
+  {
+    id: AnnounceId.TierceAceClub,
+    cards: [
+      { name: CardName.Ace, color: CardColor.Club },
+      { name: CardName.King, color: CardColor.Club },
+      { name: CardName.Queen, color: CardColor.Club },
+    ],
+  },
+  {
+    id: AnnounceId.TierceKingSpade,
+    cards: [
+      { name: CardName.King, color: CardColor.Spade },
+      { name: CardName.Queen, color: CardColor.Spade },
+      { name: CardName.Jack, color: CardColor.Spade },
+    ],
+  },
+  {
+    id: AnnounceId.TierceKingDiamond,
+    cards: [
+      { name: CardName.King, color: CardColor.Diamond },
+      { name: CardName.Queen, color: CardColor.Diamond },
+      { name: CardName.Jack, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.TierceKingHeart,
+    cards: [
+      { name: CardName.King, color: CardColor.Heart },
+      { name: CardName.Queen, color: CardColor.Heart },
+      { name: CardName.Jack, color: CardColor.Heart },
+    ],
+  },
+  {
+    id: AnnounceId.TierceKingClub,
+    cards: [
+      { name: CardName.King, color: CardColor.Club },
+      { name: CardName.Queen, color: CardColor.Club },
+      { name: CardName.Jack, color: CardColor.Club },
+    ],
+  },
+  {
+    id: AnnounceId.TierceQueenSpade,
+    cards: [
+      { name: CardName.Queen, color: CardColor.Spade },
+      { name: CardName.Jack, color: CardColor.Spade },
+      { name: CardName.Ten, color: CardColor.Spade },
+    ],
+  },
+  {
+    id: AnnounceId.TierceQueenDiamond,
+    cards: [
+      { name: CardName.Queen, color: CardColor.Diamond },
+      { name: CardName.Jack, color: CardColor.Diamond },
+      { name: CardName.Ten, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.TierceQueenHeart,
+    cards: [
+      { name: CardName.Queen, color: CardColor.Heart },
+      { name: CardName.Jack, color: CardColor.Heart },
+      { name: CardName.Ten, color: CardColor.Heart },
+    ],
+  },
+  {
+    id: AnnounceId.TierceQueenClub,
+    cards: [
+      { name: CardName.Queen, color: CardColor.Club },
+      { name: CardName.Jack, color: CardColor.Club },
+      { name: CardName.Ten, color: CardColor.Club },
+    ],
+  },
+  {
+    id: AnnounceId.TierceJackSpade,
+    cards: [
+      { name: CardName.Queen, color: CardColor.Spade },
+      { name: CardName.Jack, color: CardColor.Spade },
+      { name: CardName.Ten, color: CardColor.Spade },
+    ],
+  },
+  {
+    id: AnnounceId.TierceQueenDiamond,
+    cards: [
+      { name: CardName.Queen, color: CardColor.Diamond },
+      { name: CardName.Jack, color: CardColor.Diamond },
+      { name: CardName.Ten, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.TierceQueenHeart,
+    cards: [
+      { name: CardName.Queen, color: CardColor.Heart },
+      { name: CardName.Jack, color: CardColor.Heart },
+      { name: CardName.Ten, color: CardColor.Heart },
+    ],
+  },
+  {
+    id: AnnounceId.TierceQueenClub,
+    cards: [
+      { name: CardName.Queen, color: CardColor.Club },
+      { name: CardName.Jack, color: CardColor.Club },
+      { name: CardName.Ten, color: CardColor.Club },
+    ],
+  },
+  {
+    id: AnnounceId.QuarteAceSpade,
+    cards: [
+      { name: CardName.Ace, color: CardColor.Spade },
+      { name: CardName.King, color: CardColor.Spade },
+      { name: CardName.Queen, color: CardColor.Spade },
+      { name: CardName.Jack, color: CardColor.Spade },
+    ],
+  },
+  {
+    id: AnnounceId.QuarteAceDiamond,
+    cards: [
+      { name: CardName.Ace, color: CardColor.Diamond },
+      { name: CardName.King, color: CardColor.Diamond },
+      { name: CardName.Queen, color: CardColor.Diamond },
+      { name: CardName.Jack, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.QuarteAceHeart,
+    cards: [
+      { name: CardName.Ace, color: CardColor.Heart },
+      { name: CardName.King, color: CardColor.Heart },
+      { name: CardName.Queen, color: CardColor.Heart },
+      { name: CardName.Jack, color: CardColor.Heart },
+    ],
+  },
+  {
+    id: AnnounceId.QuarteAceClub,
+    cards: [
+      { name: CardName.Ace, color: CardColor.Club },
+      { name: CardName.King, color: CardColor.Club },
+      { name: CardName.Queen, color: CardColor.Club },
+      { name: CardName.Jack, color: CardColor.Club },
+    ],
+  },
+  {
+    id: AnnounceId.QuarteKingSpade,
+    cards: [
+      { name: CardName.King, color: CardColor.Spade },
+      { name: CardName.Queen, color: CardColor.Spade },
+      { name: CardName.Jack, color: CardColor.Spade },
+      { name: CardName.Ten, color: CardColor.Spade },
+    ],
+  },
+  {
+    id: AnnounceId.QuarteKingDiamond,
+    cards: [
+      { name: CardName.King, color: CardColor.Diamond },
+      { name: CardName.Queen, color: CardColor.Diamond },
+      { name: CardName.Jack, color: CardColor.Diamond },
+      { name: CardName.Ten, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.QuarteKingHeart,
+    cards: [
+      { name: CardName.King, color: CardColor.Heart },
+      { name: CardName.Queen, color: CardColor.Heart },
+      { name: CardName.Jack, color: CardColor.Heart },
+      { name: CardName.Ten, color: CardColor.Heart },
+    ],
+  },
+  {
+    id: AnnounceId.QuarteKingClub,
+    cards: [
+      { name: CardName.King, color: CardColor.Club },
+      { name: CardName.Queen, color: CardColor.Club },
+      { name: CardName.Jack, color: CardColor.Club },
+      { name: CardName.Ten, color: CardColor.Club },
+    ],
+  },
+  {
+    id: AnnounceId.QuarteQueenSpade,
+    cards: [
+      { name: CardName.Queen, color: CardColor.Spade },
+      { name: CardName.Jack, color: CardColor.Spade },
+      { name: CardName.Ten, color: CardColor.Spade },
+      { name: CardName.Nine, color: CardColor.Spade },
+    ],
+  },
+  {
+    id: AnnounceId.QuarteQueenDiamond,
+    cards: [
+      { name: CardName.Queen, color: CardColor.Diamond },
+      { name: CardName.Jack, color: CardColor.Diamond },
+      { name: CardName.Ten, color: CardColor.Diamond },
+      { name: CardName.Nine, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.QuarteQueenHeart,
+    cards: [
+      { name: CardName.Queen, color: CardColor.Heart },
+      { name: CardName.Jack, color: CardColor.Heart },
+      { name: CardName.Ten, color: CardColor.Heart },
+      { name: CardName.Nine, color: CardColor.Heart },
+    ],
+  },
+  {
+    id: AnnounceId.QuarteQueenClub,
+    cards: [
+      { name: CardName.Queen, color: CardColor.Club },
+      { name: CardName.Jack, color: CardColor.Club },
+      { name: CardName.Ten, color: CardColor.Club },
+      { name: CardName.Nine, color: CardColor.Club },
+    ],
+  },
+  {
+    id: AnnounceId.QuarteJackSpade,
+    cards: [
+      { name: CardName.Jack, color: CardColor.Spade },
+      { name: CardName.Ten, color: CardColor.Spade },
+      { name: CardName.Nine, color: CardColor.Spade },
+      { name: CardName.Eight, color: CardColor.Spade },
+    ],
+  },
+  {
+    id: AnnounceId.QuarteJackDiamond,
+    cards: [
+      { name: CardName.Jack, color: CardColor.Diamond },
+      { name: CardName.Ten, color: CardColor.Diamond },
+      { name: CardName.Nine, color: CardColor.Diamond },
+      { name: CardName.Eight, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.QuarteJackHeart,
+    cards: [
+      { name: CardName.Jack, color: CardColor.Heart },
+      { name: CardName.Ten, color: CardColor.Heart },
+      { name: CardName.Nine, color: CardColor.Heart },
+      { name: CardName.Eight, color: CardColor.Heart },
+    ],
+  },
+  {
+    id: AnnounceId.QuarteJackClub,
+    cards: [
+      { name: CardName.Jack, color: CardColor.Club },
+      { name: CardName.Ten, color: CardColor.Club },
+      { name: CardName.Nine, color: CardColor.Club },
+      { name: CardName.Eight, color: CardColor.Club },
+    ],
+  },
+  {
+    id: AnnounceId.QuarteTenSpade,
+    cards: [
+      { name: CardName.Ten, color: CardColor.Spade },
+      { name: CardName.Nine, color: CardColor.Spade },
+      { name: CardName.Eight, color: CardColor.Spade },
+      { name: CardName.Seven, color: CardColor.Spade },
+    ],
+  },
+  {
+    id: AnnounceId.QuarteTenDiamond,
+    cards: [
+      { name: CardName.Ten, color: CardColor.Diamond },
+      { name: CardName.Nine, color: CardColor.Diamond },
+      { name: CardName.Eight, color: CardColor.Diamond },
+      { name: CardName.Seven, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.QuarteTenHeart,
+    cards: [
+      { name: CardName.Ten, color: CardColor.Heart },
+      { name: CardName.Nine, color: CardColor.Heart },
+      { name: CardName.Eight, color: CardColor.Heart },
+      { name: CardName.Seven, color: CardColor.Heart },
+    ],
+  },
+  {
+    id: AnnounceId.QuarteTenClub,
+    cards: [
+      { name: CardName.Ten, color: CardColor.Club },
+      { name: CardName.Nine, color: CardColor.Club },
+      { name: CardName.Eight, color: CardColor.Club },
+      { name: CardName.Seven, color: CardColor.Club },
+    ],
+  },
+  {
+    id: AnnounceId.QuinteAceSpade,
+    cards: [
+      { name: CardName.Ace, color: CardColor.Spade },
+      { name: CardName.King, color: CardColor.Spade },
+      { name: CardName.Queen, color: CardColor.Spade },
+      { name: CardName.Jack, color: CardColor.Spade },
+      { name: CardName.Ten, color: CardColor.Spade },
+    ],
+  },
+  {
+    id: AnnounceId.QuinteAceDiamond,
+    cards: [
+      { name: CardName.Ace, color: CardColor.Diamond },
+      { name: CardName.King, color: CardColor.Diamond },
+      { name: CardName.Queen, color: CardColor.Diamond },
+      { name: CardName.Jack, color: CardColor.Diamond },
+      { name: CardName.Ten, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.QuinteAceHeart,
+    cards: [
+      { name: CardName.Ace, color: CardColor.Heart },
+      { name: CardName.King, color: CardColor.Heart },
+      { name: CardName.Queen, color: CardColor.Heart },
+      { name: CardName.Jack, color: CardColor.Heart },
+      { name: CardName.Ten, color: CardColor.Heart },
+    ],
+  },
+  {
+    id: AnnounceId.QuinteAceClub,
+    cards: [
+      { name: CardName.Ace, color: CardColor.Club },
+      { name: CardName.King, color: CardColor.Club },
+      { name: CardName.Queen, color: CardColor.Club },
+      { name: CardName.Jack, color: CardColor.Club },
+      { name: CardName.Ten, color: CardColor.Club },
+    ],
+  },
+  {
+    id: AnnounceId.QuinteKingSpade,
+    cards: [
+      { name: CardName.King, color: CardColor.Spade },
+      { name: CardName.Queen, color: CardColor.Spade },
+      { name: CardName.Jack, color: CardColor.Spade },
+      { name: CardName.Ten, color: CardColor.Spade },
+      { name: CardName.Nine, color: CardColor.Spade },
+    ],
+  },
+  {
+    id: AnnounceId.QuinteKingDiamond,
+    cards: [
+      { name: CardName.King, color: CardColor.Diamond },
+      { name: CardName.Queen, color: CardColor.Diamond },
+      { name: CardName.Jack, color: CardColor.Diamond },
+      { name: CardName.Ten, color: CardColor.Diamond },
+      { name: CardName.Nine, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.QuinteKingHeart,
+    cards: [
+      { name: CardName.King, color: CardColor.Heart },
+      { name: CardName.Queen, color: CardColor.Heart },
+      { name: CardName.Jack, color: CardColor.Heart },
+      { name: CardName.Ten, color: CardColor.Heart },
+      { name: CardName.Nine, color: CardColor.Heart },
+    ],
+  },
+  {
+    id: AnnounceId.QuinteKingClub,
+    cards: [
+      { name: CardName.King, color: CardColor.Club },
+      { name: CardName.Queen, color: CardColor.Club },
+      { name: CardName.Jack, color: CardColor.Club },
+      { name: CardName.Ten, color: CardColor.Club },
+      { name: CardName.Nine, color: CardColor.Club },
+    ],
+  },
+  {
+    id: AnnounceId.QuinteQueenSpade,
+    cards: [
+      { name: CardName.Queen, color: CardColor.Spade },
+      { name: CardName.Jack, color: CardColor.Spade },
+      { name: CardName.Ten, color: CardColor.Spade },
+      { name: CardName.Nine, color: CardColor.Spade },
+      { name: CardName.Eight, color: CardColor.Spade },
+    ],
+  },
+  {
+    id: AnnounceId.QuinteQueenDiamond,
+    cards: [
+      { name: CardName.Queen, color: CardColor.Diamond },
+      { name: CardName.Jack, color: CardColor.Diamond },
+      { name: CardName.Ten, color: CardColor.Diamond },
+      { name: CardName.Nine, color: CardColor.Diamond },
+      { name: CardName.Eight, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.QuinteQueenHeart,
+    cards: [
+      { name: CardName.Queen, color: CardColor.Heart },
+      { name: CardName.Jack, color: CardColor.Heart },
+      { name: CardName.Ten, color: CardColor.Heart },
+      { name: CardName.Nine, color: CardColor.Heart },
+      { name: CardName.Eight, color: CardColor.Heart },
+    ],
+  },
+  {
+    id: AnnounceId.QuinteQueenClub,
+    cards: [
+      { name: CardName.Queen, color: CardColor.Club },
+      { name: CardName.Jack, color: CardColor.Club },
+      { name: CardName.Ten, color: CardColor.Club },
+      { name: CardName.Nine, color: CardColor.Club },
+      { name: CardName.Eight, color: CardColor.Club },
+    ],
+  },
+  {
+    id: AnnounceId.QuinteJackSpade,
+    cards: [
+      { name: CardName.Jack, color: CardColor.Spade },
+      { name: CardName.Ten, color: CardColor.Spade },
+      { name: CardName.Nine, color: CardColor.Spade },
+      { name: CardName.Eight, color: CardColor.Spade },
+      { name: CardName.Seven, color: CardColor.Spade },
+    ],
+  },
+  {
+    id: AnnounceId.QuinteJackDiamond,
+    cards: [
+      { name: CardName.Jack, color: CardColor.Diamond },
+      { name: CardName.Ten, color: CardColor.Diamond },
+      { name: CardName.Nine, color: CardColor.Diamond },
+      { name: CardName.Eight, color: CardColor.Diamond },
+      { name: CardName.Seven, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.QuinteJackHeart,
+    cards: [
+      { name: CardName.Jack, color: CardColor.Heart },
+      { name: CardName.Ten, color: CardColor.Heart },
+      { name: CardName.Nine, color: CardColor.Heart },
+      { name: CardName.Eight, color: CardColor.Heart },
+      { name: CardName.Seven, color: CardColor.Heart },
+    ],
+  },
+  {
+    id: AnnounceId.QuinteJackClub,
+    cards: [
+      { name: CardName.Jack, color: CardColor.Club },
+      { name: CardName.Ten, color: CardColor.Club },
+      { name: CardName.Nine, color: CardColor.Club },
+      { name: CardName.Eight, color: CardColor.Club },
+      { name: CardName.Seven, color: CardColor.Club },
+    ],
+  },
+];
+export const getAnnounceById = (announceId: AnnounceId): Announce => getAnnounces().find((a) => announceId === a.id)!;
+export const getAnnounceGroupName = (announce: Announce): 'Square'|'Tierce'|'Quarte'|'Quinte' => {
+  switch (announce.id) {
+    case AnnounceId.SquareAce:
+    case AnnounceId.SquareNine:
+    case AnnounceId.SquareTen:
+    case AnnounceId.SquareJack:
+    case AnnounceId.SquareQueen:
+    case AnnounceId.SquareKing:
+      return 'Square';
+    case AnnounceId.TierceAceSpade:
+    case AnnounceId.TierceAceDiamond:
+    case AnnounceId.TierceAceHeart:
+    case AnnounceId.TierceAceClub:
+    case AnnounceId.TierceKingSpade:
+    case AnnounceId.TierceKingDiamond:
+    case AnnounceId.TierceKingHeart:
+    case AnnounceId.TierceKingClub:
+    case AnnounceId.TierceQueenSpade:
+    case AnnounceId.TierceQueenDiamond:
+    case AnnounceId.TierceQueenHeart:
+    case AnnounceId.TierceQueenClub:
+    case AnnounceId.TierceJackSpade:
+    case AnnounceId.TierceJackDiamond:
+    case AnnounceId.TierceJackHeart:
+    case AnnounceId.TierceJackClub:
+    case AnnounceId.TierceTenSpade:
+    case AnnounceId.TierceTenDiamond:
+    case AnnounceId.TierceTenHeart:
+    case AnnounceId.TierceTenClub:
+    case AnnounceId.TierceNineSpade:
+    case AnnounceId.TierceNineDiamond:
+    case AnnounceId.TierceNineHeart:
+    case AnnounceId.TierceNineClub:
+      return 'Tierce';
+    case AnnounceId.QuarteAceSpade:
+    case AnnounceId.QuarteAceDiamond:
+    case AnnounceId.QuarteAceHeart:
+    case AnnounceId.QuarteAceClub:
+    case AnnounceId.QuarteKingSpade:
+    case AnnounceId.QuarteKingDiamond:
+    case AnnounceId.QuarteKingHeart:
+    case AnnounceId.QuarteKingClub:
+    case AnnounceId.QuarteQueenSpade:
+    case AnnounceId.QuarteQueenDiamond:
+    case AnnounceId.QuarteQueenHeart:
+    case AnnounceId.QuarteQueenClub:
+    case AnnounceId.QuarteJackSpade:
+    case AnnounceId.QuarteJackDiamond:
+    case AnnounceId.QuarteJackHeart:
+    case AnnounceId.QuarteJackClub:
+    case AnnounceId.QuarteTenSpade:
+    case AnnounceId.QuarteTenDiamond:
+    case AnnounceId.QuarteTenHeart:
+    case AnnounceId.QuarteTenClub:
+      return 'Quarte';
+    case AnnounceId.QuinteAceSpade:
+    case AnnounceId.QuinteAceDiamond:
+    case AnnounceId.QuinteAceHeart:
+    case AnnounceId.QuinteAceClub:
+    case AnnounceId.QuinteKingSpade:
+    case AnnounceId.QuinteKingDiamond:
+    case AnnounceId.QuinteKingHeart:
+    case AnnounceId.QuinteKingClub:
+    case AnnounceId.QuinteQueenSpade:
+    case AnnounceId.QuinteQueenDiamond:
+    case AnnounceId.QuinteQueenHeart:
+    case AnnounceId.QuinteQueenClub:
+    case AnnounceId.QuinteJackSpade:
+    case AnnounceId.QuinteJackDiamond:
+    case AnnounceId.QuinteJackHeart:
+    case AnnounceId.QuinteJackClub:
+      return 'Quinte';
+  }
+};
+export const getAnnounceValue = (announce: Announce, trumpMode: TrumpMode): number => {
+  switch (announce.id) {
+    case AnnounceId.SquareAce:
+      return trumpMode === TrumpMode.NoTrump ? 200 : 100;
+    case AnnounceId.SquareNine:
+      return trumpMode === TrumpMode.NoTrump ? 100 : 150;
+    case AnnounceId.SquareTen:
+      return trumpMode === TrumpMode.NoTrump ? 150 : 100;
+    case AnnounceId.SquareJack:
+      return trumpMode === TrumpMode.NoTrump ? 100 : 200;
+    case AnnounceId.SquareQueen:
+      return 100;
+    case AnnounceId.SquareKing:
+      return 100;
+    case AnnounceId.TierceAceSpade:
+    case AnnounceId.TierceAceDiamond:
+    case AnnounceId.TierceAceHeart:
+    case AnnounceId.TierceAceClub:
+    case AnnounceId.TierceKingSpade:
+    case AnnounceId.TierceKingDiamond:
+    case AnnounceId.TierceKingHeart:
+    case AnnounceId.TierceKingClub:
+    case AnnounceId.TierceQueenSpade:
+    case AnnounceId.TierceQueenDiamond:
+    case AnnounceId.TierceQueenHeart:
+    case AnnounceId.TierceQueenClub:
+    case AnnounceId.TierceJackSpade:
+    case AnnounceId.TierceJackDiamond:
+    case AnnounceId.TierceJackHeart:
+    case AnnounceId.TierceJackClub:
+    case AnnounceId.TierceTenSpade:
+    case AnnounceId.TierceTenDiamond:
+    case AnnounceId.TierceTenHeart:
+    case AnnounceId.TierceTenClub:
+    case AnnounceId.TierceNineSpade:
+    case AnnounceId.TierceNineDiamond:
+    case AnnounceId.TierceNineHeart:
+    case AnnounceId.TierceNineClub:
+      return 20;
+    case AnnounceId.QuarteAceSpade:
+    case AnnounceId.QuarteAceDiamond:
+    case AnnounceId.QuarteAceHeart:
+    case AnnounceId.QuarteAceClub:
+    case AnnounceId.QuarteKingSpade:
+    case AnnounceId.QuarteKingDiamond:
+    case AnnounceId.QuarteKingHeart:
+    case AnnounceId.QuarteKingClub:
+    case AnnounceId.QuarteQueenSpade:
+    case AnnounceId.QuarteQueenDiamond:
+    case AnnounceId.QuarteQueenHeart:
+    case AnnounceId.QuarteQueenClub:
+    case AnnounceId.QuarteJackSpade:
+    case AnnounceId.QuarteJackDiamond:
+    case AnnounceId.QuarteJackHeart:
+    case AnnounceId.QuarteJackClub:
+    case AnnounceId.QuarteTenSpade:
+    case AnnounceId.QuarteTenDiamond:
+    case AnnounceId.QuarteTenHeart:
+    case AnnounceId.QuarteTenClub:
+      return 50;
+    case AnnounceId.QuinteAceSpade:
+    case AnnounceId.QuinteAceDiamond:
+    case AnnounceId.QuinteAceHeart:
+    case AnnounceId.QuinteAceClub:
+    case AnnounceId.QuinteKingSpade:
+    case AnnounceId.QuinteKingDiamond:
+    case AnnounceId.QuinteKingHeart:
+    case AnnounceId.QuinteKingClub:
+    case AnnounceId.QuinteQueenSpade:
+    case AnnounceId.QuinteQueenDiamond:
+    case AnnounceId.QuinteQueenHeart:
+    case AnnounceId.QuinteQueenClub:
+    case AnnounceId.QuinteJackSpade:
+    case AnnounceId.QuinteJackDiamond:
+    case AnnounceId.QuinteJackHeart:
+    case AnnounceId.QuinteJackClub:
+      return 100;
+  }
+};
+export const getAvailableAnnouncesForCards = (cards: Card[], trumpMode: TrumpMode): Announce[] => {
+  const announces = getAnnounces();
+  announces.reduce((acc, announce) => {
+    return [];
+  }, []);
+  return [];
+};
 
 export const getCards = (): Card[] => [
   {
