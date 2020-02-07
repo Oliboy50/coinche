@@ -7,7 +7,16 @@ import {
   getAnnounceById,
   getAvailableAnnouncesForCards,
   TrumpMode,
+  validAnnounceIds,
 } from './index';
+
+describe('getAnnounceById', () => {
+  validAnnounceIds.forEach((announceId ) => {
+    it(`returns an announce for id ${announceId}`, () => {
+      expect(getAnnounceById(announceId)).toBeTruthy();
+    });
+  });
+});
 
 describe('getAvailableAnnouncesForCards', () => {
   const testCases: {

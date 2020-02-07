@@ -38,6 +38,9 @@ export const isSameCard = (card: Card | undefined, otherCard: Card | undefined):
 
   return card.color === otherCard.color && card.name === otherCard.name;
 };
+export const cardsContainCard = (cards: Card[], card: Card): boolean => {
+  return cards.some(c => isSameCard(c, card));
+};
 
 export enum TrumpMode {
   TrumpSpade = 'TrumpSpade',
@@ -138,6 +141,7 @@ export enum AnnounceId {
   // @TODO
   // Belot = 'Belot',
 }
+export const validAnnounceIds: AnnounceId[] = Object.values(AnnounceId);
 
 export interface Announce {
   id: AnnounceId;
@@ -378,33 +382,97 @@ export const getAnnounces = (): Announce[] => [
   {
     id: AnnounceId.TierceJackSpade,
     cards: [
-      { name: CardName.Queen, color: CardColor.Spade },
       { name: CardName.Jack, color: CardColor.Spade },
       { name: CardName.Ten, color: CardColor.Spade },
+      { name: CardName.Nine, color: CardColor.Spade },
     ],
   },
   {
-    id: AnnounceId.TierceQueenDiamond,
+    id: AnnounceId.TierceJackDiamond,
     cards: [
-      { name: CardName.Queen, color: CardColor.Diamond },
       { name: CardName.Jack, color: CardColor.Diamond },
       { name: CardName.Ten, color: CardColor.Diamond },
+      { name: CardName.Nine, color: CardColor.Diamond },
     ],
   },
   {
-    id: AnnounceId.TierceQueenHeart,
+    id: AnnounceId.TierceJackHeart,
     cards: [
-      { name: CardName.Queen, color: CardColor.Heart },
       { name: CardName.Jack, color: CardColor.Heart },
       { name: CardName.Ten, color: CardColor.Heart },
+      { name: CardName.Nine, color: CardColor.Heart },
     ],
   },
   {
-    id: AnnounceId.TierceQueenClub,
+    id: AnnounceId.TierceJackClub,
     cards: [
-      { name: CardName.Queen, color: CardColor.Club },
       { name: CardName.Jack, color: CardColor.Club },
       { name: CardName.Ten, color: CardColor.Club },
+      { name: CardName.Nine, color: CardColor.Club },
+    ],
+  },
+  {
+    id: AnnounceId.TierceTenSpade,
+    cards: [
+      { name: CardName.Ten, color: CardColor.Spade },
+      { name: CardName.Nine, color: CardColor.Spade },
+      { name: CardName.Eight, color: CardColor.Spade },
+    ],
+  },
+  {
+    id: AnnounceId.TierceTenDiamond,
+    cards: [
+      { name: CardName.Ten, color: CardColor.Diamond },
+      { name: CardName.Nine, color: CardColor.Diamond },
+      { name: CardName.Eight, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.TierceTenHeart,
+    cards: [
+      { name: CardName.Ten, color: CardColor.Heart },
+      { name: CardName.Nine, color: CardColor.Heart },
+      { name: CardName.Eight, color: CardColor.Heart },
+    ],
+  },
+  {
+    id: AnnounceId.TierceTenClub,
+    cards: [
+      { name: CardName.Ten, color: CardColor.Club },
+      { name: CardName.Nine, color: CardColor.Club },
+      { name: CardName.Eight, color: CardColor.Club },
+    ],
+  },
+  {
+    id: AnnounceId.TierceNineSpade,
+    cards: [
+      { name: CardName.Nine, color: CardColor.Spade },
+      { name: CardName.Eight, color: CardColor.Spade },
+      { name: CardName.Seven, color: CardColor.Spade },
+    ],
+  },
+  {
+    id: AnnounceId.TierceNineDiamond,
+    cards: [
+      { name: CardName.Nine, color: CardColor.Diamond },
+      { name: CardName.Eight, color: CardColor.Diamond },
+      { name: CardName.Seven, color: CardColor.Diamond },
+    ],
+  },
+  {
+    id: AnnounceId.TierceNineHeart,
+    cards: [
+      { name: CardName.Nine, color: CardColor.Heart },
+      { name: CardName.Eight, color: CardColor.Heart },
+      { name: CardName.Seven, color: CardColor.Heart },
+    ],
+  },
+  {
+    id: AnnounceId.TierceNineClub,
+    cards: [
+      { name: CardName.Nine, color: CardColor.Club },
+      { name: CardName.Eight, color: CardColor.Club },
+      { name: CardName.Seven, color: CardColor.Club },
     ],
   },
   {
@@ -903,11 +971,13 @@ export const getAnnounceValue = (announce: Announce, trumpMode: TrumpMode): numb
   }
 };
 export const getAvailableAnnouncesForCards = (cards: Card[], trumpMode: TrumpMode): Announce[] => {
-  const announces = getAnnounces();
-  announces.reduce((acc, announce) => {
-    return [];
-  }, []);
-  return [];
+  return getAnnounces().reduce((acc, announce) => {
+    if (announce.cards.every((announceCard) => cardsContainCard(cards, announceCard))) {
+      return [...acc, announce];
+    }
+
+    return acc;
+  }, [] as Announce[]);
 };
 
 export const getCards = (): Card[] => [
