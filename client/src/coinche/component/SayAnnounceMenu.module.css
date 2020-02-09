@@ -1,0 +1,10 @@
+.menu {
+  display: grid;
+  align-content: center;
+  border: 2px solid blue;
+}
+
+.sayAnnounce {
+  display: grid;
+  grid-template-columns: 80% 20%;
+}

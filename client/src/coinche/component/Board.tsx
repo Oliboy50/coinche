@@ -16,6 +16,7 @@ import {PlayerTurnIndicatorComponent} from './PlayerTurnIndicator';
 import {PreviousCardsPlayedMenuComponent} from './PreviousCardsPlayedMenu';
 import {getPlayerIDForPosition} from '../service/getPlayerIDForPosition';
 import {PlayedCardsComponent} from './PlayedCards';
+import {SayAnnonunceMenuComponent} from "./SayAnnounceMenu";
 
 export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>> = ({
   G,
@@ -35,11 +36,10 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
 
   const currentPhaseIsTalk = ctx.phase === PhaseID.Talk;
   const currentPhaseIsPlayCards = ctx.phase === PhaseID.PlayCards;
-  const currentPhaseNeedsPlayerMove = currentPhaseIsTalk || currentPhaseIsPlayCards;
+  const currentPhaseNeedsToWaitForAPlayerMove = currentPhaseIsTalk || currentPhaseIsPlayCards;
 
-  const isFirstPlayCardTurn = G.playersCardsPlayedInPreviousTurn === undefined;
+  const isNotFirstPlayCardTurn = G.playersCardsPlayedInPreviousTurn !== undefined;
 
-  // @TODO use isDisplayedPreviousCardsPlayed to display previous cards played (when we'll be able to show the current cards played, it will replace the current cards by the previous... maybe)
   const [isDisplayedPreviousCardsPlayed, setIsDisplayedPreviousCardsPlayed] = useState(false);
 
   const playedCards = isDisplayedPreviousCardsPlayed ? G.playersCardsPlayedInPreviousTurn : G.playersCardsPlayedInCurrentTurn;
@@ -49,7 +49,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
       {/* Played cards area */}
       <div className={styles.playedCardsArea}>
         <PlayedCardsComponent playerID={playerID} playedCards={playedCards} />
-        {currentPhaseIsPlayCards && !isFirstPlayCardTurn && (
+        {currentPhaseIsPlayCards && isNotFirstPlayCardTurn && (
           <PreviousCardsPlayedMenuComponent isDisplayedPreviousCardsPlayed={isDisplayedPreviousCardsPlayed} toggleIsDisplayedPreviousCardsPlayed={() => setIsDisplayedPreviousCardsPlayed(!isDisplayedPreviousCardsPlayed)} />
         )}
       </div>
@@ -58,7 +58,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
       {!isDisplayedPreviousCardsPlayed && (
         <React.Fragment>
           <div className={`${styles.player} ${styles.top}`}>
-            {currentPhaseNeedsPlayerMove && currentPlayerIsTopPlayer && (
+            {currentPhaseNeedsToWaitForAPlayerMove && currentPlayerIsTopPlayer && (
               <PlayerTurnIndicatorComponent />
             )}
             {currentPhaseIsTalk && !currentPlayerIsTopPlayer && G.playersSaid[topPlayerID] && (
@@ -67,7 +67,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
             <OtherPlayerCardsComponent cards={G.playersCards[topPlayerID]} />
           </div>
           <div className={`${styles.player} ${styles.left}`}>
-            {currentPhaseNeedsPlayerMove && currentPlayerIsLeftPlayer && (
+            {currentPhaseNeedsToWaitForAPlayerMove && currentPlayerIsLeftPlayer && (
               <PlayerTurnIndicatorComponent />
             )}
             {currentPhaseIsTalk && !currentPlayerIsLeftPlayer && G.playersSaid[leftPlayerID] && (
@@ -76,7 +76,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
             <OtherPlayerCardsComponent cards={G.playersCards[leftPlayerID]} />
           </div>
           <div className={`${styles.player} ${styles.right}`}>
-            {currentPhaseNeedsPlayerMove && currentPlayerIsRightPlayer && (
+            {currentPhaseNeedsToWaitForAPlayerMove && currentPlayerIsRightPlayer && (
               <PlayerTurnIndicatorComponent />
             )}
             {currentPhaseIsTalk && !currentPlayerIsRightPlayer && G.playersSaid[rightPlayerID] && (
@@ -85,14 +85,17 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
             <OtherPlayerCardsComponent cards={G.playersCards[rightPlayerID]} />
           </div>
           <div className={`${styles.player} ${styles.bottom}`}>
-            {currentPhaseNeedsPlayerMove && currentPlayerIsBottomPlayer && (
+            {currentPhaseNeedsToWaitForAPlayerMove && currentPlayerIsBottomPlayer && (
               <PlayerTurnIndicatorComponent />
             )}
             {currentPhaseIsTalk && !currentPlayerIsBottomPlayer && G.playersSaid[bottomPlayerID] && (
               <PlayerSaidComponent playerSaid={G.playersSaid[bottomPlayerID]}/>
             )}
             {currentPhaseIsTalk && currentPlayerIsBottomPlayer && (
-              <TalkMenuComponent moves={moves} playersSaid={G.playersSaid} />
+              <TalkMenuComponent saySkip={moves.saySkip} sayTake={moves.sayTake} playersSaid={G.playersSaid} />
+            )}
+            {currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && currentPlayerIsBottomPlayer && (
+              <SayAnnonunceMenuComponent saySkip={moves.saySkip} sayTake={moves.sayTake} playersSaid={G.playersSaid} />
             )}
             <MyCardsComponent
               cards={G.playerCards}

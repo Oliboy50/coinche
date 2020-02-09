@@ -5,6 +5,7 @@ import {
 } from 'boardgame.io/core';
 import saySkip from './move/saySkip';
 import sayTake from './move/sayTake';
+import sayAnnounce from './move/sayAnnounce';
 import playCard from './move/playCard';
 
 export enum CardColor {
@@ -206,7 +207,7 @@ export interface GameState {
   trumpMode: TrumpMode;
   playersSaid: Record<PlayerID, 'skip' | { expectedPoints: number; trumpMode: TrumpMode } | undefined>;
   numberOfSuccessiveSkipSaid: number;
-  teamsAnnounces: Record<TeamID, { announce: Announce; isSaid: boolean; }[]>;
+  playersSaidAnnounces: Record<PlayerID, { announce: Announce; isCardsDisplayable: boolean; }[]>;
 
   // turn state
   firstPlayerInCurrentTurn: PlayerID;
@@ -222,6 +223,7 @@ export type GameStatePlayerView = Omit<GameState, 'availableCards' | 'playersCar
 export interface Moves {
   saySkip: () => void;
   sayTake: (expectedPoints: number, mode: TrumpMode) => void;
+  sayAnnounce: (announce: Announce) => void;
   playCard: (card: Card) => void;
 }
 
@@ -270,6 +272,7 @@ export const isSayableExpectedPoints = (expectedPoints: number, playersSaid: Gam
     // @ts-ignore StupidTypescript
     .every(said => said.expectedPoints < expectedPoints);
 };
+
 export const getAnnounces = (): Announce[] => [
   {
     id: AnnounceId.SquareAce,
@@ -933,7 +936,7 @@ export const getAnnounceGroupName = (announce: Announce): 'Square'|'Tierce'|'Qua
       return 'Quinte';
   }
 };
-const getAnnounceValue = (announce: Announce, trumpMode: TrumpMode): number => {
+export const getAnnouncePoints = (announce: Announce, trumpMode: TrumpMode): number => {
   switch (announce.id) {
     case AnnounceId.SquareAce:
       return trumpMode === TrumpMode.NoTrump ? 200 : 100;
@@ -1802,6 +1805,12 @@ const getDefaultPlayersCards = () => ({
   [PlayerID.South]: [],
   [PlayerID.West]: [],
 });
+const getDefaultPlayersSaidAnnounces = () => ({
+  [PlayerID.North]: [],
+  [PlayerID.East]: [],
+  [PlayerID.South]: [],
+  [PlayerID.West]: [],
+});
 const getDefaultWonTeamsCards = () => ({
   [TeamID.NorthSouth]: [],
   [TeamID.EastWest]: [],
@@ -1849,10 +1858,7 @@ export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>, setupData: ob
     howManyPointsATeamMustReachToEndTheGame: 2000,
     playersSaid: getDefaultPlayersSaid(),
     numberOfSuccessiveSkipSaid: 0,
-    teamsAnnounces: {
-      [TeamID.NorthSouth]: [],
-      [TeamID.EastWest]: [],
-    },
+    playersSaidAnnounces: getDefaultPlayersSaidAnnounces(),
     playersCardsPlayedInCurrentTurn: getDefaultPlayersCardsPlayedInCurrentTurn(),
     playersCardsPlayedInPreviousTurn: undefined,
   };
@@ -1867,6 +1873,7 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
   moves: {
     saySkip,
     sayTake,
+    sayAnnounce,
     playCard,
   },
 
