@@ -1,7 +1,11 @@
-import {TrumpMode} from '../../shared/coinche';
+import {AnnounceGroup, AnnounceId, TrumpMode} from '../../shared/coinche';
 
 export type I18n = {
   trumpMode: Record<TrumpMode, string>;
+  announce: {
+    id: Record<AnnounceId, string>;
+    group: Record<AnnounceGroup, string>;
+  };
   TalkMenu: {
     takeButton: string;
     skipButton: string;
@@ -12,6 +16,10 @@ export type I18n = {
   },
   PlayerSaid: {
     skip: string;
+  },
+  SayAnnounceMenu: {
+    noAvailableAnnounce: string;
+    sayAnnounceButton: string;
   },
 };
 

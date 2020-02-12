@@ -93,7 +93,7 @@ type ComponentProps = {
   isMyTurnToPlayACard: boolean,
   playCard: Moves['playCard'],
   trumpMode: TrumpMode,
-  playersCardsPlayedInCurrentTurn: GameState['playersCardsPlayedInCurrentTurn'],
+  playersCardPlayedInCurrentTurn: GameState['playersCardPlayedInCurrentTurn'],
   firstPlayerInCurrentTurn: PlayerID,
   playerPartner: PlayerID,
 };
@@ -102,7 +102,7 @@ export const MyCardsComponent: React.FunctionComponent<ComponentProps> = ({
   isMyTurnToPlayACard,
   playCard,
   trumpMode,
-  playersCardsPlayedInCurrentTurn,
+  playersCardPlayedInCurrentTurn,
   firstPlayerInCurrentTurn,
   playerPartner,
 }) => {
@@ -111,7 +111,7 @@ export const MyCardsComponent: React.FunctionComponent<ComponentProps> = ({
       {cards.sort(sortCardsFromSpadeToHeartAndFromAceToSeven).map(card => {
         const cardKey = `${card.color}${card.name}`;
         const playCardState = isMyTurnToPlayACard
-          ? (isPlayableCard(card, cards, trumpMode, playersCardsPlayedInCurrentTurn, firstPlayerInCurrentTurn, playerPartner) ? 'playable' : 'forbidden')
+          ? (isPlayableCard(card, cards, trumpMode, playersCardPlayedInCurrentTurn, firstPlayerInCurrentTurn, playerPartner) ? 'playable' : 'forbidden')
           : undefined;
         const onCardClick = playCardState === 'playable' ? () => playCard(card) : undefined;
 

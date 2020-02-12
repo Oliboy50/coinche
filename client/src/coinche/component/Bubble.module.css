@@ -1,5 +1,6 @@
 .bubble {
   position: relative;
+  z-index: 20;
   border-radius: 50%;
   font-size: 5vh;
   text-align: center;

@@ -49,7 +49,7 @@ describe(`move/playCard`, () => {
               it(`can play card with color ${card.color} and name ${card.name}`, () => {
                 G = {
                   ...G,
-                  playersCardsPlayedInCurrentTurn: {
+                  playersCardPlayedInCurrentTurn: {
                     [PlayerID.North]: undefined,
                     [PlayerID.East]: undefined,
                     [PlayerID.South]: undefined,
@@ -68,7 +68,7 @@ describe(`move/playCard`, () => {
                 playCard(G, ctx, card);
 
                 expect(endTurn).toHaveBeenCalledTimes(1);
-                expect(G.playersCardsPlayedInCurrentTurn).toEqual({
+                expect(G.playersCardPlayedInCurrentTurn).toEqual({
                   [PlayerID.North]: card,
                   [PlayerID.East]: undefined,
                   [PlayerID.South]: undefined,
@@ -87,7 +87,7 @@ describe(`move/playCard`, () => {
                 G = {
                   ...G,
                   firstPlayerInCurrentTurn: PlayerID.West,
-                  playersCardsPlayedInCurrentTurn: {
+                  playersCardPlayedInCurrentTurn: {
                     [PlayerID.North]: undefined,
                     [PlayerID.East]: undefined,
                     [PlayerID.South]: undefined,
@@ -116,7 +116,7 @@ describe(`move/playCard`, () => {
                     playCard(G, ctx, card);
 
                     expect(endTurn).toHaveBeenCalledTimes(1);
-                    expect(G.playersCardsPlayedInCurrentTurn).toEqual({
+                    expect(G.playersCardPlayedInCurrentTurn).toEqual({
                       [PlayerID.North]: card,
                       [PlayerID.East]: undefined,
                       [PlayerID.South]: undefined,
@@ -146,7 +146,7 @@ describe(`move/playCard`, () => {
                     playCard(G, ctx, card);
 
                     expect(endTurn).toHaveBeenCalledTimes(1);
-                    expect(G.playersCardsPlayedInCurrentTurn).toEqual({
+                    expect(G.playersCardPlayedInCurrentTurn).toEqual({
                       [PlayerID.North]: card,
                       [PlayerID.East]: undefined,
                       [PlayerID.South]: undefined,
@@ -239,7 +239,7 @@ describe(`move/playCard`, () => {
                 G = {
                   ...G,
                   firstPlayerInCurrentTurn: PlayerID.West,
-                  playersCardsPlayedInCurrentTurn: {
+                  playersCardPlayedInCurrentTurn: {
                     [PlayerID.North]: undefined,
                     [PlayerID.East]: undefined,
                     [PlayerID.South]: undefined,
@@ -268,7 +268,7 @@ describe(`move/playCard`, () => {
                     playCard(G, ctx, card);
 
                     expect(endTurn).toHaveBeenCalledTimes(1);
-                    expect(G.playersCardsPlayedInCurrentTurn).toEqual({
+                    expect(G.playersCardPlayedInCurrentTurn).toEqual({
                       [PlayerID.North]: card,
                       [PlayerID.East]: undefined,
                       [PlayerID.South]: undefined,
@@ -298,7 +298,7 @@ describe(`move/playCard`, () => {
                     playCard(G, ctx, card);
 
                     expect(endTurn).toHaveBeenCalledTimes(1);
-                    expect(G.playersCardsPlayedInCurrentTurn).toEqual({
+                    expect(G.playersCardPlayedInCurrentTurn).toEqual({
                       [PlayerID.North]: card,
                       [PlayerID.East]: undefined,
                       [PlayerID.South]: undefined,
@@ -355,7 +355,7 @@ describe(`move/playCard`, () => {
                     playCard(G, ctx, card);
 
                     expect(endTurn).toHaveBeenCalledTimes(1);
-                    expect(G.playersCardsPlayedInCurrentTurn).toEqual({
+                    expect(G.playersCardPlayedInCurrentTurn).toEqual({
                       [PlayerID.North]: card,
                       [PlayerID.East]: undefined,
                       [PlayerID.South]: undefined,
@@ -415,7 +415,7 @@ describe(`move/playCard`, () => {
               it(`can play card with color ${card.color} and name ${card.name}`, () => {
                 G = {
                   ...G,
-                  playersCardsPlayedInCurrentTurn: {
+                  playersCardPlayedInCurrentTurn: {
                     [PlayerID.North]: undefined,
                     [PlayerID.East]: undefined,
                     [PlayerID.South]: undefined,
@@ -434,7 +434,7 @@ describe(`move/playCard`, () => {
                 playCard(G, ctx, card);
 
                 expect(endTurn).toHaveBeenCalledTimes(1);
-                expect(G.playersCardsPlayedInCurrentTurn).toEqual({
+                expect(G.playersCardPlayedInCurrentTurn).toEqual({
                   [PlayerID.North]: card,
                   [PlayerID.East]: undefined,
                   [PlayerID.South]: undefined,
@@ -453,7 +453,7 @@ describe(`move/playCard`, () => {
                 G = {
                   ...G,
                   firstPlayerInCurrentTurn: PlayerID.West,
-                  playersCardsPlayedInCurrentTurn: {
+                  playersCardPlayedInCurrentTurn: {
                     [PlayerID.North]: undefined,
                     [PlayerID.East]: undefined,
                     [PlayerID.South]: undefined,
@@ -482,7 +482,7 @@ describe(`move/playCard`, () => {
                     playCard(G, ctx, card);
 
                     expect(endTurn).toHaveBeenCalledTimes(1);
-                    expect(G.playersCardsPlayedInCurrentTurn).toEqual({
+                    expect(G.playersCardPlayedInCurrentTurn).toEqual({
                       [PlayerID.North]: card,
                       [PlayerID.East]: undefined,
                       [PlayerID.South]: undefined,
@@ -512,7 +512,7 @@ describe(`move/playCard`, () => {
                     playCard(G, ctx, card);
 
                     expect(endTurn).toHaveBeenCalledTimes(1);
-                    expect(G.playersCardsPlayedInCurrentTurn).toEqual({
+                    expect(G.playersCardPlayedInCurrentTurn).toEqual({
                       [PlayerID.North]: card,
                       [PlayerID.East]: undefined,
                       [PlayerID.South]: undefined,

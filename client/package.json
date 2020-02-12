@@ -8,7 +8,7 @@
     "test": "react-scripts test --verbose",
     "lint": "run-p lint:es lint:tsc",
     "lint:fix": "run-p lint:fix:es",
-    "lint:es": "eslint '**/*.{js,jsx,ts,tsx}'",
+    "lint:es": "eslint --max-warnings 0 '**/*.{js,jsx,ts,tsx}'",
     "lint:fix:es": "eslint --fix '**/*.{js,jsx,ts,tsx}'",
     "lint:tsc": "tsc",
     "eject": "react-scripts eject"
