@@ -21,19 +21,19 @@ export default (
     card,
     G.playersCards[ctx.currentPlayer],
     G.trumpMode,
-    G.playersCardsPlayedInCurrentTurn,
+    G.playersCardPlayedInCurrentTurn,
     G.firstPlayerInCurrentTurn,
     playerPartner,
   )) {
     throw new Error(`Player can't play this card`);
   }
 
-  // move card from playersCards to playersCardsPlayedInCurrentTurn
+  // move card from playersCards to playersCardPlayedInCurrentTurn
   G.playersCards[ctx.currentPlayer] = [
     ...G.playersCards[ctx.currentPlayer].slice(0, cardIndexInPlayerCards),
     ...G.playersCards[ctx.currentPlayer].slice(cardIndexInPlayerCards + 1),
   ];
-  G.playersCardsPlayedInCurrentTurn[ctx.currentPlayer] = card;
+  G.playersCardPlayedInCurrentTurn[ctx.currentPlayer] = card;
 
   ctx.events.endTurn();
 };

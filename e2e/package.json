@@ -11,7 +11,7 @@
     "test:client:run": "npx serve -l 3000 -s ../client/build",
     "lint": "run-p lint:es",
     "lint:fix": "run-p lint:fix:es",
-    "lint:es": "eslint '**/*.{js,ts}'",
+    "lint:es": "eslint --max-warnings 0 '**/*.{js,ts}'",
     "lint:fix:es": "eslint --fix '**/*.{js,ts}'"
   },
   "engines": {

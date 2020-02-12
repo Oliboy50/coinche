@@ -13,7 +13,10 @@ describe(`move/saySkip`, () => {
 
   beforeEach(() => {
     G = getDefaultGameState();
-    ctx = getDefaultContext();
+    ctx = {
+      ...getDefaultContext(),
+      currentPlayer: PlayerID.North,
+    };
   });
 
   it(`increases number of successive skip said`, () => {

@@ -1,11 +1,7 @@
-import { Context } from 'boardgame.io/core';
-import {
-  GameState,
-  PhaseID,
-  PlayerID,
-} from '../index';
-import saySkip from './saySkip';
-import { getDefaultContext, getDefaultGameState } from './__testHelper';
+import {Context} from 'boardgame.io/core';
+import {AnnounceId, GameState, getAnnounceById, PhaseID, PlayerID} from '../index';
+import {getDefaultContext, getDefaultGameState} from './__testHelper';
+import sayAnnounce from './sayAnnounce';
 
 describe(`move/sayAnnounce`, () => {
   let G: GameState;
@@ -13,25 +9,33 @@ describe(`move/sayAnnounce`, () => {
 
   beforeEach(() => {
     G = getDefaultGameState();
-    ctx = getDefaultContext();
+    ctx = {
+      ...getDefaultContext(),
+      currentPlayer: PlayerID.North,
+    };
   });
 
-  // @TODO
-  it(`adds said announce to the player said announces`, () => {
-    G = {
-      ...G,
-      numberOfSuccessiveSkipSaid: 0,
-    };
+  it(`sets playersAnnounces[currentPlayer][saidAnnounce].isSaid to true`, () => {
+    G.playersAnnounces[PlayerID.North] = [
+      { announce: getAnnounceById(AnnounceId.TierceAceClub), isCardsDisplayable: false, isSaid: false },
+      { announce: getAnnounceById(AnnounceId.SquareAce), isCardsDisplayable: false, isSaid: false },
+    ];
 
-    const endTurn = jest.spyOn(ctx.events, 'endTurn');
+    sayAnnounce(G, ctx, getAnnounceById(AnnounceId.SquareAce));
 
-    saySkip(G, ctx);
+    expect(G.playersAnnounces[PlayerID.North]).toEqual([
+      { announce: getAnnounceById(AnnounceId.TierceAceClub), isCardsDisplayable: false, isSaid: false },
+      { announce: getAnnounceById(AnnounceId.SquareAce), isCardsDisplayable: false, isSaid: true },
+    ]);
+  });
 
-    expect(endTurn).toHaveBeenCalledTimes(1);
-    expect(G.numberOfSuccessiveSkipSaid).toBe(1);
-    expect(G.playersSaid).toEqual({
-      ...getDefaultGameState().playersSaid,
-      [PlayerID.North]: 'skip',
-    });
+  it(`throws if playersAnnounces[currentPlayer] does not contain given announce`, () => {
+    G.playersAnnounces[PlayerID.North] = [
+      { announce: getAnnounceById(AnnounceId.TierceAceClub), isCardsDisplayable: false, isSaid: false },
+    ];
+
+    expect(() => {
+      sayAnnounce(G, ctx, getAnnounceById(AnnounceId.SquareAce));
+    }).toThrow();
   });
 });

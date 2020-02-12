@@ -11,8 +11,10 @@ export default (
   ctx: Context<PlayerID, PhaseID>,
   announce: Announce,
 ): void => {
-  G.playersSaidAnnounces[ctx.currentPlayer] = [
-    ...G.playersSaidAnnounces[ctx.currentPlayer],
-    { announce: announce, isCardsDisplayable: false },
-  ];
+  const saidAnnounce = G.playersAnnounces[ctx.currentPlayer].find(playerAnnounce => playerAnnounce.announce.id === announce.id);
+  if (!saidAnnounce) {
+    throw new Error(`Player can't say this announce`);
+  }
+
+  saidAnnounce.isSaid = true;
 };

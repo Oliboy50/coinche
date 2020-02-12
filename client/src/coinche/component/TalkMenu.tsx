@@ -47,14 +47,14 @@ export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
   return (
     <div className={styles.menu}>
       <div className={styles.sayTake}>
-        <select className={styles.sayTakeExpectedPoint} value={selectedExpectedPoint} onChange={onChangeExpectedPoint} data-testid="select sayTakeExpectedPoint">
+        <select value={selectedExpectedPoint} onChange={onChangeExpectedPoint} data-testid="select sayTakeExpectedPoint">
           {sayableExpectedPoints.map(expectedPoint => (
             <option value={expectedPoint} key={`expectedPoint_${expectedPoint}`}>
               {expectedPoint}
             </option>
           ))}
         </select>
-        <select className={styles.sayTakeTrumpMode} value={selectedTrumpMode} onChange={onChangeTrumpMode} data-testid="select sayTakeTrumpMode">
+        <select value={selectedTrumpMode} onChange={onChangeTrumpMode} data-testid="select sayTakeTrumpMode">
           {validTrumpModes.map(trumpMode => (
             <option value={trumpMode} key={`trumpMode_${trumpMode}`}>
               {i18n.trumpMode[trumpMode]}

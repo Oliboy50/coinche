@@ -16,7 +16,7 @@ import {PlayerTurnIndicatorComponent} from './PlayerTurnIndicator';
 import {PreviousCardsPlayedMenuComponent} from './PreviousCardsPlayedMenu';
 import {getPlayerIDForPosition} from '../service/getPlayerIDForPosition';
 import {PlayedCardsComponent} from './PlayedCards';
-import {SayAnnonunceMenuComponent} from "./SayAnnounceMenu";
+import {SayAnnounceMenuComponent} from './SayAnnounceMenu';
 
 export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>> = ({
   G,
@@ -42,7 +42,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
 
   const [isDisplayedPreviousCardsPlayed, setIsDisplayedPreviousCardsPlayed] = useState(false);
 
-  const playedCards = isDisplayedPreviousCardsPlayed ? G.playersCardsPlayedInPreviousTurn : G.playersCardsPlayedInCurrentTurn;
+  const playedCards = isDisplayedPreviousCardsPlayed ? G.playersCardsPlayedInPreviousTurn : G.playersCardPlayedInCurrentTurn;
 
   return (
     <div className={styles.board}>
@@ -88,6 +88,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
             {currentPhaseNeedsToWaitForAPlayerMove && currentPlayerIsBottomPlayer && (
               <PlayerTurnIndicatorComponent />
             )}
+            {/* @TODO: let other players know that a player said an announce */}
             {currentPhaseIsTalk && !currentPlayerIsBottomPlayer && G.playersSaid[bottomPlayerID] && (
               <PlayerSaidComponent playerSaid={G.playersSaid[bottomPlayerID]}/>
             )}
@@ -95,14 +96,14 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
               <TalkMenuComponent saySkip={moves.saySkip} sayTake={moves.sayTake} playersSaid={G.playersSaid} />
             )}
             {currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && currentPlayerIsBottomPlayer && (
-              <SayAnnonunceMenuComponent saySkip={moves.saySkip} sayTake={moves.sayTake} playersSaid={G.playersSaid} />
+              <SayAnnounceMenuComponent sayAnnounce={moves.sayAnnounce} availableAnnounces={G.playersAnnounces[bottomPlayerID].filter(a => !a.isSaid).map(a => a.announce)} />
             )}
             <MyCardsComponent
               cards={G.playerCards}
               isMyTurnToPlayACard={currentPhaseIsPlayCards && currentPlayerIsBottomPlayer}
               playCard={moves.playCard}
               trumpMode={G.trumpMode}
-              playersCardsPlayedInCurrentTurn={G.playersCardsPlayedInCurrentTurn}
+              playersCardPlayedInCurrentTurn={G.playersCardPlayedInCurrentTurn}
               firstPlayerInCurrentTurn={G.firstPlayerInCurrentTurn}
               playerPartner={getPlayerPartner(playerID)}
             />

@@ -10,7 +10,7 @@
     "test:e2e": "jest --config ./jest.e2e-config.js --verbose",
     "lint": "run-p lint:es lint:tsc",
     "lint:fix": "run-p lint:fix:es",
-    "lint:es": "eslint '**/*.{js,ts}'",
+    "lint:es": "eslint --max-warnings 0 '**/*.{js,ts}'",
     "lint:fix:es": "eslint --fix '**/*.{js,ts}'",
     "lint:tsc": "tsc"
   },
