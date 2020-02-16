@@ -23,15 +23,18 @@ export const SayAnnounceMenuComponent: React.FunctionComponent<ComponentProps> =
     const newAnnounceId = event.target.value as AnnounceId;
     if (availableAnnounces.map(a => a.id).includes(newAnnounceId)) {
       setSelectedAnnounce(getAnnounceById(newAnnounceId));
-    } else {
-      setSelectedAnnounce(undefined);
     }
   };
+
+  // Make sure we can't select an announce if there is no more available announces
+  if (!availableAnnounces.length) {
+    setSelectedAnnounce(undefined);
+  }
 
   return (
     <div className={styles.menu}>
       <div className={styles.sayAnnounce}>
-        <select value={selectedAnnounce && selectedAnnounce.id} onChange={onChangeAnnounce}>
+        <select disabled={!availableAnnounces.length} value={selectedAnnounce && selectedAnnounce.id} onChange={onChangeAnnounce}>
           {availableAnnounces.length
             ? availableAnnounces.map(announce => (
               <option value={announce.id} key={`sayAnnounce_${announce.id}`}>

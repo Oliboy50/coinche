@@ -3,10 +3,13 @@
 
 describe('coinche', () => {
   beforeEach(() => {
+    // @TODO add tests using different viewports
+    cy.viewport(650, 765);
+
     cy.clearData();
   });
 
-  it('reaches PLAY phase', () => {
+  it('reaches "play cards" phase when 4 players have joined and 1st player took "100 Clubs" and the 3 others said "skip"', () => {
     let currentPlayer = 'Visitor';
 
     cy.visit('/');

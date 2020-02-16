@@ -3,7 +3,6 @@ import {BoardProps} from 'boardgame.io/react';
 import styles from './Board.module.css';
 import {
   GameStatePlayerView,
-  getAnnounceGroup,
   getPlayerPartner,
   Moves,
   PhaseID,
@@ -72,7 +71,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
             {currentPhaseIsTalk && !currentPlayerIsTopPlayer && G.playersSaid[topPlayerID] && (
               <PlayerSaidComponent playerSaid={G.playersSaid[topPlayerID]}/>
             )}
-            {currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && topPlayerSaidAnnounces.length && (
+            {currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && topPlayerSaidAnnounces.length > 0 && (
               <PlayerSaidAnnounceGroupsComponent saidAnnounceGroups={topPlayerSaidAnnounces.map(a => a.announceGroup!)}/>
             )}
             <OtherPlayerCardsComponent cards={G.playersCards[topPlayerID]} />
@@ -84,7 +83,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
             {currentPhaseIsTalk && !currentPlayerIsLeftPlayer && G.playersSaid[leftPlayerID] && (
               <PlayerSaidComponent playerSaid={G.playersSaid[leftPlayerID]}/>
             )}
-            {currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && leftPlayerSaidAnnounces.length && (
+            {currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && leftPlayerSaidAnnounces.length > 0 && (
               <PlayerSaidAnnounceGroupsComponent saidAnnounceGroups={leftPlayerSaidAnnounces.map(a => a.announceGroup!)}/>
             )}
             <OtherPlayerCardsComponent cards={G.playersCards[leftPlayerID]} />
@@ -96,7 +95,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
             {currentPhaseIsTalk && !currentPlayerIsRightPlayer && G.playersSaid[rightPlayerID] && (
               <PlayerSaidComponent playerSaid={G.playersSaid[rightPlayerID]}/>
             )}
-            {currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && rightPlayerSaidAnnounces.length && (
+            {currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && rightPlayerSaidAnnounces.length > 0 && (
               <PlayerSaidAnnounceGroupsComponent saidAnnounceGroups={rightPlayerSaidAnnounces.map(a => a.announceGroup!)}/>
             )}
             <OtherPlayerCardsComponent cards={G.playersCards[rightPlayerID]} />
@@ -111,8 +110,8 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
             {currentPhaseIsTalk && currentPlayerIsBottomPlayer && (
               <TalkMenuComponent saySkip={moves.saySkip} sayTake={moves.sayTake} playersSaid={G.playersSaid} />
             )}
-            {currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && G.playersAnnounces[bottomPlayerID] && (
-              <PlayerSaidAnnounceGroupsComponent saidAnnounceGroups={bottomPlayerSaidAnnounces.map(a => getAnnounceGroup(a.announce))}/>
+            {currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && bottomPlayerSaidAnnounces.length > 0 && (
+              <PlayerSaidAnnounceGroupsComponent saidAnnounceGroups={bottomPlayerSaidAnnounces.map(a => a.announceGroup)}/>
             )}
             {currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && currentPlayerIsBottomPlayer && (
               <SayAnnounceMenuComponent sayAnnounce={moves.sayAnnounce} availableAnnounces={G.playerAnnounces.filter(a => !a.isSaid).map(a => a.announce)} />
