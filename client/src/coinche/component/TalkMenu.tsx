@@ -2,10 +2,12 @@ import React, {useContext, useState} from 'react';
 import {BoardProps} from 'boardgame.io/react';
 import styles from './TalkMenu.module.css';
 import {
-  GameStatePlayerView, isSayableExpectedPoints,
+  GameStatePlayerView,
+  isSayableExpectedPoints,
   Moves,
   PhaseID,
-  PlayerID, TrumpMode,
+  PlayerID,
+  TrumpMode,
   validExpectedPoints,
   validTrumpModes,
 } from '../../shared/coinche';

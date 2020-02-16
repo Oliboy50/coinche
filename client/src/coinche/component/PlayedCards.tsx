@@ -5,18 +5,18 @@ import styles from './PlayedCards.module.css';
 import {getPlayerIDForPosition} from '../service/getPlayerIDForPosition';
 
 type ComponentProps = {
-  playerID: PlayerID,
+  bottomPlayerID: PlayerID,
   playedCards: Record<PlayerID, Card | undefined> | undefined,
 };
 export const PlayedCardsComponent: React.FunctionComponent<ComponentProps> = ({
-  playerID,
+  bottomPlayerID,
   playedCards,
 }) => {
 
-  const topPlayerCard = playedCards && playedCards[getPlayerIDForPosition(playerID, 'top')];
-  const leftPlayerCard = playedCards && playedCards[getPlayerIDForPosition(playerID, 'left')];
-  const rightPlayerCard = playedCards && playedCards[getPlayerIDForPosition(playerID, 'right')];
-  const bottomPlayerCard = playedCards && playedCards[playerID];
+  const bottomPlayerCard = playedCards && playedCards[bottomPlayerID];
+  const topPlayerCard = playedCards && playedCards[getPlayerIDForPosition(bottomPlayerID, 'top')];
+  const leftPlayerCard = playedCards && playedCards[getPlayerIDForPosition(bottomPlayerID, 'left')];
+  const rightPlayerCard = playedCards && playedCards[getPlayerIDForPosition(bottomPlayerID, 'right')];
 
   return (
     <React.Fragment>

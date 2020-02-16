@@ -95,7 +95,7 @@ declare module 'boardgame.io/core' {
       [key in keyof Moves]: (G: GameState, ctx: Context<PlayerID, PhaseID>, ...args: Parameters<Moves[key]>) => GameState | void;
     };
     flow?: GameFlow<GameState, Moves, PlayerID, PhaseID>;
-    playerView?: (G: GameState | GameStatePlayerView, ctx: Context<PlayerID, PhaseID>, playerID: PlayerID) => GameStatePlayerView;
+    playerView?: (G: GameState | GameStatePlayerView, ctx: Context<PlayerID, PhaseID>, playerID?: PlayerID) => GameStatePlayerView;
   }
 
   export function Game<
@@ -108,9 +108,5 @@ declare module 'boardgame.io/core' {
 
   export const TurnOrder: {
     CUSTOM_FROM: <GameState = DefaultGameState>(gameStateKey: keyof GameState) => object;
-  };
-
-  export const PlayerView: {
-    STRIP_SECRETS: Required<GameConfig>['playerView'];
   };
 }

@@ -56,7 +56,6 @@ export enum PlayerID {
   South = '2',
   West = '3',
 }
-export const validPlayerIDs: PlayerID[] = Object.values(PlayerID);
 const howManyPlayers = Object.keys(PlayerID).length;
 
 export enum PhaseID {
@@ -178,18 +177,37 @@ export enum AnnounceId {
   // @TODO
   // Belot = 'Belot',
 }
+export const validAnnounceIds: AnnounceId[] = Object.values(AnnounceId);
+
 export enum AnnounceGroup {
   Square = 'Square',
   Tierce = 'Tierce',
   Quarte = 'Quarte',
   Quinte = 'Quinte',
 }
-export const validAnnounceIds: AnnounceId[] = Object.values(AnnounceId);
 
 export interface Announce {
   id: AnnounceId;
   cards: Card[];
 }
+export interface PlayerAnnounce {
+  announce: Announce;
+  announceGroup: AnnounceGroup;
+  isSaid: boolean;
+  isCardsDisplayable: boolean;
+}
+export interface SecretPlayerAnnounce {
+  announce: Announce | undefined;
+  announceGroup: AnnounceGroup | undefined;
+  isSaid: boolean;
+  isCardsDisplayable: boolean;
+}
+const transformPlayerAnnounceToSecretPlayerAnnounce = (playerAnnounce: PlayerAnnounce): SecretPlayerAnnounce => ({
+  announce: playerAnnounce.isCardsDisplayable ? playerAnnounce.announce : undefined,
+  announceGroup: playerAnnounce.isSaid ? playerAnnounce.announceGroup : undefined,
+  isSaid: playerAnnounce.isSaid,
+  isCardsDisplayable: playerAnnounce.isCardsDisplayable,
+});
 
 export interface GameState {
   // global state
@@ -212,19 +230,20 @@ export interface GameState {
   expectedPoints: number;
   trumpMode: TrumpMode;
   playersSaid: Record<PlayerID, 'skip' | { expectedPoints: number; trumpMode: TrumpMode } | undefined>;
-  // @TODO check if can be replaced by "playersSaid"
   numberOfSuccessiveSkipSaid: number;
-  playersAnnounces: Record<PlayerID, { announce: Announce; isSaid: boolean; isCardsDisplayable: boolean; }[]>;
+  playersAnnounces: Record<PlayerID, PlayerAnnounce[]>;
 
   // turn state
   firstPlayerInCurrentTurn: PlayerID;
   playersCardPlayedInCurrentTurn: Record<PlayerID, Card | undefined>;
   playersCardsPlayedInPreviousTurn: Record<PlayerID, Card> | undefined;
 }
-export type GameStatePlayerView = Omit<GameState, 'availableCards' | 'playersCards'> & {
+export type GameStatePlayerView = Omit<GameState, 'availableCards' | 'playersCards' | 'playersAnnounces'> & {
   availableCards: SecretCard[];
   playersCards: Record<PlayerID, Card[] | SecretCard[]>;
-  playerCards: Card[]; // Syntactic sugar for playersCards[myPlayerID]
+  playerCards: Card[]; // Contains G.playersCards[myPlayerID]
+  playersAnnounces: Record<PlayerID, PlayerAnnounce[] | SecretPlayerAnnounce[]>;
+  playerAnnounces: PlayerAnnounce[];  // Contains G.playersAnnounces[myPlayerID]
 }
 
 export interface Moves {
@@ -869,7 +888,7 @@ export const getAnnounces = (): Announce[] => [
   },
 ];
 export const getAnnounceById = (announceId: AnnounceId): Announce => getAnnounces().find((a) => announceId === a.id)!;
-export const getAnnounceGroupName = (announce: Announce): AnnounceGroup => {
+export const getAnnounceGroup = (announce: Announce): AnnounceGroup => {
   switch (announce.id) {
     case AnnounceId.SquareAce:
     case AnnounceId.SquareNine:
@@ -1948,7 +1967,7 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
                 G.playersCards[playerID].push(card!);
               }
               // list available announces
-              G.playersAnnounces[playerID] = getAnnouncesForCards(G.playersCards[playerID], G.trumpMode).map(announce => ({ announce, isCardsDisplayable: false, isSaid: false }));
+              G.playersAnnounces[playerID] = getAnnouncesForCards(G.playersCards[playerID], G.trumpMode).map(announce => ({ announce, announceGroup: getAnnounceGroup(announce), isCardsDisplayable: false, isSaid: false }));
             });
 
             return { next: PhaseID.PlayCards };
@@ -2065,14 +2084,14 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
 
   playerView: (
     {
-      playersCards,
       availableCards,
+      playersCards,
+      playersAnnounces,
       ...GWithoutSecretData
     },
     ctx,
     playerID,
   ): GameStatePlayerView => {
-    // @TODO: hide other players announces until said and displayable
     return {
       ...GWithoutSecretData,
       availableCards: new Array(availableCards.length).fill(secretCard),
@@ -2083,6 +2102,13 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
         [PlayerID.West]: PlayerID.West === playerID ? playersCards[playerID] : new Array(playersCards[PlayerID.West].length).fill(secretCard),
       },
       playerCards: playerID ? playersCards[playerID] as Card[] : [],
+      playersAnnounces: {
+        [PlayerID.North]: PlayerID.North === playerID ? playersAnnounces[playerID] : (playersAnnounces[PlayerID.North] as PlayerAnnounce[]).map(transformPlayerAnnounceToSecretPlayerAnnounce),
+        [PlayerID.East]: PlayerID.East === playerID ? playersAnnounces[playerID] : (playersAnnounces[PlayerID.East] as PlayerAnnounce[]).map(transformPlayerAnnounceToSecretPlayerAnnounce),
+        [PlayerID.South]: PlayerID.South === playerID ? playersAnnounces[playerID] : (playersAnnounces[PlayerID.South] as PlayerAnnounce[]).map(transformPlayerAnnounceToSecretPlayerAnnounce),
+        [PlayerID.West]: PlayerID.West === playerID ? playersAnnounces[playerID] : (playersAnnounces[PlayerID.West] as PlayerAnnounce[]).map(transformPlayerAnnounceToSecretPlayerAnnounce),
+      },
+      playerAnnounces: playerID ? playersAnnounces[playerID] as PlayerAnnounce[] : [],
     };
   },
 });
