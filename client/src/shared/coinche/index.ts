@@ -2102,6 +2102,7 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
         [PlayerID.West]: PlayerID.West === playerID ? playersCards[playerID] : new Array(playersCards[PlayerID.West].length).fill(secretCard),
       },
       playerCards: playerID ? playersCards[playerID] as Card[] : [],
+      // @TODO: find a way to hide the "playersAnnounces.length" info (to make sure a player can't know how many announces others have)
       playersAnnounces: {
         [PlayerID.North]: PlayerID.North === playerID ? playersAnnounces[playerID] : (playersAnnounces[PlayerID.North] as PlayerAnnounce[]).map(transformPlayerAnnounceToSecretPlayerAnnounce),
         [PlayerID.East]: PlayerID.East === playerID ? playersAnnounces[playerID] : (playersAnnounces[PlayerID.East] as PlayerAnnounce[]).map(transformPlayerAnnounceToSecretPlayerAnnounce),

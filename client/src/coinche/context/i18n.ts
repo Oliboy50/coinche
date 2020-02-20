@@ -1,6 +1,7 @@
 import React from 'react';
 import {I18n, fr} from '../i18n';
 
+// @TODO: add "en" language code
 export type LanguageCode = 'fr';
 
 export const i18n: Record<LanguageCode, I18n> = {
