@@ -42,6 +42,9 @@ export const getDefaultContext = (): Context<PlayerID, PhaseID> => ({
     endPhase: () => undefined,
     setPhase: () => undefined,
     endTurn: () => undefined,
+    endStage: () => undefined,
+    setStage: () => undefined,
+    setActivePlayers: () => undefined,
   },
 });
 

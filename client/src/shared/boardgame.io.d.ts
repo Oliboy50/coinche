@@ -41,6 +41,9 @@ declare module 'boardgame.io/core' {
       endPhase: () => void;
       setPhase: (phase: PhaseID) => void;
       endTurn: (options?: { next: PlayerID }) => void;
+      endStage: () => void;
+      setStage: (stage: string) => void;
+      setActivePlayers: (config: object) => void;
     };
   }
 
@@ -67,24 +70,31 @@ declare module 'boardgame.io/core' {
     PlayerID = DefaultPlayerID,
     PhaseID = DefaultPhaseID,
   > {
-    name: string;
-    minPlayers: number;
-    maxPlayers: number;
+    name?: string;
+    minPlayers?: number;
+    maxPlayers?: number;
     setup: (ctx: Context<PlayerID, PhaseID>) => GameState;
     moves?: {
       [key in keyof Partial<Moves>]: (G: GameState, ctx: Context<PlayerID, PhaseID>, ...args: Parameters<Moves[key]>) => GameState | void;
     };
-    events: {
+    events?: {
+      endStage?: boolean;
       endTurn?: boolean;
       endPhase?: boolean;
-      setPhase?: boolean;
       endGame?: boolean;
+      setStage?: boolean;
+      setPhase?: boolean;
+      setActivePlayers?: boolean;
     };
-    turn: {
+    turn?: {
       onBegin?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
       onEnd?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
       endIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => boolean | { next: PlayerID };
-      order?: object;
+      order?: {
+        playOrder?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => PlayerID[];
+        first: (G: GameState, ctx: Context<PlayerID, PhaseID>) => number;
+        next: (G: GameState, ctx: Context<PlayerID, PhaseID>) => number;
+      };
     };
     phases?: Record<PhaseID, GamePhase<GameState, Moves, PlayerID, PhaseID>>;
     endIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => any;

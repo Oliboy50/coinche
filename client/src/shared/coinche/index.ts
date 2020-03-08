@@ -1897,10 +1897,13 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
   setup: getSetupGameState,
 
   events: {
+    endStage: false,
     endTurn: false,
     endPhase: false,
-    setPhase: false,
     endGame: false,
+    setStage: false,
+    setPhase: false,
+    setActivePlayers: false,
   },
 
   phases: {
@@ -1949,9 +1952,10 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
 
         ctx.events.endTurn({ next: G.nextDealer });
       },
-      endIf: (G) => {
+      endIf: (G, ctx) => {
         if (G.numberOfSuccessiveSkipSaid >= G.howManyPlayers) {
-          return { next: PhaseID.Deal };
+          ctx.events.setPhase(PhaseID.Deal);
+          return true;
         }
 
         if (G.expectedPoints && (
@@ -1970,7 +1974,8 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
             G.playersAnnounces[playerID] = getAnnouncesForCards(G.playersCards[playerID], G.trumpMode).map(announce => ({ announce, announceGroup: getAnnounceGroup(announce), isCardsDisplayable: false, isSaid: false }));
           });
 
-          return { next: PhaseID.PlayCards };
+          ctx.events.setPhase(PhaseID.PlayCards);
+          return true;
         }
 
         return false;
@@ -1986,9 +1991,10 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
 
         ctx.events.endTurn({ next: G.firstPlayerInCurrentTurn });
       },
-      endIf: (G) => {
+      endIf: (G, ctx) => {
         if (Object.values(G.playersCardPlayedInCurrentTurn).every(card => card !== undefined)) {
-          return { next: PhaseID.CountPoints };
+          ctx.events.setPhase(PhaseID.CountPoints);
+          return true;
         }
 
         return false;
@@ -2055,8 +2061,23 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
   },
 
   turn: {
-    order: TurnOrder.CUSTOM_FROM<GameState>('turnOrder'),
-
+    order: {
+      playOrder: () => [PlayerID.North, PlayerID.West, PlayerID.South, PlayerID.East],
+      first: () => 0,
+      next: (G, ctx) => {
+        switch (ctx.currentPlayer) {
+          case PlayerID.North:
+            return 1;
+          case PlayerID.West:
+            return 2;
+          case PlayerID.South:
+            return 3;
+          case PlayerID.East:
+            return 0;
+        }
+      },
+    },
+    // @TODO: try to move this in PlayCards phase's "turn" section
     onBegin: (G, ctx) => {
       if (ctx.phase === PhaseID.PlayCards) {
         // @TODO: display announces cards => on second (or third if NoTrump) turn of second round
