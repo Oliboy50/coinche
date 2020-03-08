@@ -8,7 +8,7 @@ import {
 
 export const getDefaultContext = (): Context<PlayerID, PhaseID> => ({
   numPlayers: 4,
-  turn: 0,
+  turn: 1,
   currentPlayer: PlayerID.North,
   currentPlayerMoves: 0,
   random: {
@@ -40,8 +40,9 @@ export const getDefaultContext = (): Context<PlayerID, PhaseID> => ({
   events: {
     endGame: () => undefined,
     endPhase: () => undefined,
+    setPhase: () => undefined,
     endTurn: () => undefined,
   },
 });
 
-export const getDefaultGameState = (): GameState => getSetupGameState(getDefaultContext(), {});
+export const getDefaultGameState = (): GameState => getSetupGameState(getDefaultContext());

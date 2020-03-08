@@ -38,46 +38,26 @@ declare module 'boardgame.io/core' {
     playerID: PlayerID;
     events: {
       endGame: () => void;
-      endPhase: (options?: { next: PhaseID }) => void;
+      endPhase: () => void;
+      setPhase: (phase: PhaseID) => void;
       endTurn: (options?: { next: PlayerID }) => void;
     };
   }
 
-  export interface GameFlowPhase<
+  export interface GamePhase<
     GameState = DefaultGameState,
     Moves = DefaultMoves,
     PlayerID = DefaultPlayerID,
     PhaseID = DefaultPhaseID,
   > {
-    endPhaseIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => boolean | { next: PhaseID };
+    moves?: {
+      [key in keyof Partial<Moves>]: (G: GameState, ctx: Context<PlayerID, PhaseID>, ...args: Parameters<Moves[key]>) => GameState | void;
+    };
+    endIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => boolean | { next: PhaseID };
     next?: PhaseID;
-    endTurnIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => boolean | { next: PlayerID };
-    endGameIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => boolean;
-    onTurnBegin?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
-    onTurnEnd?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
-    onMove?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
-    onPhaseBegin?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
-    onPhaseEnd?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
-    allowedMoves?: (keyof Moves)[];
-  }
-
-  export interface GameFlow<
-    GameState = DefaultGameState,
-    Moves = DefaultMoves,
-    PlayerID = DefaultPlayerID,
-    PhaseID = DefaultPhaseID,
-  > {
-    endTurn?: boolean;
-    endPhase?: boolean;
-    endGame?: boolean;
-    turnOrder?: object;
-    startingPhase?: PhaseID;
-    phases?: Record<PhaseID, GameFlowPhase<GameState, Moves, PlayerID, PhaseID>>;
-    endTurnIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => boolean | { next: PlayerID };
-    endGameIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => any;
-    onTurnBegin?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
-    onTurnEnd?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
-    onMove?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
+    onBegin?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
+    onEnd?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
+    start?: true;
   }
 
   export interface GameConfig<
@@ -90,21 +70,26 @@ declare module 'boardgame.io/core' {
     name: string;
     minPlayers: number;
     maxPlayers: number;
-    setup: (ctx: Context<PlayerID, PhaseID>, setupData: object) => GameState;
-    moves: {
-      [key in keyof Moves]: (G: GameState, ctx: Context<PlayerID, PhaseID>, ...args: Parameters<Moves[key]>) => GameState | void;
+    setup: (ctx: Context<PlayerID, PhaseID>) => GameState;
+    moves?: {
+      [key in keyof Partial<Moves>]: (G: GameState, ctx: Context<PlayerID, PhaseID>, ...args: Parameters<Moves[key]>) => GameState | void;
     };
-    flow?: GameFlow<GameState, Moves, PlayerID, PhaseID>;
+    events: {
+      endTurn?: boolean;
+      endPhase?: boolean;
+      setPhase?: boolean;
+      endGame?: boolean;
+    };
+    turn: {
+      onBegin?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
+      onEnd?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
+      endIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => boolean | { next: PlayerID };
+      order?: object;
+    };
+    phases?: Record<PhaseID, GamePhase<GameState, Moves, PlayerID, PhaseID>>;
+    endIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => any;
     playerView?: (G: GameState | GameStatePlayerView, ctx: Context<PlayerID, PhaseID>, playerID?: PlayerID) => GameStatePlayerView;
   }
-
-  export function Game<
-    GameState = DefaultGameState,
-    GameStatePlayerView = DefaultGameStatePlayerView,
-    Moves = DefaultMoves,
-    PlayerID = DefaultPlayerID,
-    PhaseID = DefaultPhaseID,
-  >(game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, PhaseID>): object;
 
   export const TurnOrder: {
     CUSTOM_FROM: <GameState = DefaultGameState>(gameStateKey: keyof GameState) => object;
