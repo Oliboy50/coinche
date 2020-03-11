@@ -25,11 +25,10 @@ export const SayAnnounceMenuComponent: React.FunctionComponent<ComponentProps> =
       setSelectedAnnounce(getAnnounceById(newAnnounceId));
     }
   };
-
-  // Make sure we can't select an announce if there is no more available announces
-  if (!availableAnnounces.length) {
+  const saySelectedAnnounce = (selectedAnnounce: Announce) => {
+    sayAnnounce(selectedAnnounce);
     setSelectedAnnounce(undefined);
-  }
+  };
 
   return (
     <div className={styles.menu}>
@@ -46,7 +45,7 @@ export const SayAnnounceMenuComponent: React.FunctionComponent<ComponentProps> =
             )
           }
         </select>
-        <button disabled={!selectedAnnounce} onClick={selectedAnnounce ? () => sayAnnounce(selectedAnnounce) : undefined}>{i18n.SayAnnounceMenu.sayAnnounceButton}</button>
+        <button disabled={!selectedAnnounce} onClick={selectedAnnounce ? () => saySelectedAnnounce(selectedAnnounce) : undefined}>{i18n.SayAnnounceMenu.sayAnnounceButton}</button>
       </div>
     </div>
   );

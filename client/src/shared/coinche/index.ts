@@ -1,7 +1,7 @@
 import {
   Context,
-  Game,
-  TurnOrder,
+  GameConfig,
+  TurnConfig,
 } from 'boardgame.io/core';
 import playCard from './move/playCard';
 import sayAnnounce from './move/sayAnnounce';
@@ -210,6 +210,9 @@ const transformPlayerAnnounceToSecretPlayerAnnounce = (playerAnnounce: PlayerAnn
 });
 
 export interface GameState {
+  // internal state
+  __forcedNextPhase?: PhaseID;
+
   // global state
   howManyPlayers: number;
   howManyCards: number;
@@ -222,7 +225,6 @@ export interface GameState {
   availableCards: Card[];
   playersCards: Record<PlayerID, Card[]>;
   wonTeamsCards: Record<TeamID, Card[]>;
-  turnOrder: PlayerID[];
   dealer: PlayerID;
   nextDealer: PlayerID;
   attackingTeam: TeamID;
@@ -1499,7 +1501,7 @@ const filterSelfExcludingAnnounces = (announces: Announce[]): Announce[] => {
 
   return bestAnnounces;
 };
-export const getAnnouncesForCards = (cards: Card[], trumpMode: TrumpMode): Announce[] => {
+export const getAnnouncesForCards = (cards: Card[], _: TrumpMode): Announce[] => {
   const availableAnnounces = getAnnounces().reduce((acc, announce) => {
     if (announce.cards.every(announceCard => cardsContainCard(cards, announceCard))) {
       return [...acc, announce];
@@ -1809,8 +1811,8 @@ export const getGameWinnerTeam = (teamsPoints: Record<TeamID, number>, howManyPo
   return TeamID.EastWest;
 };
 
-export const getTurnOrder = (dealer: PlayerID): PlayerID[] => {
-  switch (dealer) {
+export const getTurnOrder = (firstPlayer: PlayerID): PlayerID[] => {
+  switch (firstPlayer) {
     case PlayerID.North:
       return [PlayerID.North, PlayerID.West, PlayerID.South, PlayerID.East];
     case PlayerID.East:
@@ -1851,14 +1853,16 @@ const getDefaultPlayersSaid = () => ({
   [PlayerID.West]: undefined,
 });
 
-export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>, setupData: object): GameState => {
+export const getSetupGameState = (_: Context<PlayerID, PhaseID>): GameState => {
   const dealer = PlayerID.North;
+  const nextDealer = dealer;
   const availableCards = getCards();
   const howManyCards = availableCards.length;
   const howManyCardsToDealToEachPlayerBeforeTalking = 6;
   const howManyCardsToDealToEachPlayerAfterTalking = Math.floor(howManyCards / howManyPlayers) - howManyCardsToDealToEachPlayerBeforeTalking;
 
   return {
+    __forcedNextPhase: undefined,
     howManyPlayers,
     howManyCards,
     availableCards,
@@ -1869,9 +1873,8 @@ export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>, setupData: ob
       [TeamID.EastWest]: 0,
     },
     dealer,
-    nextDealer: dealer,
-    turnOrder: getTurnOrder(dealer),
-    firstPlayerInCurrentTurn: dealer,
+    nextDealer,
+    firstPlayerInCurrentTurn: nextDealer,
     trumpMode: TrumpMode.NoTrump,
     attackingTeam: TeamID.NorthSouth,
     defensingTeam: TeamID.EastWest,
@@ -1886,109 +1889,154 @@ export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>, setupData: ob
     playersCardsPlayedInPreviousTurn: undefined,
   };
 };
-export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, PlayerID, PhaseID>({
+const defaultTurnConfig: TurnConfig<GameState, PlayerID, PhaseID> = {
+  order: {
+    playOrder: () => getTurnOrder(PlayerID.North),
+    first: (G, ctx) => {
+      if (ctx.phase === PhaseID.PlayCards) {
+        switch (G.firstPlayerInCurrentTurn) {
+          case PlayerID.North:
+            return 0;
+          case PlayerID.West:
+            return 1;
+          case PlayerID.South:
+            return 2;
+          case PlayerID.East:
+            return 3;
+        }
+      }
+
+      switch (G.nextDealer) {
+        case PlayerID.North:
+          return 0;
+        case PlayerID.West:
+          return 1;
+        case PlayerID.South:
+          return 2;
+        case PlayerID.East:
+          return 3;
+      }
+    },
+    next: (G, ctx) => {
+      switch (ctx.currentPlayer) {
+        case PlayerID.North:
+          return 1;
+        case PlayerID.West:
+          return 2;
+        case PlayerID.South:
+          return 3;
+        case PlayerID.East:
+          return 0;
+      }
+    },
+  },
+};
+export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, PhaseID> => ({
   name: 'coinche',
   minPlayers: howManyPlayers,
   maxPlayers: howManyPlayers,
 
   setup: getSetupGameState,
 
-  moves: {
-    saySkip,
-    sayTake,
-    sayAnnounce,
-    playCard,
-  },
+  turn: defaultTurnConfig,
 
-  flow: {
+  events: {
+    endStage: false,
     endTurn: false,
     endPhase: false,
     endGame: false,
-    turnOrder: TurnOrder.CUSTOM_FROM<GameState>('turnOrder'),
-    startingPhase: PhaseID.Deal,
-    phases: {
-      [PhaseID.Deal]: {
-        allowedMoves: [],
-        onPhaseBegin: (G, ctx) => {
-          console.log('phase Deal');
+    setStage: false,
+    setPhase: false,
+    setActivePlayers: false,
+    pass: false,
+  },
 
-          // set next dealer
-          const newDealer = G.nextDealer;
-          const newNextDealer = getTurnOrder(newDealer)[1];
+  phases: {
+    [PhaseID.Deal]: {
+      start: true,
+      onBegin: (G, ctx) => {
+        // set new dealer
+        const dealer = G.nextDealer;
+        const nextDealer = getTurnOrder(dealer)[1];
 
-          // reset round state
-          G.availableCards = ctx.random.Shuffle(getCards());
-          G.playersCards = getDefaultPlayersCards();
-          G.wonTeamsCards = getDefaultWonTeamsCards();
-          G.playersSaid = getDefaultPlayersSaid();
-          G.playersAnnounces = getDefaultPlayersAnnounces();
-          G.numberOfSuccessiveSkipSaid = 0;
-          G.dealer = newDealer;
-          G.nextDealer = newNextDealer;
-          G.firstPlayerInCurrentTurn = newNextDealer;
-          G.playersCardsPlayedInPreviousTurn = undefined;
-          G.expectedPoints = 0;
-          G.trumpMode = TrumpMode.NoTrump;
+        // reset round state
+        G.playersCards = getDefaultPlayersCards();
+        G.wonTeamsCards = getDefaultWonTeamsCards();
+        G.playersSaid = getDefaultPlayersSaid();
+        G.playersAnnounces = getDefaultPlayersAnnounces();
+        G.numberOfSuccessiveSkipSaid = 0;
+        G.dealer = dealer;
+        G.nextDealer = nextDealer;
+        G.firstPlayerInCurrentTurn = nextDealer;
+        G.playersCardsPlayedInPreviousTurn = undefined;
+        G.expectedPoints = 0;
+        G.trumpMode = TrumpMode.NoTrump;
+        G.availableCards = ctx.random.Shuffle(getCards());
 
-          // deal cards before talking
-          G.turnOrder.forEach(playerID => {
-            for (let i = 0; i < G.howManyCardsToDealToEachPlayerBeforeTalking; i++) {
+        // deal cards before talking
+        getTurnOrder(nextDealer).forEach(playerID => {
+          for (let i = 0; i < G.howManyCardsToDealToEachPlayerBeforeTalking; i++) {
+            const card = G.availableCards.pop();
+            G.playersCards[playerID].push(card!);
+          }
+        });
+
+        G.__forcedNextPhase = PhaseID.Talk;
+      },
+      endIf: (G) => {
+        return G.__forcedNextPhase ? { next: G.__forcedNextPhase } : false;
+      },
+      onEnd: (G) => {
+        G.__forcedNextPhase = undefined;
+      },
+    },
+    [PhaseID.Talk]: {
+      // @TODO sayCoinche and saySurcoinche
+      moves: {
+        saySkip,
+        sayTake,
+      },
+      endIf: (G) => {
+        if (G.numberOfSuccessiveSkipSaid >= G.howManyPlayers) {
+          return { next: PhaseID.Deal };
+        }
+
+        if (G.expectedPoints && (
+          // 3 successive skips
+          G.numberOfSuccessiveSkipSaid >= (G.howManyPlayers - 1)
+          // maximum validExpectedPoints
+          || G.expectedPoints === validExpectedPoints[validExpectedPoints.length - 1]
+        )) {
+          getTurnOrder(G.nextDealer).forEach(playerID => {
+            // deal remaining cards
+            for (let i = 0; i < G.howManyCardsToDealToEachPlayerAfterTalking; i++) {
               const card = G.availableCards.pop();
               G.playersCards[playerID].push(card!);
             }
+            // list available announces
+            G.playersAnnounces[playerID] = getAnnouncesForCards(G.playersCards[playerID], G.trumpMode).map(announce => ({ announce, announceGroup: getAnnounceGroup(announce), isCardsDisplayable: false, isSaid: false }));
           });
 
-          ctx.events.endPhase({ next: PhaseID.Talk });
-        },
+          return { next: PhaseID.PlayCards };
+        }
+
+        return false;
       },
-      [PhaseID.Talk]: {
-        // @TODO sayCoinche and saySurcoinche
-        allowedMoves: ['saySkip', 'sayTake'] as (keyof Moves)[],
-        onPhaseBegin: (G, ctx) => {
-          console.log('phase Talk');
-
-          ctx.events.endTurn({ next: G.nextDealer });
-        },
-        endPhaseIf: (G) => {
-          if (G.numberOfSuccessiveSkipSaid >= G.howManyPlayers) {
-            return { next: PhaseID.Deal };
-          }
-
-          if (G.expectedPoints && (
-            // 3 successive skips
-            G.numberOfSuccessiveSkipSaid >= (G.howManyPlayers - 1)
-            // maximum validExpectedPoints
-            || G.expectedPoints === validExpectedPoints[validExpectedPoints.length - 1]
-          )) {
-            G.turnOrder.forEach(playerID => {
-              // deal remaining cards
-              for (let i = 0; i < G.howManyCardsToDealToEachPlayerAfterTalking; i++) {
-                const card = G.availableCards.pop();
-                G.playersCards[playerID].push(card!);
-              }
-              // list available announces
-              G.playersAnnounces[playerID] = getAnnouncesForCards(G.playersCards[playerID], G.trumpMode).map(announce => ({ announce, announceGroup: getAnnounceGroup(announce), isCardsDisplayable: false, isSaid: false }));
-            });
-
-            return { next: PhaseID.PlayCards };
-          }
-
-          return false;
-        },
+    },
+    [PhaseID.PlayCards]: {
+      moves: {
+        sayAnnounce,
+        playCard,
       },
-      [PhaseID.PlayCards]: {
-        allowedMoves: ['playCard', 'sayAnnounce'],
-        onPhaseBegin: (G, ctx) => {
-          console.log('phase PlayCards');
-
-          ctx.events.endTurn({ next: G.firstPlayerInCurrentTurn });
-        },
-        onTurnBegin: (G, ctx) => {
+      turn: {
+        ...defaultTurnConfig,
+        onBegin: (G, ctx) => {
           // @TODO: display announces cards => on second (or third if NoTrump) turn of second round
 
           // set players cards playability
           const player = ctx.currentPlayer;
           const playerPartner = getPlayerPartner(player);
+          // @TODO! debug cards playability (why cards are always playable now???)
           const setCardsPlayability = (cards: Card[], playerIsCurrentPlayer: boolean): Card[] => cards.map(card => ({
             ...card,
             isPlayable: !playerIsCurrentPlayer
@@ -2012,72 +2060,75 @@ export const buildGame = () => Game<GameState, GameStatePlayerView, Moves, Playe
             },
           };
         },
-        endPhaseIf: (G) => {
-          if (Object.values(G.playersCardPlayedInCurrentTurn).every(card => card !== undefined)) {
-            return { next: PhaseID.CountPoints };
-          }
-
-          return false;
-        },
       },
-      [PhaseID.CountPoints]: {
-        allowedMoves: [],
-        onPhaseBegin: (G, ctx) => {
-          console.log('phase CountPoints');
+      endIf: (G) => {
+        if (Object.values(G.playersCardPlayedInCurrentTurn).every(card => card !== undefined)) {
+          return { next: PhaseID.CountPoints };
+        }
 
-          const winner = getWinner(G.playersCardPlayedInCurrentTurn, G.trumpMode, G.playersCardPlayedInCurrentTurn[G.firstPlayerInCurrentTurn]!.color);
-          const winnerTeam = getPlayerTeam(winner);
+        return false;
+      },
+    },
+    [PhaseID.CountPoints]: {
+      onBegin: (G, ctx) => {
+        const winner = getWinner(G.playersCardPlayedInCurrentTurn, G.trumpMode, G.playersCardPlayedInCurrentTurn[G.firstPlayerInCurrentTurn]!.color);
+        const winnerTeam = getPlayerTeam(winner);
 
-          // fill cards played in previous turn
-          G.playersCardsPlayedInPreviousTurn = {...G.playersCardPlayedInCurrentTurn} as Record<PlayerID, Card>; // cast because G.playersCardPlayedInCurrentTurn can't contain "undefined" values at this point
+        // fill cards played in previous turn
+        G.playersCardsPlayedInPreviousTurn = {...G.playersCardPlayedInCurrentTurn} as Record<PlayerID, Card>; // cast because G.playersCardPlayedInCurrentTurn can't contain "undefined" values at this point
 
-          // move played cards to winner team cards
-          (Object.values(G.playersCardPlayedInCurrentTurn).filter(c => c !== undefined) as Card[]).forEach(card => G.wonTeamsCards[winnerTeam].push(card));
-          G.playersCardPlayedInCurrentTurn = getDefaultPlayersCardPlayedInCurrentTurn();
+        // move played cards to winner team cards
+        (Object.values(G.playersCardPlayedInCurrentTurn).filter(c => c !== undefined) as Card[]).forEach(card => G.wonTeamsCards[winnerTeam].push(card));
+        G.playersCardPlayedInCurrentTurn = getDefaultPlayersCardPlayedInCurrentTurn();
 
-          // winner becomes next first player
-          G.firstPlayerInCurrentTurn = winner;
+        // winner becomes next first player
+        G.firstPlayerInCurrentTurn = winner;
 
-          // go to PlayCards phase if not all cards have been played
-          if (Object.values(G.wonTeamsCards).reduce((acc, cards) => acc.concat(cards), []).length < G.howManyCards) {
-            ctx.events.endPhase({ next: PhaseID.PlayCards });
-            return;
-          }
+        // go to PlayCards phase if not all cards have been played
+        if (Object.values(G.wonTeamsCards).reduce((acc, cards) => acc.concat(cards), []).length < G.howManyCards) {
+          G.__forcedNextPhase = PhaseID.PlayCards;
+          return;
+        }
 
-          // compute capot (100) or last turn (10) extra points
-          const attackingTeamExtraPoints = G.attackingTeam === winnerTeam  ? (!G.wonTeamsCards[G.defensingTeam].length ? 100 : 10) : 0;
-          const defensingTeamExtraPoints = G.defensingTeam === winnerTeam  ? (!G.wonTeamsCards[G.attackingTeam].length ? 100 : 10) : 0;
+        // compute capot (100) or last turn (10) extra points
+        const attackingTeamExtraPoints = G.attackingTeam === winnerTeam  ? (!G.wonTeamsCards[G.defensingTeam].length ? 100 : 10) : 0;
+        const defensingTeamExtraPoints = G.defensingTeam === winnerTeam  ? (!G.wonTeamsCards[G.attackingTeam].length ? 100 : 10) : 0;
 
-          // compute cards points
-          const attackingTeamCardsPoints = G.wonTeamsCards[G.attackingTeam].reduce((acc, card) => acc + getCardPoints(card, G.trumpMode), 0);
-          const defensingTeamCardsPoints = G.wonTeamsCards[G.defensingTeam].reduce((acc, card) => acc + getCardPoints(card, G.trumpMode), 0);
+        // compute cards points
+        const attackingTeamCardsPoints = G.wonTeamsCards[G.attackingTeam].reduce((acc, card) => acc + getCardPoints(card, G.trumpMode), 0);
+        const defensingTeamCardsPoints = G.wonTeamsCards[G.defensingTeam].reduce((acc, card) => acc + getCardPoints(card, G.trumpMode), 0);
 
-          // compute announces points
-          const northSouthTeamAnnouncesPoints = [...G.playersAnnounces[PlayerID.North], ...G.playersAnnounces[PlayerID.South]].filter(a => a.isSaid).reduce((acc, a) => getAnnouncePoints(a.announce, G.trumpMode), 0);
-          const eastWestTeamAnnouncesPoints = [...G.playersAnnounces[PlayerID.East], ...G.playersAnnounces[PlayerID.West]].filter(a => a.isSaid).reduce((acc, a) => getAnnouncePoints(a.announce, G.trumpMode), 0);
-          const attackingTeamAnnouncesPoints = G.attackingTeam === TeamID.NorthSouth ? northSouthTeamAnnouncesPoints : eastWestTeamAnnouncesPoints;
-          const defensingTeamAnnouncesPoints = G.defensingTeam === TeamID.NorthSouth ? northSouthTeamAnnouncesPoints : eastWestTeamAnnouncesPoints;
+        // compute announces points
+        const northSouthTeamAnnouncesPoints = [...G.playersAnnounces[PlayerID.North], ...G.playersAnnounces[PlayerID.South]].filter(a => a.isSaid).reduce((acc, a) => getAnnouncePoints(a.announce, G.trumpMode), 0);
+        const eastWestTeamAnnouncesPoints = [...G.playersAnnounces[PlayerID.East], ...G.playersAnnounces[PlayerID.West]].filter(a => a.isSaid).reduce((acc, a) => getAnnouncePoints(a.announce, G.trumpMode), 0);
+        const attackingTeamAnnouncesPoints = G.attackingTeam === TeamID.NorthSouth ? northSouthTeamAnnouncesPoints : eastWestTeamAnnouncesPoints;
+        const defensingTeamAnnouncesPoints = G.defensingTeam === TeamID.NorthSouth ? northSouthTeamAnnouncesPoints : eastWestTeamAnnouncesPoints;
 
-          // check which team won the round
-          // @TODO add expected points
-          if (attackingTeamCardsPoints >= G.expectedPoints && attackingTeamCardsPoints >= defensingTeamCardsPoints) {
-            G.teamsPoints[G.attackingTeam] += (attackingTeamExtraPoints + attackingTeamCardsPoints + attackingTeamAnnouncesPoints);
-            G.teamsPoints[G.defensingTeam] += (defensingTeamExtraPoints + defensingTeamCardsPoints + defensingTeamAnnouncesPoints);
-          } else {
-            G.teamsPoints[G.defensingTeam] += (defensingTeamExtraPoints + defensingTeamCardsPoints + defensingTeamAnnouncesPoints + attackingTeamAnnouncesPoints);
-          }
+        // check which team won the round
+        // @TODO add expected points
+        if (attackingTeamCardsPoints >= G.expectedPoints && attackingTeamCardsPoints >= defensingTeamCardsPoints) {
+          G.teamsPoints[G.attackingTeam] += (attackingTeamExtraPoints + attackingTeamCardsPoints + attackingTeamAnnouncesPoints);
+          G.teamsPoints[G.defensingTeam] += (defensingTeamExtraPoints + defensingTeamCardsPoints + defensingTeamAnnouncesPoints);
+        } else {
+          G.teamsPoints[G.defensingTeam] += (defensingTeamExtraPoints + defensingTeamCardsPoints + defensingTeamAnnouncesPoints + attackingTeamAnnouncesPoints);
+        }
 
-          // go to Deal phase if the end of the game has not been reached
-          const gameWinnerTeam = getGameWinnerTeam(G.teamsPoints, G.howManyPointsATeamMustReachToEndTheGame);
-          if (gameWinnerTeam === undefined) {
-            ctx.events.endPhase({ next: PhaseID.Deal });
-            return;
-          }
+        // go to Deal phase if the end of the game has not been reached
+        const gameWinnerTeam = getGameWinnerTeam(G.teamsPoints, G.howManyPointsATeamMustReachToEndTheGame);
+        if (gameWinnerTeam === undefined) {
+          G.__forcedNextPhase = PhaseID.Deal;
+          return;
+        }
 
-          // @TODO congrats winning team
-          console.log(`The winner is... ${gameWinnerTeam || 'both'}!`, G, ctx);
-          ctx.events.endGame();
-        },
+        // @TODO congrats winning team
+        console.log(`The winner is... ${gameWinnerTeam || 'both'}!`, G, ctx);
+        ctx.events.endGame();
+      },
+      endIf: (G) => {
+        return G.__forcedNextPhase ? { next: G.__forcedNextPhase } : false;
+      },
+      onEnd: (G) => {
+        G.__forcedNextPhase = undefined;
       },
     },
   },
