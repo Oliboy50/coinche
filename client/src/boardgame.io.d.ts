@@ -27,7 +27,7 @@ declare module 'boardgame.io/react' {
     game: object;
     numPlayers?: number;
     board?: ComponentType<BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>>;
-    multiplayer?: boolean | { server: string } | { local: boolean };
+    multiplayer?: false | (() => void);
     debug?: boolean;
   }
 
