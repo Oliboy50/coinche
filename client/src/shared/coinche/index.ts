@@ -1,7 +1,7 @@
 import {
   Context,
   GameConfig,
-  TurnOrder,
+  TurnConfig,
 } from 'boardgame.io/core';
 import playCard from './move/playCard';
 import sayAnnounce from './move/sayAnnounce';
@@ -210,6 +210,9 @@ const transformPlayerAnnounceToSecretPlayerAnnounce = (playerAnnounce: PlayerAnn
 });
 
 export interface GameState {
+  // internal state
+  __forcedNextPhase?: PhaseID;
+
   // global state
   howManyPlayers: number;
   howManyCards: number;
@@ -222,7 +225,6 @@ export interface GameState {
   availableCards: Card[];
   playersCards: Record<PlayerID, Card[]>;
   wonTeamsCards: Record<TeamID, Card[]>;
-  turnOrder: PlayerID[];
   dealer: PlayerID;
   nextDealer: PlayerID;
   attackingTeam: TeamID;
@@ -1499,7 +1501,7 @@ const filterSelfExcludingAnnounces = (announces: Announce[]): Announce[] => {
 
   return bestAnnounces;
 };
-export const getAnnouncesForCards = (cards: Card[], trumpMode: TrumpMode): Announce[] => {
+export const getAnnouncesForCards = (cards: Card[], _: TrumpMode): Announce[] => {
   const availableAnnounces = getAnnounces().reduce((acc, announce) => {
     if (announce.cards.every(announceCard => cardsContainCard(cards, announceCard))) {
       return [...acc, announce];
@@ -1694,7 +1696,6 @@ export const isCardBeatingTheOtherCards = (card: Card, otherCards: Card[], trump
 };
 export const isPlayableCard = (card: Card, playerCards: Card[], trumpMode: TrumpMode, playersCardPlayedInCurrentTurn: GameState['playersCardPlayedInCurrentTurn'], firstPlayerInCurrentTurn: PlayerID, playerPartner: PlayerID): boolean => {
   // if a card has already been played
-  console.log(card, playerCards, trumpMode, playersCardPlayedInCurrentTurn, firstPlayerInCurrentTurn, playerPartner);
   if (playersCardPlayedInCurrentTurn[firstPlayerInCurrentTurn]) {
     const firstCardColor = playersCardPlayedInCurrentTurn[firstPlayerInCurrentTurn]!.color;
 
@@ -1810,8 +1811,8 @@ export const getGameWinnerTeam = (teamsPoints: Record<TeamID, number>, howManyPo
   return TeamID.EastWest;
 };
 
-export const getTurnOrder = (dealer: PlayerID): PlayerID[] => {
-  switch (dealer) {
+export const getTurnOrder = (firstPlayer: PlayerID): PlayerID[] => {
+  switch (firstPlayer) {
     case PlayerID.North:
       return [PlayerID.North, PlayerID.West, PlayerID.South, PlayerID.East];
     case PlayerID.East:
@@ -1852,16 +1853,16 @@ const getDefaultPlayersSaid = () => ({
   [PlayerID.West]: undefined,
 });
 
-export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>): GameState => {
+export const getSetupGameState = (_: Context<PlayerID, PhaseID>): GameState => {
   const dealer = PlayerID.North;
-  const turnOrder = getTurnOrder(dealer);
-  const nextDealer = turnOrder[1];
+  const nextDealer = dealer;
   const availableCards = getCards();
   const howManyCards = availableCards.length;
   const howManyCardsToDealToEachPlayerBeforeTalking = 6;
   const howManyCardsToDealToEachPlayerAfterTalking = Math.floor(howManyCards / howManyPlayers) - howManyCardsToDealToEachPlayerBeforeTalking;
 
   return {
+    __forcedNextPhase: undefined,
     howManyPlayers,
     howManyCards,
     availableCards,
@@ -1872,7 +1873,6 @@ export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>): GameState =>
       [TeamID.EastWest]: 0,
     },
     dealer,
-    turnOrder,
     nextDealer,
     firstPlayerInCurrentTurn: nextDealer,
     trumpMode: TrumpMode.NoTrump,
@@ -1889,12 +1889,56 @@ export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>): GameState =>
     playersCardsPlayedInPreviousTurn: undefined,
   };
 };
+const defaultTurnConfig: TurnConfig<GameState, PlayerID, PhaseID> = {
+  order: {
+    playOrder: () => getTurnOrder(PlayerID.North),
+    first: (G, ctx) => {
+      if (ctx.phase === PhaseID.PlayCards) {
+        switch (G.firstPlayerInCurrentTurn) {
+          case PlayerID.North:
+            return 0;
+          case PlayerID.West:
+            return 1;
+          case PlayerID.South:
+            return 2;
+          case PlayerID.East:
+            return 3;
+        }
+      }
+
+      switch (G.nextDealer) {
+        case PlayerID.North:
+          return 0;
+        case PlayerID.West:
+          return 1;
+        case PlayerID.South:
+          return 2;
+        case PlayerID.East:
+          return 3;
+      }
+    },
+    next: (G, ctx) => {
+      switch (ctx.currentPlayer) {
+        case PlayerID.North:
+          return 1;
+        case PlayerID.West:
+          return 2;
+        case PlayerID.South:
+          return 3;
+        case PlayerID.East:
+          return 0;
+      }
+    },
+  },
+};
 export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, PhaseID> => ({
   name: 'coinche',
   minPlayers: howManyPlayers,
   maxPlayers: howManyPlayers,
 
   setup: getSetupGameState,
+
+  turn: defaultTurnConfig,
 
   events: {
     endStage: false,
@@ -1904,20 +1948,18 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
     setStage: false,
     setPhase: false,
     setActivePlayers: false,
+    pass: false,
   },
 
   phases: {
     [PhaseID.Deal]: {
       start: true,
       onBegin: (G, ctx) => {
-        console.log('phase Deal');
-
         // set new dealer
         const dealer = G.nextDealer;
         const nextDealer = getTurnOrder(dealer)[1];
 
         // reset round state
-        G.availableCards = ctx.random.Shuffle(getCards());
         G.playersCards = getDefaultPlayersCards();
         G.wonTeamsCards = getDefaultWonTeamsCards();
         G.playersSaid = getDefaultPlayersSaid();
@@ -1929,16 +1971,23 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
         G.playersCardsPlayedInPreviousTurn = undefined;
         G.expectedPoints = 0;
         G.trumpMode = TrumpMode.NoTrump;
+        G.availableCards = ctx.random.Shuffle(getCards());
 
         // deal cards before talking
-        G.turnOrder.forEach(playerID => {
+        getTurnOrder(nextDealer).forEach(playerID => {
           for (let i = 0; i < G.howManyCardsToDealToEachPlayerBeforeTalking; i++) {
             const card = G.availableCards.pop();
             G.playersCards[playerID].push(card!);
           }
         });
 
-        ctx.events.setPhase(PhaseID.Talk);
+        G.__forcedNextPhase = PhaseID.Talk;
+      },
+      endIf: (G) => {
+        return G.__forcedNextPhase ? { next: G.__forcedNextPhase } : false;
+      },
+      onEnd: (G) => {
+        G.__forcedNextPhase = undefined;
       },
     },
     [PhaseID.Talk]: {
@@ -1947,15 +1996,9 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
         saySkip,
         sayTake,
       },
-      onBegin: (G, ctx) => {
-        console.log('phase Talk');
-
-        ctx.events.endTurn({ next: G.nextDealer });
-      },
-      endIf: (G, ctx) => {
+      endIf: (G) => {
         if (G.numberOfSuccessiveSkipSaid >= G.howManyPlayers) {
-          ctx.events.setPhase(PhaseID.Deal);
-          return true;
+          return { next: PhaseID.Deal };
         }
 
         if (G.expectedPoints && (
@@ -1964,7 +2007,7 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
           // maximum validExpectedPoints
           || G.expectedPoints === validExpectedPoints[validExpectedPoints.length - 1]
         )) {
-          G.turnOrder.forEach(playerID => {
+          getTurnOrder(G.nextDealer).forEach(playerID => {
             // deal remaining cards
             for (let i = 0; i < G.howManyCardsToDealToEachPlayerAfterTalking; i++) {
               const card = G.availableCards.pop();
@@ -1974,8 +2017,7 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
             G.playersAnnounces[playerID] = getAnnouncesForCards(G.playersCards[playerID], G.trumpMode).map(announce => ({ announce, announceGroup: getAnnounceGroup(announce), isCardsDisplayable: false, isSaid: false }));
           });
 
-          ctx.events.setPhase(PhaseID.PlayCards);
-          return true;
+          return { next: PhaseID.PlayCards };
         }
 
         return false;
@@ -1986,15 +2028,42 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
         sayAnnounce,
         playCard,
       },
-      onBegin: (G, ctx) => {
-        console.log('phase PlayCards');
+      turn: {
+        ...defaultTurnConfig,
+        onBegin: (G, ctx) => {
+          // @TODO: display announces cards => on second (or third if NoTrump) turn of second round
 
-        ctx.events.endTurn({ next: G.firstPlayerInCurrentTurn });
+          // set players cards playability
+          const player = ctx.currentPlayer;
+          const playerPartner = getPlayerPartner(player);
+          // @TODO! debug cards playability (why cards are always playable now???)
+          const setCardsPlayability = (cards: Card[], playerIsCurrentPlayer: boolean): Card[] => cards.map(card => ({
+            ...card,
+            isPlayable: !playerIsCurrentPlayer
+              ? false
+              : isPlayableCard(
+                card,
+                G.playersCards[player],
+                G.trumpMode,
+                G.playersCardPlayedInCurrentTurn,
+                G.firstPlayerInCurrentTurn,
+                playerPartner,
+              ),
+          }));
+          return {
+            ...G,
+            playersCards: {
+              [PlayerID.North]: setCardsPlayability(G.playersCards[PlayerID.North], PlayerID.North === player),
+              [PlayerID.East]: setCardsPlayability(G.playersCards[PlayerID.East], PlayerID.East === player),
+              [PlayerID.South]: setCardsPlayability(G.playersCards[PlayerID.South], PlayerID.South === player),
+              [PlayerID.West]: setCardsPlayability(G.playersCards[PlayerID.West], PlayerID.West === player),
+            },
+          };
+        },
       },
-      endIf: (G, ctx) => {
+      endIf: (G) => {
         if (Object.values(G.playersCardPlayedInCurrentTurn).every(card => card !== undefined)) {
-          ctx.events.setPhase(PhaseID.CountPoints);
-          return true;
+          return { next: PhaseID.CountPoints };
         }
 
         return false;
@@ -2002,8 +2071,6 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
     },
     [PhaseID.CountPoints]: {
       onBegin: (G, ctx) => {
-        console.log('phase CountPoints');
-
         const winner = getWinner(G.playersCardPlayedInCurrentTurn, G.trumpMode, G.playersCardPlayedInCurrentTurn[G.firstPlayerInCurrentTurn]!.color);
         const winnerTeam = getPlayerTeam(winner);
 
@@ -2019,7 +2086,7 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
 
         // go to PlayCards phase if not all cards have been played
         if (Object.values(G.wonTeamsCards).reduce((acc, cards) => acc.concat(cards), []).length < G.howManyCards) {
-          ctx.events.setPhase(PhaseID.PlayCards);
+          G.__forcedNextPhase = PhaseID.PlayCards;
           return;
         }
 
@@ -2049,7 +2116,7 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
         // go to Deal phase if the end of the game has not been reached
         const gameWinnerTeam = getGameWinnerTeam(G.teamsPoints, G.howManyPointsATeamMustReachToEndTheGame);
         if (gameWinnerTeam === undefined) {
-          ctx.events.setPhase(PhaseID.Deal);
+          G.__forcedNextPhase = PhaseID.Deal;
           return;
         }
 
@@ -2057,58 +2124,12 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
         console.log(`The winner is... ${gameWinnerTeam || 'both'}!`, G, ctx);
         ctx.events.endGame();
       },
-    },
-  },
-
-  turn: {
-    order: {
-      playOrder: () => [PlayerID.North, PlayerID.West, PlayerID.South, PlayerID.East],
-      first: () => 0,
-      next: (G, ctx) => {
-        switch (ctx.currentPlayer) {
-          case PlayerID.North:
-            return 1;
-          case PlayerID.West:
-            return 2;
-          case PlayerID.South:
-            return 3;
-          case PlayerID.East:
-            return 0;
-        }
+      endIf: (G) => {
+        return G.__forcedNextPhase ? { next: G.__forcedNextPhase } : false;
       },
-    },
-    // @TODO: try to move this in PlayCards phase's "turn" section
-    onBegin: (G, ctx) => {
-      if (ctx.phase === PhaseID.PlayCards) {
-        // @TODO: display announces cards => on second (or third if NoTrump) turn of second round
-
-        // set players cards playability
-        const player = ctx.currentPlayer;
-        const playerPartner = getPlayerPartner(player);
-        // @TODO! debug cards playability (why cards are always playable now???)
-        const setCardsPlayability = (cards: Card[], playerIsCurrentPlayer: boolean): Card[] => cards.map(card => ({
-          ...card,
-          isPlayable: !playerIsCurrentPlayer
-            ? false
-            : isPlayableCard(
-              card,
-              G.playersCards[player],
-              G.trumpMode,
-              G.playersCardPlayedInCurrentTurn,
-              G.firstPlayerInCurrentTurn,
-              playerPartner,
-            ),
-        }));
-        return {
-          ...G,
-          playersCards: {
-            [PlayerID.North]: setCardsPlayability(G.playersCards[PlayerID.North], PlayerID.North === player),
-            [PlayerID.East]: setCardsPlayability(G.playersCards[PlayerID.East], PlayerID.East === player),
-            [PlayerID.South]: setCardsPlayability(G.playersCards[PlayerID.South], PlayerID.South === player),
-            [PlayerID.West]: setCardsPlayability(G.playersCards[PlayerID.West], PlayerID.West === player),
-          },
-        };
-      }
+      onEnd: (G) => {
+        G.__forcedNextPhase = undefined;
+      },
     },
   },
 

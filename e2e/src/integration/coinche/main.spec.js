@@ -33,25 +33,16 @@ describe('coinche', () => {
     cy.contains('button', 'Join').click();
     cy.wait(500);
 
-    // connect player 4 and join
+    // connect player 4, join and start playing
     cy.get(`input[value=${currentPlayer}]`).clear().type(currentPlayer = '4');
     cy.contains('button', 'Enter').click();
     cy.contains('button', 'Join').click();
-    cy.wait(500);
-
-    // connect player 1 and say take 100 Clubs
-    cy.get(`input[value=${currentPlayer}]`).clear().type(currentPlayer = '1');
-    cy.contains('button', 'Enter').click();
     cy.contains('button', 'Play').click();
+
+    // say take 100 Clubs
     cy.get('[data-testid="select sayTakeExpectedPoint"]').select('100');
     cy.get('[data-testid="select sayTakeTrumpMode"]').select('TrumpClub');
     cy.get('[data-testid="button sayTake"]').click();
-
-    // connect player 4 and say skip
-    cy.get(`input[value=${currentPlayer}]`).clear().type(currentPlayer = '4');
-    cy.contains('button', 'Enter').click();
-    cy.contains('button', 'Play').click();
-    cy.get('[data-testid="button saySkip"]').click();
 
     // connect player 3 and say skip
     cy.get(`input[value=${currentPlayer}]`).clear().type(currentPlayer = '3');
@@ -61,6 +52,12 @@ describe('coinche', () => {
 
     // connect player 2 and say skip
     cy.get(`input[value=${currentPlayer}]`).clear().type(currentPlayer = '2');
+    cy.contains('button', 'Enter').click();
+    cy.contains('button', 'Play').click();
+    cy.get('[data-testid="button saySkip"]').click();
+
+    // connect player 1 and say skip
+    cy.get(`input[value=${currentPlayer}]`).clear().type(currentPlayer = '1');
     cy.contains('button', 'Enter').click();
     cy.contains('button', 'Play').click();
     cy.get('[data-testid="button saySkip"]').click();
