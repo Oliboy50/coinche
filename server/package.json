@@ -15,28 +15,28 @@
     "lint:tsc": "tsc"
   },
   "engines": {
-    "node": "^12.14.0"
+    "node": "^12.0.0"
   },
   "dependencies": {
     "boardgame.io": "0.37.2",
     "koa-route": "3.2.0"
   },
   "devDependencies": {
-    "@types/jest": "24.0.25",
+    "@types/jest": "25.1.4",
     "@types/koa": "2.11.2",
     "@types/koa-route": "3.2.4",
-    "@types/node": "12.12.29",
+    "@types/node": "12.12.30",
     "@types/supertest": "2.0.8",
-    "@typescript-eslint/eslint-plugin": "2.22.0",
-    "@typescript-eslint/parser": "2.22.0",
+    "@typescript-eslint/eslint-plugin": "2.23.0",
+    "@typescript-eslint/parser": "2.23.0",
     "babel-eslint": "10.1.0",
     "eslint": "6.8.0",
-    "husky": "3.1.0",
-    "jest": "24.9.0",
-    "lint-staged": "9.5.0",
+    "husky": "4.2.3",
+    "jest": "25.1.0",
+    "lint-staged": "10.0.8",
     "npm-run-all": "4.1.5",
     "supertest": "4.0.2",
-    "ts-jest": "24.3.0",
+    "ts-jest": "25.2.1",
     "ts-node-dev": "1.0.0-pre.44",
     "typescript": "3.8.3"
   },
@@ -46,9 +46,6 @@
     }
   },
   "lint-staged": {
-    "**/*.{js,ts}": [
-      "eslint --fix",
-      "git add"
-    ]
+    "**/*.{js,ts}": "eslint --fix"
   }
 }

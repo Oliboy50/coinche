@@ -1,6 +1,6 @@
 # STAGE 1
 
-FROM node:12.14.0-alpine as BUILDER
+FROM node:12.16.1-alpine as BUILDER
 
 ARG SET_NPM_UNSAFE_PERM_TRUE
 ENV SET_NPM_UNSAFE_PERM_TRUE=${SET_NPM_UNSAFE_PERM_TRUE}
@@ -21,7 +21,7 @@ RUN npm ci && npm run build \
 
 # STAGE 2
 
-FROM node:12.14.0-alpine
+FROM node:12.16.1-alpine
 
 ENV NODE_APP_DIR=/home/node/app
 ENV NODE_ENV=production
