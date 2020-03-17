@@ -2099,18 +2099,20 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
         const defensingTeamCardsPoints = G.wonTeamsCards[G.defensingTeam].reduce((acc, card) => acc + getCardPoints(card, G.trumpMode), 0);
 
         // compute announces points
+        // @TODO does not count the announces which are less powerful than the other team ones
         const northSouthTeamAnnouncesPoints = [...G.playersAnnounces[PlayerID.North], ...G.playersAnnounces[PlayerID.South]].filter(a => a.isSaid).reduce((acc, a) => getAnnouncePoints(a.announce, G.trumpMode), 0);
         const eastWestTeamAnnouncesPoints = [...G.playersAnnounces[PlayerID.East], ...G.playersAnnounces[PlayerID.West]].filter(a => a.isSaid).reduce((acc, a) => getAnnouncePoints(a.announce, G.trumpMode), 0);
         const attackingTeamAnnouncesPoints = G.attackingTeam === TeamID.NorthSouth ? northSouthTeamAnnouncesPoints : eastWestTeamAnnouncesPoints;
         const defensingTeamAnnouncesPoints = G.defensingTeam === TeamID.NorthSouth ? northSouthTeamAnnouncesPoints : eastWestTeamAnnouncesPoints;
 
         // check which team won the round
-        // @TODO add expected points
-        if (attackingTeamCardsPoints >= G.expectedPoints && attackingTeamCardsPoints >= defensingTeamCardsPoints) {
-          G.teamsPoints[G.attackingTeam] += (attackingTeamExtraPoints + attackingTeamCardsPoints + attackingTeamAnnouncesPoints);
-          G.teamsPoints[G.defensingTeam] += (defensingTeamExtraPoints + defensingTeamCardsPoints + defensingTeamAnnouncesPoints);
+        const attackingTeamTotalPoints = (attackingTeamExtraPoints + attackingTeamCardsPoints + attackingTeamAnnouncesPoints);
+        const defensingTeamTotalPoints = (defensingTeamExtraPoints + defensingTeamCardsPoints + defensingTeamAnnouncesPoints);
+        if (attackingTeamTotalPoints >= G.expectedPoints && attackingTeamTotalPoints >= defensingTeamTotalPoints) {
+          G.teamsPoints[G.attackingTeam] += (attackingTeamTotalPoints + G.expectedPoints);
+          G.teamsPoints[G.defensingTeam] += defensingTeamTotalPoints;
         } else {
-          G.teamsPoints[G.defensingTeam] += (defensingTeamExtraPoints + defensingTeamCardsPoints + defensingTeamAnnouncesPoints + attackingTeamAnnouncesPoints);
+          G.teamsPoints[G.defensingTeam] += (attackingTeamTotalPoints + defensingTeamTotalPoints + G.expectedPoints);
         }
 
         // go to Deal phase if the end of the game has not been reached
