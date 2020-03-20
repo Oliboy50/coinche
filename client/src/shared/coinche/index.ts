@@ -2768,7 +2768,6 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
         G.dealer = dealer;
         G.nextDealer = nextDealer;
         G.firstPlayerInCurrentTurn = nextDealer;
-        G.playersCardPlayedInCurrentTurn = getDefaultPlayersCardPlayedInCurrentTurn();
         G.playersCardPlayedInPreviousTurn = getDefaultPlayersCardPlayedInPreviousTurn();
         G.expectedPoints = 0;
         G.trumpMode = TrumpMode.NoTrump;
@@ -2878,8 +2877,9 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
         // fill cards played in previous turn
         G.playersCardPlayedInPreviousTurn = {...G.playersCardPlayedInCurrentTurn} as Record<PlayerID, Card>; // cast because G.playersCardPlayedInCurrentTurn can't contain "undefined" values at this point
 
-        // fill played cards to winner team cards
+        // move played cards to winner team cards
         (Object.values(G.playersCardPlayedInCurrentTurn).filter(c => c !== undefined) as Card[]).forEach(card => G.wonTeamsCards[winnerTeam].push(card));
+        G.playersCardPlayedInCurrentTurn = getDefaultPlayersCardPlayedInCurrentTurn();
 
         // winner becomes next first player
         G.firstPlayerInCurrentTurn = winner;
