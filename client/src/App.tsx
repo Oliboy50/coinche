@@ -1,21 +1,32 @@
 import React from 'react';
 import {Lobby} from 'boardgame.io/react';
-import {coincheBoard, CoincheClientComponent, coincheGame} from './coinche/CoincheClient';
-import {PlayerID} from './shared/coinche';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+} from 'react-router-dom';
+import {coincheBoard, coincheGame} from './coinche/CoincheClient';
 
 const App: React.FunctionComponent = () => {
-  // If no server is running, it probably means that we're in development mode, so we display a coinche client
   if (!process.env.REACT_APP_API_BASE_URL) {
-    return <CoincheClientComponent playerID={PlayerID.North} debug={false} />;
+    throw new Error('REACT_APP_API_BASE_URL env var must be set');
   }
 
-  return <Lobby
-    gameServer={process.env.REACT_APP_API_BASE_URL}
-    lobbyServer={process.env.REACT_APP_API_BASE_URL}
-    gameComponents={[
-      { game: coincheGame, board: coincheBoard },
-    ]}
-  />;
+  return (
+    <Router>
+      <Switch>
+        <Route path="/">
+          <Lobby
+            gameServer={process.env.REACT_APP_API_BASE_URL}
+            lobbyServer={process.env.REACT_APP_API_BASE_URL}
+            gameComponents={[
+              { game: coincheGame, board: coincheBoard },
+            ]}
+          />
+        </Route>
+      </Switch>
+    </Router>
+  );
 };
 
 export default App;
