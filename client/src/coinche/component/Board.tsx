@@ -45,11 +45,11 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
   const currentPhaseIsPlayCards = ctx.phase === PhaseID.PlayCards;
   const currentPhaseNeedsToWaitForAPlayerMove = currentPhaseIsTalk || currentPhaseIsPlayCards;
 
-  const isNotFirstPlayCardTurn = G.playersCardsPlayedInPreviousTurn !== undefined;
+  const isNotFirstPlayCardTurn = G.playersCardPlayedInPreviousTurn !== undefined;
 
   const [isDisplayedPreviousCardsPlayed, setIsDisplayedPreviousCardsPlayed] = useState(false);
 
-  const playedCards = isDisplayedPreviousCardsPlayed ? G.playersCardsPlayedInPreviousTurn : G.playersCardPlayedInCurrentTurn;
+  const playedCards = isDisplayedPreviousCardsPlayed ? G.playersCardPlayedInPreviousTurn : G.playersCardPlayedInCurrentTurn;
 
   return (
     <div className={styles.board}>

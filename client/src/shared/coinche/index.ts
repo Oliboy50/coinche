@@ -238,7 +238,7 @@ export interface GameState {
   // turn state
   firstPlayerInCurrentTurn: PlayerID;
   playersCardPlayedInCurrentTurn: Record<PlayerID, Card | undefined>;
-  playersCardsPlayedInPreviousTurn: Record<PlayerID, Card> | undefined;
+  playersCardPlayedInPreviousTurn: Record<PlayerID, Card> | undefined;
 }
 export type GameStatePlayerView = Omit<GameState, 'availableCards' | 'playersCards' | 'playersAnnounces'> & {
   availableCards: SecretCard[];
@@ -2639,12 +2639,17 @@ const getDefaultWonTeamsCards = () => ({
   [TeamID.NorthSouth]: [],
   [TeamID.EastWest]: [],
 });
+const getDefaultTeamsPoints = () => ({
+  [TeamID.NorthSouth]: 0,
+  [TeamID.EastWest]: 0,
+});
 const getDefaultPlayersCardPlayedInCurrentTurn = () => ({
   [PlayerID.North]: undefined,
   [PlayerID.East]: undefined,
   [PlayerID.South]: undefined,
   [PlayerID.West]: undefined,
 });
+const getDefaultPlayersCardPlayedInPreviousTurn = () => undefined;
 const getDefaultPlayersSaid = () => ({
   [PlayerID.North]: undefined,
   [PlayerID.East]: undefined,
@@ -2661,16 +2666,12 @@ export const getSetupGameState = (_: Context<PlayerID, PhaseID>): GameState => {
   const howManyCardsToDealToEachPlayerAfterTalking = Math.floor(howManyCards / howManyPlayers) - howManyCardsToDealToEachPlayerBeforeTalking;
 
   return {
-    __forcedNextPhase: undefined,
     howManyPlayers,
     howManyCards,
     availableCards,
     playersCards: getDefaultPlayersCards(),
     wonTeamsCards: getDefaultWonTeamsCards(),
-    teamsPoints: {
-      [TeamID.NorthSouth]: 0,
-      [TeamID.EastWest]: 0,
-    },
+    teamsPoints: getDefaultTeamsPoints(),
     dealer,
     nextDealer,
     firstPlayerInCurrentTurn: nextDealer,
@@ -2685,7 +2686,7 @@ export const getSetupGameState = (_: Context<PlayerID, PhaseID>): GameState => {
     numberOfSuccessiveSkipSaid: 0,
     playersAnnounces: getDefaultPlayersAnnounces(),
     playersCardPlayedInCurrentTurn: getDefaultPlayersCardPlayedInCurrentTurn(),
-    playersCardsPlayedInPreviousTurn: undefined,
+    playersCardPlayedInPreviousTurn: getDefaultPlayersCardPlayedInPreviousTurn(),
   };
 };
 const defaultTurnConfig: TurnConfig<GameState, PlayerID, PhaseID> = {
@@ -2767,7 +2768,8 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
         G.dealer = dealer;
         G.nextDealer = nextDealer;
         G.firstPlayerInCurrentTurn = nextDealer;
-        G.playersCardsPlayedInPreviousTurn = undefined;
+        G.playersCardPlayedInCurrentTurn = getDefaultPlayersCardPlayedInCurrentTurn();
+        G.playersCardPlayedInPreviousTurn = getDefaultPlayersCardPlayedInPreviousTurn();
         G.expectedPoints = 0;
         G.trumpMode = TrumpMode.NoTrump;
         G.availableCards = ctx.random.Shuffle(getCards());
@@ -2874,11 +2876,10 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
         const winnerTeam = getPlayerTeam(winner);
 
         // fill cards played in previous turn
-        G.playersCardsPlayedInPreviousTurn = {...G.playersCardPlayedInCurrentTurn} as Record<PlayerID, Card>; // cast because G.playersCardPlayedInCurrentTurn can't contain "undefined" values at this point
+        G.playersCardPlayedInPreviousTurn = {...G.playersCardPlayedInCurrentTurn} as Record<PlayerID, Card>; // cast because G.playersCardPlayedInCurrentTurn can't contain "undefined" values at this point
 
-        // move played cards to winner team cards
+        // fill played cards to winner team cards
         (Object.values(G.playersCardPlayedInCurrentTurn).filter(c => c !== undefined) as Card[]).forEach(card => G.wonTeamsCards[winnerTeam].push(card));
-        G.playersCardPlayedInCurrentTurn = getDefaultPlayersCardPlayedInCurrentTurn();
 
         // winner becomes next first player
         G.firstPlayerInCurrentTurn = winner;
