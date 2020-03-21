@@ -5,7 +5,8 @@ import {
   Switch,
   Route,
 } from 'react-router-dom';
-import {coincheBoard, coincheGame} from './coinche/CoincheClient';
+import {game as coincheGame} from './shared/coinche';
+import {BoardComponent as coincheBoard} from './coinche/Client';
 
 const App: React.FunctionComponent = () => {
   if (!process.env.REACT_APP_API_BASE_URL) {

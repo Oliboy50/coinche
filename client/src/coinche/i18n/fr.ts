@@ -1,14 +1,21 @@
 import {I18n} from './index';
 import {AnnounceGroup, AnnounceId, TrumpMode} from '../../shared/coinche';
 
+const translatedTrumpMode = {
+  [TrumpMode.TrumpSpade]: 'Pique',
+  [TrumpMode.TrumpDiamond]: 'Carreau',
+  [TrumpMode.TrumpClub]: 'Trèfle',
+  [TrumpMode.TrumpHeart]: 'Coeur',
+  [TrumpMode.NoTrump]: 'Sans Atout',
+};
+const translatedTeamType = {
+  partner: 'Nous',
+  opponent: 'Eux',
+};
+
 export const fr: I18n = {
-  trumpMode: {
-    [TrumpMode.TrumpSpade]: 'Pique',
-    [TrumpMode.TrumpDiamond]: 'Carreau',
-    [TrumpMode.TrumpClub]: 'Trèfle',
-    [TrumpMode.TrumpHeart]: 'Coeur',
-    [TrumpMode.NoTrump]: 'Sans Atout',
-  },
+  teamType: translatedTeamType,
+  trumpMode: translatedTrumpMode,
   announce: {
     id: {
       [AnnounceId.SquareAce]: `Carré d'as`,
@@ -88,6 +95,11 @@ export const fr: I18n = {
   PreviousCardsPlayedMenu: {
     displayPreviousCardsPlayed: 'Voir les cartes jouées au tour précédent',
     doNotDisplayPreviousCardsPlayed: 'Ne plus voir les cartes jouées au tour précédent',
+  },
+  Info: {
+    currentTeamScore: (teamType, teamPoints, howManyPointsATeamMustReachToEndTheGame) => `${translatedTeamType[teamType]} : ${teamPoints}/${howManyPointsATeamMustReachToEndTheGame}`,
+    currentAttackingTeam: (teamType) => `Attaquant : ${translatedTeamType[teamType]}`,
+    currentGoal: (trumpMode, expectedPoints) => `Objectif: ${expectedPoints} ${translatedTrumpMode[trumpMode]}`,
   },
   TalkMenu: {
     takeButton: 'Prendre',

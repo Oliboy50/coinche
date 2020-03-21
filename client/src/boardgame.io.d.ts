@@ -9,10 +9,10 @@ declare module 'boardgame.io/react' {
     PhaseID = DefaultPhaseID,
   > {
     G: GameStatePlayerView;
-    ctx: Omit<Context<PlayerID, PhaseID>, 'playerID'>;
+    ctx: Context<PlayerID, PhaseID>;
     moves: Moves;
     gameID: string;
-    playerID: PlayerID;
+    playerID: PlayerID | null;
     gameMetadata: {
       id: PlayerID;
       name: string;
@@ -30,7 +30,7 @@ declare module 'boardgame.io/react' {
   > {
     game: object;
     numPlayers?: number;
-    board?: ComponentType<BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>>;
+    board: ComponentType<BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>>;
     multiplayer?: false | (() => void);
     debug?: boolean;
   }
@@ -50,5 +50,12 @@ declare module 'boardgame.io/react' {
     PhaseID = DefaultPhaseID,
   >(config: ClientConfig<GameStatePlayerView, Moves, PlayerID, PhaseID>): ComponentType<ClientProps<PlayerID>>;
 
-  export const Lobby: ComponentType<{gameServer: string; lobbyServer: string; gameComponents: { game: any; board: any }[]}>;
+  export const Lobby: ComponentType<{
+    gameServer: string;
+    lobbyServer: string;
+    gameComponents: {
+      game: object;
+      board: ComponentType<any>;
+    }[];
+  }>;
 }

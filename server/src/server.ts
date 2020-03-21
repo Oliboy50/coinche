@@ -1,8 +1,6 @@
 import { Server } from 'boardgame.io/server';
 import { get } from 'koa-route';
-import { buildGame } from '../../client/src/shared/coinche';
-
-const coincheGame = buildGame();
+import { game as coincheGame } from '../../client/src/shared/coinche';
 
 export const server = Server({ games: [coincheGame] });
 

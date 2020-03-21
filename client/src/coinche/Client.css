@@ -4,30 +4,33 @@
   display: grid;
   grid-gap: 10px;
   grid-template-areas:
-    ".            playerTop       .           "
+    "info         playerTop       .           "
     "playerLeft   playedCardsArea playerRight "
     "menu         menu            menu        "
     "playerBottom playerBottom    playerBottom";
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 200px 200px 200px 200px;
 }
-.board .player.top {
+.board > .player.top {
   grid-area: playerTop;
 }
-.board .player.left {
+.board > .player.left {
   grid-area: playerLeft;
 }
-.board .player.right {
+.board > .player.right {
   grid-area: playerRight;
 }
-.board .player.bottom {
+.board > .player.bottom {
   grid-area: playerBottom;
 }
-.board .menu {
+.board > .menu {
   grid-area: menu;
 }
-.board .playedCardsArea {
+.board > .playedCardsArea {
   grid-area: playedCardsArea;
+}
+.board > .info {
+  grid-area: info;
 }
 
 /**
@@ -116,13 +119,13 @@
   grid-template-columns: 1fr;
   grid-template-rows: 100px 20px 1fr;
 }
-.otherPlayer .otherPlayerCards {
+.otherPlayer > .otherPlayerCards {
   grid-area: cards;
 }
-.otherPlayer .playerName {
+.otherPlayer > .playerName {
   grid-area: name;
 }
-.otherPlayer .playerTalks {
+.otherPlayer > .playerTalks {
   grid-area: talks;
 }
 .otherPlayerCards {
@@ -220,16 +223,16 @@
   grid-template-rows: 60px 60px 60px;
   margin-left: 50px;
 }
-.playedCards .playedCard.top {
+.playedCards > .playedCard.top {
   grid-area: playedCardTop;
 }
-.playedCards .playedCard.left {
+.playedCards > .playedCard.left {
   grid-area: playedCardLeft;
 }
-.playedCards .playedCard.right {
+.playedCards > .playedCard.right {
   grid-area: playedCardRight;
 }
-.playedCards .playedCard.bottom {
+.playedCards > .playedCard.bottom {
   grid-area: playedCardBottom;
 }
 .playedCard.left .card {

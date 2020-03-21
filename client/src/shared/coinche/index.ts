@@ -2731,7 +2731,7 @@ const defaultTurnConfig: TurnConfig<GameState, PlayerID, PhaseID> = {
     },
   },
 };
-export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, PhaseID> => ({
+export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, PhaseID> = {
   name: 'coinche',
   minPlayers: howManyPlayers,
   maxPlayers: howManyPlayers,
@@ -2969,4 +2969,4 @@ export const buildGame = (): GameConfig<GameState, GameStatePlayerView, Moves, P
       playerAnnounces: playerID ? playersAnnounces[playerID] as PlayerAnnounce[] : [],
     };
   },
-});
+};

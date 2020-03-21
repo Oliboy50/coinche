@@ -1,24 +1,26 @@
+import './Client.css';
 import React, {useState} from 'react';
 import {BoardProps} from 'boardgame.io/react';
 import {
   GameStatePlayerView,
-  getPlayerPartner,
   Moves,
   PhaseID,
   PlayerID,
   SecretPlayerAnnounce,
-} from '../../shared/coinche';
-import {TalkMenuComponent} from './TalkMenu';
-import {MyCardsComponent} from './MyCards';
-import {OtherPlayerCardsComponent} from './OtherPlayerCards';
-import {PlayerSaidComponent} from './PlayerSaid';
-import {PreviousCardsPlayedMenuComponent} from './PreviousCardsPlayedMenu';
-import {getPlayerIDForPosition, PlayerScreenPosition} from '../service/getPlayerIDForPosition';
-import {PlayedCardsComponent} from './PlayedCards';
-import {SayAnnounceMenuComponent} from './SayAnnounceMenu';
-import {PlayerSaidAnnounceGroupsComponent} from './PlayerSaidAnnounceGroups';
-
-import './Board.css';
+  TeamID,
+  getPlayerPartner,
+  getPlayerTeam,
+} from '../shared/coinche';
+import {PlayerScreenPosition, getPlayerIDForPosition} from './service/getPlayerIDForPosition';
+import {TalkMenuComponent} from './component/TalkMenu';
+import {MyCardsComponent} from './component/MyCards';
+import {OtherPlayerCardsComponent} from './component/OtherPlayerCards';
+import {PlayerSaidComponent} from './component/PlayerSaid';
+import {PreviousCardsPlayedMenuComponent} from './component/PreviousCardsPlayedMenu';
+import {PlayedCardsComponent} from './component/PlayedCards';
+import {SayAnnounceMenuComponent} from './component/SayAnnounceMenu';
+import {PlayerSaidAnnounceGroupsComponent} from './component/PlayerSaidAnnounceGroups';
+import {InfoComponent} from './component/Info';
 
 export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>> = ({
   G,
@@ -27,7 +29,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
   playerID,
   gameMetadata,
 }) => {
-  const bottomPlayerID = playerID;
+  const bottomPlayerID = playerID !== null ? playerID : PlayerID.South;
   const topPlayerID = getPlayerIDForPosition(bottomPlayerID, 'top');
   const leftPlayerID = getPlayerIDForPosition(bottomPlayerID, 'left');
   const rightPlayerID = getPlayerIDForPosition(bottomPlayerID, 'right');
@@ -36,14 +38,17 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
   const leftPlayerMetadata = gameMetadata.find(m => (String(m.id) as PlayerID) === leftPlayerID);
   const rightPlayerMetadata = gameMetadata.find(m => (String(m.id) as PlayerID) === rightPlayerID);
 
+  const topPlayerSaidAnnounces = (G.playersAnnounces[topPlayerID] as SecretPlayerAnnounce[]).filter(a => a.isSaid);
+  const leftPlayerSaidAnnounces = (G.playersAnnounces[leftPlayerID] as SecretPlayerAnnounce[]).filter(a => a.isSaid);
+  const rightPlayerSaidAnnounces = (G.playersAnnounces[rightPlayerID] as SecretPlayerAnnounce[]).filter(a => a.isSaid);
+
+  const partnerTeamID = getPlayerTeam(bottomPlayerID);
+  const opponentTeamID = partnerTeamID === TeamID.NorthSouth ? TeamID.EastWest : TeamID.NorthSouth;
+
   const currentPlayerIsTopPlayer = topPlayerID === ctx.currentPlayer;
   const currentPlayerIsLeftPlayer = leftPlayerID === ctx.currentPlayer;
   const currentPlayerIsRightPlayer = rightPlayerID === ctx.currentPlayer;
   const currentPlayerIsBottomPlayer = bottomPlayerID === ctx.currentPlayer;
-
-  const topPlayerSaidAnnounces = (G.playersAnnounces[topPlayerID] as SecretPlayerAnnounce[]).filter(a => a.isSaid);
-  const leftPlayerSaidAnnounces = (G.playersAnnounces[leftPlayerID] as SecretPlayerAnnounce[]).filter(a => a.isSaid);
-  const rightPlayerSaidAnnounces = (G.playersAnnounces[rightPlayerID] as SecretPlayerAnnounce[]).filter(a => a.isSaid);
 
   const currentPhaseIsTalk = ctx.phase === PhaseID.Talk;
   const currentPhaseIsPlayCards = ctx.phase === PhaseID.PlayCards;
@@ -72,8 +77,16 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
 
   return (
     <div className="board">
-      <div className="playedCardsArea">
-        <PlayedCardsComponent bottomPlayerID={bottomPlayerID} playedCards={playedCards} />
+      <div className="info">
+        <InfoComponent
+          partnerTeamID={partnerTeamID}
+          partnerTeamPoints={G.teamsPoints[partnerTeamID]}
+          opponentTeamPoints={G.teamsPoints[opponentTeamID]}
+          howManyPointsATeamMustReachToEndTheGame={G.howManyPointsATeamMustReachToEndTheGame}
+          attackingTeamID={currentPhaseIsPlayCards ? G.attackingTeam : undefined}
+          trumpMode={currentPhaseIsPlayCards ? G.trumpMode : undefined}
+          expectedPoints={currentPhaseIsPlayCards ? G.expectedPoints : undefined}
+        />
       </div>
 
       <div className={`player top ${getTurnIndicatorClassForPosition('top')} otherPlayer`}>
@@ -100,6 +113,10 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
             <PlayerSaidAnnounceGroupsComponent saidAnnounceGroups={leftPlayerSaidAnnounces.map(a => a.announceGroup!)}/>
           )}
         </div>
+      </div>
+
+      <div className="playedCardsArea">
+        <PlayedCardsComponent bottomPlayerID={bottomPlayerID} playedCards={playedCards} />
       </div>
 
       <div className={`player right ${getTurnIndicatorClassForPosition('right')} otherPlayer`}>

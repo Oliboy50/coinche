@@ -22,7 +22,6 @@ declare module 'boardgame.io/core' {
     playOrder: PlayerID[];
     playOrderPos: number;
     phase: PhaseID;
-    playerID: PlayerID;
     events: {
       endGame: (gameover?: object) => void;
       endPhase: () => void;
