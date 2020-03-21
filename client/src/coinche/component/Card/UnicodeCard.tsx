@@ -1,7 +1,6 @@
 import React from 'react';
 import {CardColor, CardName, secretCard} from '../../../shared/coinche';
 import {CardComponentProps} from './index';
-import styles from './UnicodeCard.module.css';
 
 const getUnicode = (card: CardComponentProps['card']): string => {
   if (card === secretCard) {
@@ -99,10 +98,10 @@ const getColorClass = (card: CardComponentProps['card']): string => {
   switch (card.color) {
     case CardColor.Spade:
     case CardColor.Club:
-      return styles.black;
+      return 'black';
     case CardColor.Diamond:
     case CardColor.Heart:
-      return styles.red;
+      return 'red';
   }
 };
 
@@ -111,18 +110,19 @@ const getPlayCardStateClass = (playCardState: CardComponentProps['playCardState'
     case undefined:
       return '';
     case 'playable':
-      return styles.playable;
+      return 'playable';
     case 'forbidden':
-      return styles.forbidden;
+      return 'forbidden';
   }
 };
 
 export const UnicodeCardComponent: React.FunctionComponent<CardComponentProps> = ({
   card,
   playCardState,
+  onCardClick,
 }) => {
   return (
-    <span className={`${styles.card} ${getColorClass(card)} ${getPlayCardStateClass(playCardState)}`}>{
+    <span className={`card ${getColorClass(card)} ${getPlayCardStateClass(playCardState)}`} onClick={onCardClick}>{
       getUnicode(card)
     }</span>
   );

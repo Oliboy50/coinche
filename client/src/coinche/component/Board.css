@@ -1,0 +1,243 @@
+/**
+ */
+.board {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-areas:
+    ".            playerTop       .           "
+    "playerLeft   playedCardsArea playerRight "
+    "menu         menu            menu        "
+    "playerBottom playerBottom    playerBottom";
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 200px 200px 200px 200px;
+}
+.board .player.top {
+  grid-area: playerTop;
+}
+.board .player.left {
+  grid-area: playerLeft;
+}
+.board .player.right {
+  grid-area: playerRight;
+}
+.board .player.bottom {
+  grid-area: playerBottom;
+}
+.board .menu {
+  grid-area: menu;
+}
+.board .playedCardsArea {
+  grid-area: playedCardsArea;
+}
+
+/**
+ */
+.card {
+  display: inline-block;
+  font-size: 100px;
+}
+.card.black {
+  color: black;
+}
+.card.red {
+  color: rgb(170, 0, 0);
+}
+.card.forbidden {
+  cursor: not-allowed;
+  opacity: .4;
+}
+.card.playable {
+  cursor: pointer;
+}
+.card.playable:hover {
+  transform: translateY(-5%);
+}
+
+/**
+ */
+.myPlayer {
+  position: relative;
+}
+.myPlayer.currentPlayer::before {
+  content: '\1f446';
+  font-size: 40px;
+  position: absolute;
+  top: -70px;
+  left: 50%;
+}
+.myPlayer.currentPlayer::after {
+  content: '\1f447';
+  font-size: 40px;
+  position: absolute;
+  top: -30px;
+  left: 50%;
+}
+.myCards {
+  text-align: center;
+}
+
+/**
+ */
+.playerTalks {
+  margin: 0 auto;
+}
+.playerTalks > * {
+  position: relative;
+  border-radius: 50%;
+  font-size: 20px;
+  text-align: center;
+  padding: 20px;
+  background: rgba(230, 230, 230, 1);
+  z-index: 20;
+}
+.playerTalks > *::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border: 20px solid transparent;
+  border-top: 0;
+  border-bottom-color: rgba(230, 230, 230, 1);
+  margin-top: -20px;
+  margin-left: -20px;
+}
+
+/**
+ */
+.otherPlayer {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-areas:
+    "cards"
+    "name"
+    "talks";
+  grid-template-columns: 1fr;
+  grid-template-rows: 100px 20px 1fr;
+}
+.otherPlayer .otherPlayerCards {
+  grid-area: cards;
+}
+.otherPlayer .playerName {
+  grid-area: name;
+}
+.otherPlayer .playerTalks {
+  grid-area: talks;
+}
+.otherPlayerCards {
+  position: relative;
+  margin-top: -10px;
+  text-align: center;
+}
+.otherPlayer .card {
+  position: absolute;
+  background: white;
+  transform-origin: bottom center;
+}
+.otherPlayer .card:nth-child(1) {
+  z-index: 8;
+  transform: rotate(-30deg);
+}
+.otherPlayer .card:nth-child(2) {
+  z-index: 7;
+  transform: rotate(-20deg);
+}
+.otherPlayer .card:nth-child(3) {
+  z-index: 6;
+  transform: rotate(-10deg);
+}
+.otherPlayer .card:nth-child(4) {
+  z-index: 5;
+  transform: rotate(0deg);
+}
+.otherPlayer .card:nth-child(5) {
+  z-index: 4;
+  transform: rotate(10deg);
+}
+.otherPlayer .card:nth-child(6) {
+  z-index: 3;
+  transform: rotate(20deg);
+}
+.otherPlayer .card:nth-child(7) {
+  z-index: 2;
+  transform: rotate(30deg);
+}
+.otherPlayer .card:nth-child(8) {
+  z-index: 1;
+  transform: rotate(40deg);
+}
+.otherPlayer.currentPlayer .otherPlayerCards::before {
+  content: '\1f447';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  font-size: 40px;
+  z-index: 10;
+}
+
+/**
+ */
+.menu {
+  display: grid;
+  align-content: center;
+}
+.sayAnnounce {
+  display: grid;
+  grid-template-columns: 80% 20%;
+}
+.sayTake {
+  display: grid;
+  grid-template-columns: 40% 40% 20%;
+}
+.saySkip {
+  display: grid;
+}
+.toggleIsDisplayedPreviousCardsPlayed {
+  display: grid;
+}
+
+/**
+ */
+.playerName {
+  z-index: 10;
+  padding-left: 75px;
+  font-size: 20px;
+  text-transform: capitalize;
+  text-align: center;
+}
+
+/**
+ */
+.playedCards {
+  display: grid;
+  grid-gap: 0;
+  grid-template-areas:
+    ".              playedCardTop    .               "
+    "playedCardLeft .                playedCardRight "
+    ".              playedCardBottom .               ";
+  grid-template-columns: 60px 60px 60px;
+  grid-template-rows: 60px 60px 60px;
+  margin-left: 50px;
+}
+.playedCards .playedCard.top {
+  grid-area: playedCardTop;
+}
+.playedCards .playedCard.left {
+  grid-area: playedCardLeft;
+}
+.playedCards .playedCard.right {
+  grid-area: playedCardRight;
+}
+.playedCards .playedCard.bottom {
+  grid-area: playedCardBottom;
+}
+.playedCard.left .card {
+  transform: rotate(90deg);
+}
+.playedCard.top .card {
+  transform: rotate(180deg);
+}
+.playedCard.right .card {
+  transform: rotate(270deg);
+}

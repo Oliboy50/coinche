@@ -4,7 +4,7 @@
 describe('coinche', () => {
   beforeEach(() => {
     // @TODO add tests using different viewports
-    cy.viewport(650, 765);
+    cy.viewport(800, 765);
 
     cy.clearData();
   });

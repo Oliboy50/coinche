@@ -1,7 +1,6 @@
 import React from 'react';
 import {Card, PlayerID} from '../../shared/coinche';
 import {CardComponent} from './Card';
-import styles from './PlayedCards.module.css';
 import {getPlayerIDForPosition} from '../service/getPlayerIDForPosition';
 
 type ComponentProps = {
@@ -19,19 +18,19 @@ export const PlayedCardsComponent: React.FunctionComponent<ComponentProps> = ({
   const rightPlayerCard = playedCards && playedCards[getPlayerIDForPosition(bottomPlayerID, 'right')];
 
   return (
-    <React.Fragment>
-      <div className={`${styles.card} ${styles.top}`}>
+    <div className="playedCards">
+      <div className="playedCard top">
         {topPlayerCard && <CardComponent card={topPlayerCard} />}
       </div>
-      <div className={`${styles.card} ${styles.left}`}>
+      <div className="playedCard left">
         {leftPlayerCard && <CardComponent card={leftPlayerCard} />}
       </div>
-      <div className={`${styles.card} ${styles.right}`}>
+      <div className="playedCard right">
         {rightPlayerCard && <CardComponent card={rightPlayerCard} />}
       </div>
-      <div className={`${styles.card} ${styles.bottom}`}>
+      <div className="playedCard bottom">
         {bottomPlayerCard && <CardComponent card={bottomPlayerCard} />}
       </div>
-    </React.Fragment>
+    </div>
   );
 };

@@ -1,6 +1,8 @@
 import {getTurnOrder, PlayerID} from '../../shared/coinche';
 
-export const getPlayerIDForPosition = (bottomPlayerID: PlayerID, position: 'top' | 'left' | 'right' | 'bottom'): PlayerID => {
+export type PlayerScreenPosition = 'top' | 'left' | 'right' | 'bottom';
+
+export const getPlayerIDForPosition = (bottomPlayerID: PlayerID, position: PlayerScreenPosition): PlayerID => {
   if (position === 'bottom') {
     return bottomPlayerID;
   }

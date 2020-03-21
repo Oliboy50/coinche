@@ -1,6 +1,5 @@
 import React, {useContext, useState} from 'react';
 import {BoardProps} from 'boardgame.io/react';
-import styles from './TalkMenu.module.css';
 import {
   GameStatePlayerView,
   isSayableExpectedPoints,
@@ -47,8 +46,8 @@ export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
   }
 
   return (
-    <div className={styles.menu}>
-      <div className={styles.sayTake}>
+    <React.Fragment>
+      <div className="sayTake">
         <select value={selectedExpectedPoint} onChange={onChangeExpectedPoint} data-testid="select sayTakeExpectedPoint">
           {sayableExpectedPoints.map(expectedPoint => (
             <option value={expectedPoint} key={`expectedPoint_${expectedPoint}`}>
@@ -65,9 +64,9 @@ export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
         </select>
         <button onClick={() => sayTake(selectedExpectedPoint, selectedTrumpMode)} data-testid="button sayTake">{i18n.TalkMenu.takeButton}</button>
       </div>
-      <div className={styles.saySkip}>
+      <div className="saySkip">
         <button onClick={() => saySkip()} data-testid="button saySkip">{i18n.TalkMenu.skipButton}</button>
       </div>
-    </div>
+    </React.Fragment>
   );
 };
