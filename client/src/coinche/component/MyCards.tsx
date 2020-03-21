@@ -1,7 +1,6 @@
 import React from 'react';
 import {Card, CardColor, CardName, GameState, isPlayableCard, Moves, PlayerID, TrumpMode} from '../../shared/coinche';
 import {CardComponent} from './Card';
-import styles from './MyCards.module.css';
 
 const sortCardsFromSpadeToHeartAndFromAceToSeven = (a: Card, b: Card): number => {
   // sort by color
@@ -107,7 +106,7 @@ export const MyCardsComponent: React.FunctionComponent<ComponentProps> = ({
   playerPartner,
 }) => {
   return (
-    <div className={styles.cards}>
+    <div className="myCards">
       {cards.sort(sortCardsFromSpadeToHeartAndFromAceToSeven).map(card => {
         const cardKey = `${card.color}${card.name}`;
         const playCardState = isMyTurnToPlayACard
@@ -115,9 +114,9 @@ export const MyCardsComponent: React.FunctionComponent<ComponentProps> = ({
           : undefined;
         const onCardClick = playCardState === 'playable' ? () => playCard(card) : undefined;
 
-        return <span key={cardKey} onClick={onCardClick}>
-          <CardComponent card={card} playCardState={playCardState} />
-        </span>;
+        return <React.Fragment key={cardKey}>
+          <CardComponent card={card} playCardState={playCardState} onCardClick={onCardClick} />
+        </React.Fragment>;
       })}
     </div>
   );

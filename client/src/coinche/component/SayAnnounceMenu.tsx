@@ -1,5 +1,4 @@
 import React, {useContext, useState} from 'react';
-import styles from './SayAnnounceMenu.module.css';
 import {
   Announce,
   AnnounceId,
@@ -26,27 +25,26 @@ export const SayAnnounceMenuComponent: React.FunctionComponent<ComponentProps> =
     }
   };
   const saySelectedAnnounce = (selectedAnnounce: Announce) => {
+    const remainingAvailableAnnounces = availableAnnounces.filter(a => a.id !== selectedAnnounce.id);
     sayAnnounce(selectedAnnounce);
-    setSelectedAnnounce(undefined);
+    setSelectedAnnounce(remainingAvailableAnnounces.length ? remainingAvailableAnnounces[0] : undefined);
   };
 
   return (
-    <div className={styles.menu}>
-      <div className={styles.sayAnnounce}>
-        <select disabled={!availableAnnounces.length} value={selectedAnnounce && selectedAnnounce.id} onChange={onChangeAnnounce}>
-          {availableAnnounces.length
-            ? availableAnnounces.map(announce => (
-              <option value={announce.id} key={`sayAnnounce_${announce.id}`}>
-                {i18n.announce.id[announce.id]}
-              </option>
-            ))
-            : (
-              <option>{i18n.SayAnnounceMenu.noAvailableAnnounce}</option>
-            )
-          }
-        </select>
-        <button disabled={!selectedAnnounce} onClick={selectedAnnounce ? () => saySelectedAnnounce(selectedAnnounce) : undefined}>{i18n.SayAnnounceMenu.sayAnnounceButton}</button>
-      </div>
+    <div className="sayAnnounce">
+      <select disabled={!availableAnnounces.length} value={selectedAnnounce && selectedAnnounce.id} onChange={onChangeAnnounce}>
+        {availableAnnounces.length
+          ? availableAnnounces.map(announce => (
+            <option value={announce.id} key={`sayAnnounce_${announce.id}`}>
+              {i18n.announce.id[announce.id]}
+            </option>
+          ))
+          : (
+            <option>{i18n.SayAnnounceMenu.noAvailableAnnounce}</option>
+          )
+        }
+      </select>
+      <button disabled={!selectedAnnounce} onClick={selectedAnnounce ? () => saySelectedAnnounce(selectedAnnounce) : undefined}>{i18n.SayAnnounceMenu.sayAnnounceButton}</button>
     </div>
   );
 };
