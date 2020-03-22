@@ -1,21 +1,21 @@
 import {
   Announce,
-  AnnounceId,
+  AnnounceID,
   Card,
   CardColor,
   CardName,
-  getAnnounceById,
+  getAnnounceByID,
   getAnnounces,
   getAnnouncesForCards,
-  isAnnounceIdBeatingTheOtherAnnounceIds,
+  isAnnounceIDBeatingTheOtherAnnounceIDs,
   TrumpMode,
-  validAnnounceIds,
+  validAnnounceIDs,
 } from './index';
 
-describe('getAnnounceById', () => {
-  validAnnounceIds.forEach((announceId ) => {
-    it(`returns an announce for id ${announceId}`, () => {
-      expect(getAnnounceById(announceId)).toBeTruthy();
+describe('getAnnounceByID', () => {
+  validAnnounceIDs.forEach((announceID ) => {
+    it(`returns an announce for id ${announceID}`, () => {
+      expect(getAnnounceByID(announceID)).toBeTruthy();
     });
   });
 });
@@ -53,7 +53,7 @@ describe('getAnnouncesForCards', () => {
         { name: CardName.Seven, color: CardColor.Club },
       ],
       announces: [
-        getAnnounceById(AnnounceId.QuarteQueenHeart),
+        getAnnounceByID(AnnounceID.QuarteQueenHeart),
       ],
     },
     {
@@ -69,8 +69,8 @@ describe('getAnnouncesForCards', () => {
         { name: CardName.Seven, color: CardColor.Club },
       ],
       announces: [
-        getAnnounceById(AnnounceId.QuarteKingDiamond),
-        getAnnounceById(AnnounceId.TierceNineClub),
+        getAnnounceByID(AnnounceID.QuarteKingDiamond),
+        getAnnounceByID(AnnounceID.TierceNineClub),
       ],
     },
     {
@@ -86,8 +86,8 @@ describe('getAnnouncesForCards', () => {
         { name: CardName.King, color: CardColor.Heart },
       ],
       announces: [
-        getAnnounceById(AnnounceId.SquareKing),
-        getAnnounceById(AnnounceId.QuinteAceClub),
+        getAnnounceByID(AnnounceID.SquareKing),
+        getAnnounceByID(AnnounceID.QuinteAceClub),
       ],
     },
     {
@@ -103,8 +103,8 @@ describe('getAnnouncesForCards', () => {
         { name: CardName.Ten, color: CardColor.Spade },
       ],
       announces: [
-        getAnnounceById(AnnounceId.SquareAce),
-        getAnnounceById(AnnounceId.SquareTen),
+        getAnnounceByID(AnnounceID.SquareAce),
+        getAnnounceByID(AnnounceID.SquareTen),
       ],
     },
     {
@@ -120,8 +120,8 @@ describe('getAnnouncesForCards', () => {
         { name: CardName.Seven, color: CardColor.Spade },
       ],
       announces: [
-        getAnnounceById(AnnounceId.QuinteAceSpade),
-        getAnnounceById(AnnounceId.TierceNineSpade),
+        getAnnounceByID(AnnounceID.QuinteAceSpade),
+        getAnnounceByID(AnnounceID.TierceNineSpade),
       ],
     },
     {
@@ -137,8 +137,8 @@ describe('getAnnouncesForCards', () => {
         { name: CardName.Seven, color: CardColor.Diamond },
       ],
       announces: [
-        getAnnounceById(AnnounceId.QuinteAceDiamond),
-        getAnnounceById(AnnounceId.TierceNineDiamond),
+        getAnnounceByID(AnnounceID.QuinteAceDiamond),
+        getAnnounceByID(AnnounceID.TierceNineDiamond),
       ],
     },
     {
@@ -154,8 +154,8 @@ describe('getAnnouncesForCards', () => {
         { name: CardName.Seven, color: CardColor.Heart },
       ],
       announces: [
-        getAnnounceById(AnnounceId.QuinteAceHeart),
-        getAnnounceById(AnnounceId.TierceNineHeart),
+        getAnnounceByID(AnnounceID.QuinteAceHeart),
+        getAnnounceByID(AnnounceID.TierceNineHeart),
       ],
     },
     {
@@ -171,8 +171,8 @@ describe('getAnnouncesForCards', () => {
         { name: CardName.Seven, color: CardColor.Club },
       ],
       announces: [
-        getAnnounceById(AnnounceId.QuinteAceClub),
-        getAnnounceById(AnnounceId.TierceNineClub),
+        getAnnounceByID(AnnounceID.QuinteAceClub),
+        getAnnounceByID(AnnounceID.TierceNineClub),
       ],
     },
   ];
@@ -184,92 +184,92 @@ describe('getAnnouncesForCards', () => {
   });
 });
 
-describe('isAnnounceIdBeatingTheOtherAnnounceIds', () => {
+describe('isAnnounceIDBeatingTheOtherAnnounceIDs', () => {
   const testCases: {
     testCase: string;
     trumpMode: TrumpMode;
-    announceId: AnnounceId;
-    otherAnnounceIds: AnnounceId[];
+    announceID: AnnounceID;
+    otherAnnounceIDs: AnnounceID[];
     expectedResult: boolean;
   }[] = [
     // Edge cases
     {
       testCase: `returns true when no other announces`,
       trumpMode: TrumpMode.NoTrump,
-      announceId: AnnounceId.TierceNineSpade,
-      otherAnnounceIds: [],
+      announceID: AnnounceID.TierceNineSpade,
+      otherAnnounceIDs: [],
       expectedResult: true,
     },
     // Squares
     {
-      testCase: `returns true when trumpMode is ${TrumpMode.TrumpSpade} and announce is ${AnnounceId.SquareJack}`,
+      testCase: `returns true when trumpMode is ${TrumpMode.TrumpSpade} and announce is ${AnnounceID.SquareJack}`,
       trumpMode: TrumpMode.TrumpSpade,
-      announceId: AnnounceId.SquareJack,
-      otherAnnounceIds: getAnnounces().filter(a => a.id !== AnnounceId.SquareJack).map(a => a.id),
+      announceID: AnnounceID.SquareJack,
+      otherAnnounceIDs: getAnnounces().filter(a => a.id !== AnnounceID.SquareJack).map(a => a.id),
       expectedResult: true,
     },
     {
-      testCase: `returns true when trumpMode is ${TrumpMode.TrumpClub} and announce is ${AnnounceId.SquareNine} and other announces don't contain ${AnnounceId.SquareJack}`,
+      testCase: `returns true when trumpMode is ${TrumpMode.TrumpClub} and announce is ${AnnounceID.SquareNine} and other announces don't contain ${AnnounceID.SquareJack}`,
       trumpMode: TrumpMode.TrumpClub,
-      announceId: AnnounceId.SquareNine,
-      otherAnnounceIds: getAnnounces().filter(a => ![AnnounceId.SquareJack, AnnounceId.SquareNine].includes(a.id)).map(a => a.id),
+      announceID: AnnounceID.SquareNine,
+      otherAnnounceIDs: getAnnounces().filter(a => ![AnnounceID.SquareJack, AnnounceID.SquareNine].includes(a.id)).map(a => a.id),
       expectedResult: true,
     },
     {
-      testCase: `returns true when trumpMode is ${TrumpMode.NoTrump} and announce is ${AnnounceId.SquareAce}`,
+      testCase: `returns true when trumpMode is ${TrumpMode.NoTrump} and announce is ${AnnounceID.SquareAce}`,
       trumpMode: TrumpMode.NoTrump,
-      announceId: AnnounceId.SquareAce,
-      otherAnnounceIds: getAnnounces().filter(a => a.id !== AnnounceId.SquareAce).map(a => a.id),
+      announceID: AnnounceID.SquareAce,
+      otherAnnounceIDs: getAnnounces().filter(a => a.id !== AnnounceID.SquareAce).map(a => a.id),
       expectedResult: true,
     },
     {
-      testCase: `returns true when trumpMode is ${TrumpMode.NoTrump} and announce is ${AnnounceId.SquareTen} and other announces don't contain ${AnnounceId.SquareAce}`,
+      testCase: `returns true when trumpMode is ${TrumpMode.NoTrump} and announce is ${AnnounceID.SquareTen} and other announces don't contain ${AnnounceID.SquareAce}`,
       trumpMode: TrumpMode.NoTrump,
-      announceId: AnnounceId.SquareTen,
-      otherAnnounceIds: getAnnounces().filter(a => ![AnnounceId.SquareAce, AnnounceId.SquareTen].includes(a.id)).map(a => a.id),
+      announceID: AnnounceID.SquareTen,
+      otherAnnounceIDs: getAnnounces().filter(a => ![AnnounceID.SquareAce, AnnounceID.SquareTen].includes(a.id)).map(a => a.id),
       expectedResult: true,
     },
     // Suites
     {
-      testCase: `returns true when trumpMode is ${TrumpMode.TrumpDiamond} and announce is ${AnnounceId.QuinteKingDiamond} and other announces contain ${AnnounceId.QuinteKingHeart}`,
+      testCase: `returns true when trumpMode is ${TrumpMode.TrumpDiamond} and announce is ${AnnounceID.QuinteKingDiamond} and other announces contain ${AnnounceID.QuinteKingHeart}`,
       trumpMode: TrumpMode.TrumpDiamond,
-      announceId: AnnounceId.QuinteKingDiamond,
-      otherAnnounceIds: [AnnounceId.QuinteKingHeart],
+      announceID: AnnounceID.QuinteKingDiamond,
+      otherAnnounceIDs: [AnnounceID.QuinteKingHeart],
       expectedResult: true,
     },
     {
-      testCase: `returns false when trumpMode is ${TrumpMode.TrumpDiamond} and announce is ${AnnounceId.QuinteKingSpade} and other announces contain ${AnnounceId.QuinteKingClub}`,
+      testCase: `returns false when trumpMode is ${TrumpMode.TrumpDiamond} and announce is ${AnnounceID.QuinteKingSpade} and other announces contain ${AnnounceID.QuinteKingClub}`,
       trumpMode: TrumpMode.TrumpDiamond,
-      announceId: AnnounceId.QuinteKingSpade,
-      otherAnnounceIds: [AnnounceId.QuinteKingClub],
+      announceID: AnnounceID.QuinteKingSpade,
+      otherAnnounceIDs: [AnnounceID.QuinteKingClub],
       expectedResult: false,
     },
     {
-      testCase: `returns false when announce is ${AnnounceId.QuarteAceSpade} and other announces contain ${AnnounceId.QuinteAceSpade}`,
+      testCase: `returns false when announce is ${AnnounceID.QuarteAceSpade} and other announces contain ${AnnounceID.QuinteAceSpade}`,
       trumpMode: TrumpMode.NoTrump,
-      announceId: AnnounceId.QuarteAceSpade,
-      otherAnnounceIds: [AnnounceId.QuinteAceSpade],
+      announceID: AnnounceID.QuarteAceSpade,
+      otherAnnounceIDs: [AnnounceID.QuinteAceSpade],
       expectedResult: false,
     },
     {
-      testCase: `returns false when announce is ${AnnounceId.TierceTenHeart} and other announces contain ${AnnounceId.TierceJackSpade}`,
+      testCase: `returns false when announce is ${AnnounceID.TierceTenHeart} and other announces contain ${AnnounceID.TierceJackSpade}`,
       trumpMode: TrumpMode.NoTrump,
-      announceId: AnnounceId.TierceTenHeart,
-      otherAnnounceIds: [AnnounceId.TierceJackSpade],
+      announceID: AnnounceID.TierceTenHeart,
+      otherAnnounceIDs: [AnnounceID.TierceJackSpade],
       expectedResult: false,
     },
     {
-      testCase: `returns true when announce is ${AnnounceId.TierceTenHeart} and other announces contain ${AnnounceId.TierceNineSpade}`,
+      testCase: `returns true when announce is ${AnnounceID.TierceTenHeart} and other announces contain ${AnnounceID.TierceNineSpade}`,
       trumpMode: TrumpMode.NoTrump,
-      announceId: AnnounceId.TierceTenHeart,
-      otherAnnounceIds: [AnnounceId.TierceNineSpade],
+      announceID: AnnounceID.TierceTenHeart,
+      otherAnnounceIDs: [AnnounceID.TierceNineSpade],
       expectedResult: true,
     },
   ];
 
-  testCases.forEach(({testCase, trumpMode, announceId, otherAnnounceIds, expectedResult}) => {
+  testCases.forEach(({testCase, trumpMode, announceID, otherAnnounceIDs, expectedResult}) => {
     it(testCase, () => {
-      expect(isAnnounceIdBeatingTheOtherAnnounceIds(announceId, otherAnnounceIds, trumpMode)).toEqual(expectedResult);
+      expect(isAnnounceIDBeatingTheOtherAnnounceIDs(announceID, otherAnnounceIDs, trumpMode)).toEqual(expectedResult);
     });
   });
 });

@@ -56,7 +56,7 @@ declare module 'boardgame.io/core' {
     PhaseID = DefaultPhaseID,
   > {
     moves?: {
-      [key in keyof Partial<Moves>]: (G: GameState, ctx: Context<PlayerID, PhaseID>, ...args: Parameters<Moves[key]>) => GameState | void;
+      [k in keyof Partial<Moves>]: (G: GameState, ctx: Context<PlayerID, PhaseID>, ...args: Parameters<Moves[k]>) => GameState | void;
     };
     turn?: TurnConfig<GameState, PlayerID, PhaseID>;
     endIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => boolean | { next: PhaseID };
@@ -78,7 +78,7 @@ declare module 'boardgame.io/core' {
     maxPlayers?: number;
     setup: (ctx: Context<PlayerID, PhaseID>) => GameState;
     moves?: {
-      [key in keyof Partial<Moves>]: (G: GameState, ctx: Context<PlayerID, PhaseID>, ...args: Parameters<Moves[key]>) => GameState | void;
+      [k in keyof Partial<Moves>]: (G: GameState, ctx: Context<PlayerID, PhaseID>, ...args: Parameters<Moves[k]>) => GameState | void;
     };
     events?: {
       endStage?: boolean;
