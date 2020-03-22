@@ -2,6 +2,7 @@ import './Client.css';
 import React, {useState} from 'react';
 import {BoardProps} from 'boardgame.io/react';
 import {
+  Announce,
   GameStatePlayerView,
   Moves,
   PhaseID,
@@ -34,10 +35,6 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
   const leftPlayerID = getPlayerIDForPosition(bottomPlayerID, 'left');
   const rightPlayerID = getPlayerIDForPosition(bottomPlayerID, 'right');
 
-  const topPlayerMetadata = gameMetadata.find(m => (String(m.id) as PlayerID) === topPlayerID);
-  const leftPlayerMetadata = gameMetadata.find(m => (String(m.id) as PlayerID) === leftPlayerID);
-  const rightPlayerMetadata = gameMetadata.find(m => (String(m.id) as PlayerID) === rightPlayerID);
-
   const topPlayerSaidAnnounces = (G.playersAnnounces[topPlayerID] as SecretPlayerAnnounce[]).filter(a => a.isSaid);
   const leftPlayerSaidAnnounces = (G.playersAnnounces[leftPlayerID] as SecretPlayerAnnounce[]).filter(a => a.isSaid);
   const rightPlayerSaidAnnounces = (G.playersAnnounces[rightPlayerID] as SecretPlayerAnnounce[]).filter(a => a.isSaid);
@@ -60,6 +57,14 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
 
   const playedCards = isDisplayedPreviousCardsPlayed ? G.playersCardPlayedInPreviousTurn : G.playersCardPlayedInCurrentTurn;
 
+  const getPlayerNameByID = (ID: PlayerID): string => {
+    const playerMetadata = gameMetadata.find(m => (String(m.id) as PlayerID) === ID);
+    if (!playerMetadata) {
+      throw new Error(`No game metadata for player [${ID}]`);
+    }
+
+    return playerMetadata.name;
+  };
   const getTurnIndicatorClassForPosition = (position: PlayerScreenPosition): string => {
     if (!currentPhaseNeedsToWaitForAPlayerMove) {
       return '';
@@ -86,12 +91,20 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
           attackingTeamID={currentPhaseIsPlayCards ? G.attackingTeam : undefined}
           trumpMode={currentPhaseIsPlayCards ? G.trumpMode : undefined}
           expectedPoints={currentPhaseIsPlayCards ? G.expectedPoints : undefined}
+          displayablePlayersAnnounces={
+            Object.entries(G.playersAnnounces)
+              .filter(([_, playerAnnounces]) => playerAnnounces.some(pa => pa.isCardsDisplayable))
+              .map(([p, playerAnnounces]) => ({
+                playerName: getPlayerNameByID(p as PlayerID),
+                announces: playerAnnounces.filter(pa => pa.isCardsDisplayable).map(pa => pa.announce) as Announce[],
+              }))
+          }
         />
       </div>
 
       <div className={`player top ${getTurnIndicatorClassForPosition('top')} otherPlayer`}>
         <OtherPlayerCardsComponent cards={G.playersCards[topPlayerID]} />
-        <div className="playerName">{topPlayerMetadata ? topPlayerMetadata.name : ''}</div>
+        <div className="playerName">{getPlayerNameByID(topPlayerID)}</div>
         <div className="playerTalks">
           {currentPhaseIsTalk && !currentPlayerIsTopPlayer && G.playersSaid[topPlayerID] && (
             <PlayerSaidComponent playerSaid={G.playersSaid[topPlayerID]}/>
@@ -104,7 +117,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
 
       <div className={`player left ${getTurnIndicatorClassForPosition('left')} otherPlayer`}>
         <OtherPlayerCardsComponent cards={G.playersCards[leftPlayerID]} />
-        <div className="playerName">{leftPlayerMetadata ? leftPlayerMetadata.name : ''}</div>
+        <div className="playerName">{getPlayerNameByID(leftPlayerID)}</div>
         <div className="playerTalks">
           {currentPhaseIsTalk && !currentPlayerIsLeftPlayer && G.playersSaid[leftPlayerID] && (
             <PlayerSaidComponent playerSaid={G.playersSaid[leftPlayerID]}/>
@@ -121,7 +134,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
 
       <div className={`player right ${getTurnIndicatorClassForPosition('right')} otherPlayer`}>
         <OtherPlayerCardsComponent cards={G.playersCards[rightPlayerID]} />
-        <div className="playerName">{rightPlayerMetadata ? rightPlayerMetadata.name : ''}</div>
+        <div className="playerName">{getPlayerNameByID(rightPlayerID)}</div>
         <div className="playerTalks">
           {currentPhaseIsTalk && !currentPlayerIsRightPlayer && G.playersSaid[rightPlayerID] && (
             <PlayerSaidComponent playerSaid={G.playersSaid[rightPlayerID]}/>

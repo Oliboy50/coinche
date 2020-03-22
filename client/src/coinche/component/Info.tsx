@@ -1,6 +1,6 @@
 import React, {useContext} from 'react';
 import {I18nContext} from '../context/i18n';
-import {TeamID, TrumpMode} from '../../shared/coinche';
+import {Announce, TeamID, TrumpMode} from '../../shared/coinche';
 
 type ComponentProps = {
   partnerTeamID: TeamID;
@@ -10,6 +10,7 @@ type ComponentProps = {
   attackingTeamID?: TeamID;
   trumpMode?: TrumpMode;
   expectedPoints?: number;
+  displayablePlayersAnnounces: { playerName: string; announces: Announce[] }[];
 };
 export const InfoComponent: React.FunctionComponent<ComponentProps> = ({
   partnerTeamID,
@@ -19,6 +20,7 @@ export const InfoComponent: React.FunctionComponent<ComponentProps> = ({
   attackingTeamID,
   trumpMode,
   expectedPoints,
+  displayablePlayersAnnounces,
 }) => {
   const i18n = useContext(I18nContext);
 
@@ -32,6 +34,14 @@ export const InfoComponent: React.FunctionComponent<ComponentProps> = ({
           <div>{i18n.Info.currentGoal(trumpMode, expectedPoints)}</div>
         </React.Fragment>
       )}
+      {displayablePlayersAnnounces.map(({ playerName, announces }) => (
+        <div key={playerName}>
+          <span>{i18n.Info.announcesOf(playerName)}</span>
+          {announces.map(a => (
+            <div key={a.id}>{`- ${i18n.announce.id[a.id]}`}</div>
+          ))}
+        </div>
+      ))}
     </React.Fragment>
   );
 };

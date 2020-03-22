@@ -1,17 +1,18 @@
-import {AnnounceGroup, AnnounceId, TrumpMode} from '../../shared/coinche';
+import {AnnounceGroup, AnnounceID, TrumpMode} from '../../shared/coinche';
 
 type TeamType = 'partner' | 'opponent';
 export type I18n = {
   teamType: Record<TeamType, string>;
   trumpMode: Record<TrumpMode, string>;
   announce: {
-    id: Record<AnnounceId, string>;
+    id: Record<AnnounceID, string>;
     group: Record<AnnounceGroup, string>;
   };
   Info: {
     currentTeamScore: (teamType: TeamType, teamPoints: number, howManyPointsATeamMustReachToEndTheGame: number) => string;
     currentAttackingTeam: (teamType: TeamType) => string;
     currentGoal: (trumpMode: TrumpMode, expectedPoints: number) => string;
+    announcesOf: (playerName: string) => string;
   },
   TalkMenu: {
     takeButton: string;

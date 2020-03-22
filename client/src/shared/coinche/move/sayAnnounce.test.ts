@@ -1,5 +1,5 @@
 import {Context} from 'boardgame.io/core';
-import {AnnounceId, GameState, getAnnounceById, getAnnounceGroupByAnnounceId, PhaseID, PlayerID} from '../index';
+import {AnnounceID, GameState, getAnnounceByID, getAnnounceGroupByAnnounceID, PhaseID, PlayerID} from '../index';
 import {getDefaultContext, getDefaultGameState} from './__testHelper';
 import sayAnnounce from './sayAnnounce';
 
@@ -16,29 +16,29 @@ describe(`move/sayAnnounce`, () => {
   });
 
   it(`sets playersAnnounces[currentPlayer][saidAnnounce].isSaid to true`, () => {
-    const announceTierceAceClub = getAnnounceById(AnnounceId.TierceAceClub);
-    const announceSquareAce = getAnnounceById(AnnounceId.SquareAce);
+    const announceTierceAceClub = getAnnounceByID(AnnounceID.TierceAceClub);
+    const announceSquareAce = getAnnounceByID(AnnounceID.SquareAce);
     G.playersAnnounces[PlayerID.North] = [
-      { announce: announceTierceAceClub, announceGroup: getAnnounceGroupByAnnounceId(announceTierceAceClub.id), isCardsDisplayable: false, isSaid: false },
-      { announce: announceSquareAce, announceGroup: getAnnounceGroupByAnnounceId(announceSquareAce.id), isCardsDisplayable: false, isSaid: false },
+      { announce: announceTierceAceClub, announceGroup: getAnnounceGroupByAnnounceID(announceTierceAceClub.id), isCardsDisplayable: false, isSaid: false },
+      { announce: announceSquareAce, announceGroup: getAnnounceGroupByAnnounceID(announceSquareAce.id), isCardsDisplayable: false, isSaid: false },
     ];
 
-    sayAnnounce(G, ctx, getAnnounceById(AnnounceId.SquareAce));
+    sayAnnounce(G, ctx, getAnnounceByID(AnnounceID.SquareAce));
 
     expect(G.playersAnnounces[PlayerID.North]).toEqual([
-      { announce: announceTierceAceClub, announceGroup: getAnnounceGroupByAnnounceId(announceTierceAceClub.id), isCardsDisplayable: false, isSaid: false },
-      { announce: announceSquareAce, announceGroup: getAnnounceGroupByAnnounceId(announceSquareAce.id), isCardsDisplayable: false, isSaid: true },
+      { announce: announceTierceAceClub, announceGroup: getAnnounceGroupByAnnounceID(announceTierceAceClub.id), isCardsDisplayable: false, isSaid: false },
+      { announce: announceSquareAce, announceGroup: getAnnounceGroupByAnnounceID(announceSquareAce.id), isCardsDisplayable: false, isSaid: true },
     ]);
   });
 
   it(`throws if playersAnnounces[currentPlayer] does not contain given announce`, () => {
-    const announceTierceAceClub = getAnnounceById(AnnounceId.TierceAceClub);
+    const announceTierceAceClub = getAnnounceByID(AnnounceID.TierceAceClub);
     G.playersAnnounces[PlayerID.North] = [
-      { announce: announceTierceAceClub, announceGroup: getAnnounceGroupByAnnounceId(announceTierceAceClub.id), isCardsDisplayable: false, isSaid: false },
+      { announce: announceTierceAceClub, announceGroup: getAnnounceGroupByAnnounceID(announceTierceAceClub.id), isCardsDisplayable: false, isSaid: false },
     ];
 
     expect(() => {
-      sayAnnounce(G, ctx, getAnnounceById(AnnounceId.SquareAce));
+      sayAnnounce(G, ctx, getAnnounceByID(AnnounceID.SquareAce));
     }).toThrow();
   });
 });

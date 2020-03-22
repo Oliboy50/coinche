@@ -1,8 +1,8 @@
 import React, {useContext, useState} from 'react';
 import {
   Announce,
-  AnnounceId,
-  getAnnounceById,
+  AnnounceID,
+  getAnnounceByID,
   Moves,
 } from '../../shared/coinche';
 import {I18nContext} from '../context/i18n';
@@ -19,9 +19,9 @@ export const SayAnnounceMenuComponent: React.FunctionComponent<ComponentProps> =
   const [selectedAnnounce, setSelectedAnnounce] = useState(availableAnnounces.length ? availableAnnounces[0] : undefined);
 
   const onChangeAnnounce = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newAnnounceId = event.target.value as AnnounceId;
-    if (availableAnnounces.map(a => a.id).includes(newAnnounceId)) {
-      setSelectedAnnounce(getAnnounceById(newAnnounceId));
+    const newAnnounceID = event.target.value as AnnounceID;
+    if (availableAnnounces.map(a => a.id).includes(newAnnounceID)) {
+      setSelectedAnnounce(getAnnounceByID(newAnnounceID));
     }
   };
   const saySelectedAnnounce = (selectedAnnounce: Announce) => {
