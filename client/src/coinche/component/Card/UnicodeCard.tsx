@@ -120,10 +120,20 @@ export const UnicodeCardComponent: React.FunctionComponent<CardComponentProps> =
   card,
   playCardState,
   onCardClick,
+  onSayBelotClick,
+  onDontSayBelotClick,
 }) => {
   return (
-    <span className={`card ${getColorClass(card)} ${getPlayCardStateClass(playCardState)}`} onClick={onCardClick}>{
-      getUnicode(card)
-    }</span>
+    <span className={`cardWrapper ${getPlayCardStateClass(playCardState)}`}>
+      <span className={`card ${getColorClass(card)}`} onClick={onCardClick}>{
+        getUnicode(card)
+      }</span>
+      {onSayBelotClick && onDontSayBelotClick && (
+        <React.Fragment>
+          <span className="belotChooseButton say" onClick={onSayBelotClick} role="img" aria-label="say belot and play">🔈</span>
+          <span className="belotChooseButton dontSay" onClick={onDontSayBelotClick} role="img" aria-label="play">🔇</span>
+        </React.Fragment>
+      )}
+    </span>
   );
 };

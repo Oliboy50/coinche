@@ -11,7 +11,7 @@ import {
   SecretPlayerAnnounce,
   TeamID,
   getPlayerPartner,
-  getPlayerTeam,
+  getPlayerTeam, getBelotCards, isSameCard,
 } from '../shared/coinche';
 import {PlayerScreenPosition, getPlayerIDForPosition} from './service/getPlayerIDForPosition';
 import {getPlayerNameByID} from './service/getPlayerNameByID';
@@ -81,6 +81,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
 
   const playedCards = isDisplayedPreviousCardsPlayed ? G.playersCardPlayedInPreviousTurn : G.playersCardPlayedInCurrentTurn;
 
+  const belotCards = getBelotCards(G.trumpMode);
   const displayableAnnouncesByPlayerID: Record<PlayerID, { playerName: string; announces: (Announce | BelotAnnounce)[] }> = {
     [PlayerID.North]: {
       playerName: getPlayerNameByID(gameMetadata, PlayerID.North),
@@ -183,6 +184,8 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
             playersCardPlayedInCurrentTurn={G.playersCardPlayedInCurrentTurn}
             firstPlayerInCurrentTurn={G.firstPlayerInCurrentTurn}
             playerPartner={getPlayerPartner(bottomPlayerID)}
+            sayBelotOrNot={moves.sayBelotOrNot}
+            belotCards={belotCards.every(bc => G.playerCards.some(pc => isSameCard(bc, pc))) ? belotCards : []}
           />
         )}
       </div>

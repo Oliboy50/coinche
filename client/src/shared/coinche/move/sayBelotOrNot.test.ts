@@ -70,6 +70,7 @@ describe(`move/sayBelotOrNot`, () => {
     sayBelotOrNot(G, ctx, false);
 
     expect(G.belotAnnounce).toEqual({
+      id: 'Belot',
       owner: PlayerID.North,
       ownerHasChosen: true,
       isSaid: false,
@@ -87,6 +88,7 @@ describe(`move/sayBelotOrNot`, () => {
     sayBelotOrNot(G, ctx, true);
 
     expect(G.belotAnnounce).toEqual({
+      id: 'Belot',
       owner: PlayerID.North,
       ownerHasChosen: true,
       isSaid: true,
