@@ -4,6 +4,8 @@ FROM node:12.16.1-alpine as BUILDER
 
 ARG SET_NPM_UNSAFE_PERM_TRUE
 ENV SET_NPM_UNSAFE_PERM_TRUE=${SET_NPM_UNSAFE_PERM_TRUE}
+ARG REACT_APP_API_BASE_URL
+ENV REACT_APP_API_BASE_URL=${REACT_APP_API_BASE_URL}
 
 WORKDIR /tmp/builder
 
@@ -22,7 +24,7 @@ RUN npm ci && npm run build \
 FROM node:12.16.1-alpine
 
 ENV NODE_APP_DIR=/home/node/app
-ENV NODE_ENV=production
+ENV PORT=3000
 
 WORKDIR $NODE_APP_DIR
 
@@ -30,6 +32,6 @@ RUN npm install -g serve
 
 COPY --from=BUILDER /tmp/builder/build $NODE_APP_DIR
 
-EXPOSE 3000
+EXPOSE $PORT
 
-CMD serve -l 3000 -s $NODE_APP_DIR
+CMD serve -l $PORT -s $NODE_APP_DIR
