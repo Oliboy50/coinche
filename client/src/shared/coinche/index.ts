@@ -2916,10 +2916,10 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
             const bestAnnounceID = getWinningAnnounceID(allSaidPlayerAnnounces.map(a => a.announce.id), G.trumpMode);
             const bestAnnounceBelongsToNorthSouthTeam = northSouthTeamSaidPlayerAnnounces.map(a => a.announce.id).includes(bestAnnounceID);
             G.playersAnnounces = {
-              [PlayerID.North]: G.playersAnnounces[PlayerID.North].map(pa => ({ ...pa, isCardsDisplayable: bestAnnounceBelongsToNorthSouthTeam })),
-              [PlayerID.East]: G.playersAnnounces[PlayerID.East].map(pa => ({ ...pa, isCardsDisplayable: !bestAnnounceBelongsToNorthSouthTeam })),
-              [PlayerID.South]: G.playersAnnounces[PlayerID.South].map(pa => ({ ...pa, isCardsDisplayable: bestAnnounceBelongsToNorthSouthTeam })),
-              [PlayerID.West]: G.playersAnnounces[PlayerID.West].map(pa => ({ ...pa, isCardsDisplayable: !bestAnnounceBelongsToNorthSouthTeam })),
+              [PlayerID.North]: G.playersAnnounces[PlayerID.North].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && bestAnnounceBelongsToNorthSouthTeam })),
+              [PlayerID.East]: G.playersAnnounces[PlayerID.East].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && !bestAnnounceBelongsToNorthSouthTeam })),
+              [PlayerID.South]: G.playersAnnounces[PlayerID.South].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && bestAnnounceBelongsToNorthSouthTeam })),
+              [PlayerID.West]: G.playersAnnounces[PlayerID.West].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && !bestAnnounceBelongsToNorthSouthTeam })),
             };
           }
         },
