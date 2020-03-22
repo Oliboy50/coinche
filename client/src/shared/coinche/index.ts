@@ -2837,7 +2837,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
           if (
             allSaidPlayerAnnounces.length
             && allSaidPlayerAnnounces.every(a => !a.isCardsDisplayable)
-            && G.playersCards[G.nextDealer].length <= (G.trumpMode === TrumpMode.NoTrump ? 5 : 6)
+            && G.playersCards[G.firstPlayerInCurrentTurn].length <= (G.trumpMode === TrumpMode.NoTrump ? 5 : 6)
           ) {
             const bestAnnounceID = getWinningAnnounceID(allSaidPlayerAnnounces.map(a => a.announce.id), G.trumpMode);
             const bestAnnounceBelongsToNorthSouthTeam = northSouthTeamSaidPlayerAnnounces.map(a => a.announce.id).includes(bestAnnounceID);
