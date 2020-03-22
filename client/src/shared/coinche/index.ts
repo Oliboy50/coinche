@@ -247,7 +247,7 @@ export interface GameState {
   playersCardPlayedInCurrentTurn: Record<PlayerID, Card | undefined>;
   playersCardPlayedInPreviousTurn: Record<PlayerID, Card> | undefined;
 }
-// @TODO hide belotAnnounce if not said
+// @TODO: hide belotAnnounce if not said
 export type GameStatePlayerView = Omit<GameState, 'availableCards' | 'playersCards' | 'playersAnnounces'> & {
   availableCards: SecretCard[];
   playersCards: Record<PlayerID, Card[] | SecretCard[]>;
@@ -2826,7 +2826,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
       },
     },
     [PhaseID.Talk]: {
-      // @TODO sayCoinche and saySurcoinche
+      // @TODO: sayCoinche and saySurcoinche
       moves: {
         saySkip,
         sayTake,
@@ -2977,7 +2977,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
           return;
         }
 
-        // @TODO congrats winning team
+        // @TODO: congrats winning team
         console.log(`The winner is... ${gameWinnerTeam || 'both'}!`, G, ctx);
         ctx.events.endGame();
       },

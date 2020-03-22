@@ -1,4 +1,4 @@
-// @TODO to be able to run tests several times without having to manually shutdown the server
+// @TODO: to be able to run tests several times without having to manually shutdown the server
 Cypress.Commands.add('clearData', () => {
   const env = Cypress.env('TEST_ENV');
   if (env === 'dev') {
