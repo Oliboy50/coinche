@@ -12,6 +12,8 @@ export type CardComponentProps = {
   card: Card | SecretCard,
   playCardState?: PlayCardState,
   onCardClick?: () => void,
+  onSayBelotClick?: () => void,
+  onDontSayBelotClick?: () => void,
 };
 export const CardComponent: React.FunctionComponent<CardComponentProps> = (props) => {
   const theme = useContext(ThemeContext);

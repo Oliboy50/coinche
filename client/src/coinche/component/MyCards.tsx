@@ -1,5 +1,15 @@
 import React from 'react';
-import {Card, CardColor, CardName, GameState, isPlayableCard, Moves, PlayerID, TrumpMode} from '../../shared/coinche';
+import {
+  Card,
+  CardColor,
+  CardName,
+  GameState,
+  isPlayableCard,
+  isSameCard,
+  Moves,
+  PlayerID,
+  TrumpMode,
+} from '../../shared/coinche';
 import {CardComponent} from './Card';
 
 const sortCardsFromSpadeToHeartAndFromAceToSeven = (a: Card, b: Card): number => {
@@ -95,6 +105,8 @@ type ComponentProps = {
   playersCardPlayedInCurrentTurn: GameState['playersCardPlayedInCurrentTurn'],
   firstPlayerInCurrentTurn: PlayerID,
   playerPartner: PlayerID,
+  sayBelotOrNot: Moves['sayBelotOrNot'],
+  belotCards: Card[],
 };
 export const MyCardsComponent: React.FunctionComponent<ComponentProps> = ({
   cards,
@@ -104,18 +116,35 @@ export const MyCardsComponent: React.FunctionComponent<ComponentProps> = ({
   playersCardPlayedInCurrentTurn,
   firstPlayerInCurrentTurn,
   playerPartner,
+  sayBelotOrNot,
+  belotCards,
 }) => {
   return (
     <div className="myCards">
       {cards.sort(sortCardsFromSpadeToHeartAndFromAceToSeven).map(card => {
         const cardKey = `${card.color}${card.name}`;
+        const isBelotCard = belotCards.some(bc => isSameCard(bc, card));
         const playCardState = isMyTurnToPlayACard
           ? (isPlayableCard(card, cards, trumpMode, playersCardPlayedInCurrentTurn, firstPlayerInCurrentTurn, playerPartner) ? 'playable' : 'forbidden')
           : undefined;
-        const onCardClick = playCardState === 'playable' ? () => playCard(card) : undefined;
+        const onCardClick = (playCardState === 'playable' && !isBelotCard) ? () => playCard(card) : undefined;
+        const onSayBelotClick = (playCardState === 'playable' && isBelotCard) ? () => {
+          sayBelotOrNot(true);
+          playCard(card);
+        } : undefined;
+        const onDontSayBelotClick = (playCardState === 'playable' && isBelotCard) ? () => {
+          sayBelotOrNot(false);
+          playCard(card);
+        } : undefined;
 
         return <React.Fragment key={cardKey}>
-          <CardComponent card={card} playCardState={playCardState} onCardClick={onCardClick} />
+          <CardComponent
+            card={card}
+            playCardState={playCardState}
+            onCardClick={onCardClick}
+            onSayBelotClick={onSayBelotClick}
+            onDontSayBelotClick={onDontSayBelotClick}
+          />
         </React.Fragment>;
       })}
     </div>

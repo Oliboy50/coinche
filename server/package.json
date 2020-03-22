@@ -5,8 +5,7 @@
   "scripts": {
     "dev": "ts-node-dev src/index.ts",
     "build": "tsc -p tsconfig.build.json",
-    "test": "run-p test:unit test:e2e",
-    "test:unit": "jest --config ./jest.config.js --verbose",
+    "test": "run-p test:e2e",
     "test:e2e": "jest --config ./jest.e2e-config.js --verbose",
     "lint": "run-p lint:es lint:tsc",
     "lint:fix": "run-p lint:fix:es",

@@ -33,6 +33,10 @@ npm run dev
 REACT_APP_API_BASE_URL=http://localhost:8000 npm run dev
 ```
 
+### TODO
+
+- [ ] fix lint in subdirectories when git commit is run from the root directory
+
 ## License
 
 GPLv3 - See [LICENSE.md](LICENSE.md) file.

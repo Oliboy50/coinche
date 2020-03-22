@@ -4,6 +4,7 @@ import {
   TurnConfig,
 } from 'boardgame.io/core';
 import playCard from './move/playCard';
+import sayBelotOrNot from './move/sayBelotOrNot';
 import sayAnnounce from './move/sayAnnounce';
 import saySkip from './move/saySkip';
 import sayTake from './move/sayTake';
@@ -174,8 +175,6 @@ export enum AnnounceID {
   TierceNineDiamond = 'TierceNineDiamond',
   TierceNineHeart = 'TierceNineHeart',
   TierceNineClub = 'TierceNineClub',
-  // @TODO
-  // Belot = 'Belot',
 }
 export const validAnnounceIDs: AnnounceID[] = Object.values(AnnounceID);
 
@@ -184,6 +183,13 @@ export enum AnnounceGroup {
   Tierce = 'Tierce',
   Quarte = 'Quarte',
   Quinte = 'Quinte',
+}
+
+export interface BelotAnnounce {
+  id: 'Belot';
+  owner: PlayerID;
+  ownerHasChosen: boolean;
+  isSaid: boolean;
 }
 
 export interface Announce {
@@ -233,6 +239,7 @@ export interface GameState {
   trumpMode: TrumpMode;
   playersSaid: Record<PlayerID, 'skip' | { expectedPoints: number; trumpMode: TrumpMode } | undefined>;
   numberOfSuccessiveSkipSaid: number;
+  belotAnnounce: BelotAnnounce | undefined;
   playersAnnounces: Record<PlayerID, PlayerAnnounce[]>;
 
   // turn state
@@ -240,6 +247,7 @@ export interface GameState {
   playersCardPlayedInCurrentTurn: Record<PlayerID, Card | undefined>;
   playersCardPlayedInPreviousTurn: Record<PlayerID, Card> | undefined;
 }
+// @TODO: hide belotAnnounce if not said
 export type GameStatePlayerView = Omit<GameState, 'availableCards' | 'playersCards' | 'playersAnnounces'> & {
   availableCards: SecretCard[];
   playersCards: Record<PlayerID, Card[] | SecretCard[]>;
@@ -252,6 +260,7 @@ export interface Moves {
   saySkip: () => void;
   sayTake: (expectedPoints: number, mode: TrumpMode) => void;
   sayAnnounce: (announce: Announce) => void;
+  sayBelotOrNot: (sayIt: boolean) => void;
   playCard: (card: Card) => void;
 }
 
@@ -299,6 +308,32 @@ export const isSayableExpectedPoints = (expectedPoints: number, playersSaid: Gam
     .filter(said => Boolean(said && said !== 'skip' && said.expectedPoints))
     // @ts-ignore StupidTypescript
     .every(said => said.expectedPoints < expectedPoints);
+};
+
+export const getBelotCards = (trumpMode: TrumpMode): Card[] => {
+  switch (trumpMode) {
+    case TrumpMode.NoTrump:
+      return [];
+    case TrumpMode.TrumpSpade:
+      return [{ color: CardColor.Spade, name: CardName.King }, { color: CardColor.Spade, name: CardName.Queen }];
+    case TrumpMode.TrumpDiamond:
+      return [{ color: CardColor.Diamond, name: CardName.King }, { color: CardColor.Diamond, name: CardName.Queen }];
+    case TrumpMode.TrumpHeart:
+      return [{ color: CardColor.Heart, name: CardName.King }, { color: CardColor.Heart, name: CardName.Queen }];
+    case TrumpMode.TrumpClub:
+      return [{ color: CardColor.Club, name: CardName.King }, { color: CardColor.Club, name: CardName.Queen }];
+  }
+};
+export const getBelotOwner = (trumpMode: TrumpMode, playersCards: GameState['playersCards']): PlayerID | undefined => {
+  const belotCards = getBelotCards(trumpMode);
+  if (!belotCards.length) {
+    return;
+  }
+
+  const playerCardsContainingBelot = Object.entries(playersCards).find(([_, playerCards]) =>
+    belotCards.every(bc => playerCards.some(pc => isSameCard(bc, pc))),
+  );
+  return playerCardsContainingBelot ? playerCardsContainingBelot[0] as PlayerID : undefined;
 };
 
 export const getAnnounces = (): Announce[] => [
@@ -2683,10 +2718,19 @@ export const getSetupGameState = (_: Context<PlayerID, PhaseID>): GameState => {
     howManyPointsATeamMustReachToEndTheGame: 2000,
     playersSaid: getDefaultPlayersSaid(),
     numberOfSuccessiveSkipSaid: 0,
+    belotAnnounce: undefined,
     playersAnnounces: getDefaultPlayersAnnounces(),
     playersCardPlayedInCurrentTurn: getDefaultPlayersCardPlayedInCurrentTurn(),
     playersCardPlayedInPreviousTurn: getDefaultPlayersCardPlayedInPreviousTurn(),
   };
+};
+const mustGoFromTalkPhaseToPlayCardsPhase = (G: GameState): boolean => {
+  return Boolean(G.expectedPoints && (
+    // 3 successive skips
+    G.numberOfSuccessiveSkipSaid >= (G.howManyPlayers - 1)
+    // maximum validExpectedPoints
+    || G.expectedPoints === validExpectedPoints[validExpectedPoints.length - 1]
+  ));
 };
 const defaultTurnConfig: TurnConfig<GameState, PlayerID, PhaseID> = {
   order: {
@@ -2762,6 +2806,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
         G.playersCards = getDefaultPlayersCards();
         G.wonTeamsCards = getDefaultWonTeamsCards();
         G.playersSaid = getDefaultPlayersSaid();
+        G.belotAnnounce = undefined;
         G.playersAnnounces = getDefaultPlayersAnnounces();
         G.numberOfSuccessiveSkipSaid = 0;
         G.dealer = dealer;
@@ -2790,7 +2835,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
       },
     },
     [PhaseID.Talk]: {
-      // @TODO sayCoinche and saySurcoinche
+      // @TODO: sayCoinche and saySurcoinche
       moves: {
         saySkip,
         sayTake,
@@ -2800,12 +2845,14 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
           return { next: PhaseID.Deal };
         }
 
-        if (G.expectedPoints && (
-          // 3 successive skips
-          G.numberOfSuccessiveSkipSaid >= (G.howManyPlayers - 1)
-          // maximum validExpectedPoints
-          || G.expectedPoints === validExpectedPoints[validExpectedPoints.length - 1]
-        )) {
+        if (mustGoFromTalkPhaseToPlayCardsPhase(G)) {
+          return { next: PhaseID.PlayCards };
+        }
+
+        return false;
+      },
+      onEnd: (G) => {
+        if (mustGoFromTalkPhaseToPlayCardsPhase(G)) {
           getTurnOrder(G.nextDealer).forEach(playerID => {
             // deal remaining cards
             for (let i = 0; i < G.howManyCardsToDealToEachPlayerAfterTalking; i++) {
@@ -2816,39 +2863,23 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
             G.playersAnnounces[playerID] = getAnnouncesForCards(G.playersCards[playerID], G.trumpMode).map(announce => ({ announce, announceGroup: getAnnounceGroupByAnnounceID(announce.id), isCardsDisplayable: false, isSaid: false }));
           });
 
-          return { next: PhaseID.PlayCards };
+          // set belot announce if available
+          const belotOwner = getBelotOwner(G.trumpMode, G.playersCards);
+          if (belotOwner) {
+            G.belotAnnounce = { id: 'Belot', owner: belotOwner, ownerHasChosen: false, isSaid: false };
+          }
         }
-
-        return false;
       },
     },
     [PhaseID.PlayCards]: {
       moves: {
         sayAnnounce,
+        sayBelotOrNot,
         playCard,
       },
       turn: {
         ...defaultTurnConfig,
         onBegin: (G, ctx) => {
-          // set said announces displayability
-          const northSouthTeamSaidPlayerAnnounces = [...G.playersAnnounces[PlayerID.North], ...G.playersAnnounces[PlayerID.South]].filter(a => a.isSaid);
-          const eastWestTeamSaidPlayerAnnounces = [...G.playersAnnounces[PlayerID.East], ...G.playersAnnounces[PlayerID.West]].filter(a => a.isSaid);
-          const allSaidPlayerAnnounces = [...northSouthTeamSaidPlayerAnnounces, ...eastWestTeamSaidPlayerAnnounces];
-          if (
-            allSaidPlayerAnnounces.length
-            && allSaidPlayerAnnounces.every(a => !a.isCardsDisplayable)
-            && G.playersCards[G.firstPlayerInCurrentTurn].length <= (G.trumpMode === TrumpMode.NoTrump ? 5 : 6)
-          ) {
-            const bestAnnounceID = getWinningAnnounceID(allSaidPlayerAnnounces.map(a => a.announce.id), G.trumpMode);
-            const bestAnnounceBelongsToNorthSouthTeam = northSouthTeamSaidPlayerAnnounces.map(a => a.announce.id).includes(bestAnnounceID);
-            G.playersAnnounces = {
-              [PlayerID.North]: G.playersAnnounces[PlayerID.North].map(pa => ({ ...pa, isCardsDisplayable: bestAnnounceBelongsToNorthSouthTeam })),
-              [PlayerID.East]: G.playersAnnounces[PlayerID.East].map(pa => ({ ...pa, isCardsDisplayable: !bestAnnounceBelongsToNorthSouthTeam })),
-              [PlayerID.South]: G.playersAnnounces[PlayerID.South].map(pa => ({ ...pa, isCardsDisplayable: bestAnnounceBelongsToNorthSouthTeam })),
-              [PlayerID.West]: G.playersAnnounces[PlayerID.West].map(pa => ({ ...pa, isCardsDisplayable: !bestAnnounceBelongsToNorthSouthTeam })),
-            };
-          }
-
           // set players cards playability
           const player = ctx.currentPlayer;
           const playerPartner = getPlayerPartner(player);
@@ -2871,6 +2902,26 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
             [PlayerID.South]: setCardsPlayability(G.playersCards[PlayerID.South], PlayerID.South === player),
             [PlayerID.West]: setCardsPlayability(G.playersCards[PlayerID.West], PlayerID.West === player),
           };
+        },
+        onEnd: (G) => {
+          // set said announces displayability
+          const northSouthTeamSaidPlayerAnnounces = [...G.playersAnnounces[PlayerID.North], ...G.playersAnnounces[PlayerID.South]].filter(a => a.isSaid);
+          const eastWestTeamSaidPlayerAnnounces = [...G.playersAnnounces[PlayerID.East], ...G.playersAnnounces[PlayerID.West]].filter(a => a.isSaid);
+          const allSaidPlayerAnnounces = [...northSouthTeamSaidPlayerAnnounces, ...eastWestTeamSaidPlayerAnnounces];
+          if (
+            allSaidPlayerAnnounces.length
+            && allSaidPlayerAnnounces.every(a => !a.isCardsDisplayable)
+            && G.playersCards[G.firstPlayerInCurrentTurn].length <= (G.trumpMode === TrumpMode.NoTrump ? 5 : 6)
+          ) {
+            const bestAnnounceID = getWinningAnnounceID(allSaidPlayerAnnounces.map(a => a.announce.id), G.trumpMode);
+            const bestAnnounceBelongsToNorthSouthTeam = northSouthTeamSaidPlayerAnnounces.map(a => a.announce.id).includes(bestAnnounceID);
+            G.playersAnnounces = {
+              [PlayerID.North]: G.playersAnnounces[PlayerID.North].map(pa => ({ ...pa, isCardsDisplayable: bestAnnounceBelongsToNorthSouthTeam })),
+              [PlayerID.East]: G.playersAnnounces[PlayerID.East].map(pa => ({ ...pa, isCardsDisplayable: !bestAnnounceBelongsToNorthSouthTeam })),
+              [PlayerID.South]: G.playersAnnounces[PlayerID.South].map(pa => ({ ...pa, isCardsDisplayable: bestAnnounceBelongsToNorthSouthTeam })),
+              [PlayerID.West]: G.playersAnnounces[PlayerID.West].map(pa => ({ ...pa, isCardsDisplayable: !bestAnnounceBelongsToNorthSouthTeam })),
+            };
+          }
         },
       },
       endIf: (G) => {
@@ -2902,6 +2953,9 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
           return;
         }
 
+        // compute expectedPoints value for trump mode
+        const expectedPointsForTrumpMode = G.trumpMode === TrumpMode.NoTrump ? (G.expectedPoints * 2) : G.expectedPoints;
+
         // compute capot (100) or last turn (10) extra points
         const attackingTeamExtraPoints = G.attackingTeam === winnerTeam  ? (!G.wonTeamsCards[G.defensingTeam].length ? 100 : 10) : 0;
         const defensingTeamExtraPoints = G.defensingTeam === winnerTeam  ? (!G.wonTeamsCards[G.attackingTeam].length ? 100 : 10) : 0;
@@ -2910,6 +2964,10 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
         const attackingTeamCardsPoints = G.wonTeamsCards[G.attackingTeam].reduce((acc, card) => acc + getCardPoints(card, G.trumpMode), 0);
         const defensingTeamCardsPoints = G.wonTeamsCards[G.defensingTeam].reduce((acc, card) => acc + getCardPoints(card, G.trumpMode), 0);
 
+        // compute belot announce points
+        const attackingTeamBelotAnnouncePoints = (G.belotAnnounce && G.belotAnnounce.isSaid && getPlayerTeam(G.belotAnnounce.owner) === G.attackingTeam) ? 20 : 0;
+        const defensingTeamBelotAnnouncePoints = (G.belotAnnounce && G.belotAnnounce.isSaid && getPlayerTeam(G.belotAnnounce.owner) === G.defensingTeam) ? 20 : 0;
+
         // compute announces points
         const northSouthTeamAnnouncesPoints = [...G.playersAnnounces[PlayerID.North], ...G.playersAnnounces[PlayerID.South]].filter(a => a.isCardsDisplayable).reduce((acc, a) => getAnnouncePoints(a.announce, G.trumpMode), 0);
         const eastWestTeamAnnouncesPoints = [...G.playersAnnounces[PlayerID.East], ...G.playersAnnounces[PlayerID.West]].filter(a => a.isCardsDisplayable).reduce((acc, a) => getAnnouncePoints(a.announce, G.trumpMode), 0);
@@ -2917,13 +2975,13 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
         const defensingTeamAnnouncesPoints = G.defensingTeam === TeamID.NorthSouth ? northSouthTeamAnnouncesPoints : eastWestTeamAnnouncesPoints;
 
         // check which team won the round then assign their points accordingly
-        const attackingTeamTotalPoints = (attackingTeamExtraPoints + attackingTeamCardsPoints + attackingTeamAnnouncesPoints);
-        const defensingTeamTotalPoints = (defensingTeamExtraPoints + defensingTeamCardsPoints + defensingTeamAnnouncesPoints);
+        const attackingTeamTotalPoints = (attackingTeamExtraPoints + attackingTeamCardsPoints + attackingTeamBelotAnnouncePoints + attackingTeamAnnouncesPoints);
+        const defensingTeamTotalPoints = (defensingTeamExtraPoints + defensingTeamCardsPoints + defensingTeamBelotAnnouncePoints + defensingTeamAnnouncesPoints);
         if (attackingTeamTotalPoints >= G.expectedPoints && attackingTeamTotalPoints >= defensingTeamTotalPoints) {
-          G.teamsPoints[G.attackingTeam] += (attackingTeamTotalPoints + G.expectedPoints);
+          G.teamsPoints[G.attackingTeam] += (attackingTeamTotalPoints + expectedPointsForTrumpMode);
           G.teamsPoints[G.defensingTeam] += defensingTeamTotalPoints;
         } else {
-          G.teamsPoints[G.defensingTeam] += (attackingTeamTotalPoints + defensingTeamTotalPoints + G.expectedPoints);
+          G.teamsPoints[G.defensingTeam] += (attackingTeamTotalPoints + defensingTeamTotalPoints + expectedPointsForTrumpMode);
         }
 
         // go to Deal phase if the end of the game has not been reached
@@ -2933,7 +2991,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
           return;
         }
 
-        // @TODO congrats winning team
+        // @TODO: congrats winning team
         console.log(`The winner is... ${gameWinnerTeam || 'both'}!`, G, ctx);
         ctx.events.endGame();
       },

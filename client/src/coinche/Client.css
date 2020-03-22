@@ -35,9 +35,13 @@
 
 /**
  */
-.card {
+.cardWrapper {
+  position: relative;
   display: inline-block;
+}
+.card {
   font-size: 100px;
+  display: inline-block;
 }
 .card.black {
   color: black;
@@ -45,15 +49,34 @@
 .card.red {
   color: rgb(170, 0, 0);
 }
-.card.forbidden {
+.belotChooseButton {
+  position: absolute;
+  display: none;
+  font-size: 30px;
+  cursor: pointer;
+}
+.belotChooseButton.say {
+  top: -10px;
+  left: 0;
+}
+.belotChooseButton.dontSay {
+  top: -10px;
+  right: 0;
+}
+.cardWrapper.forbidden {
   cursor: not-allowed;
   opacity: .4;
 }
-.card.playable {
+.cardWrapper.playable {
   cursor: pointer;
 }
-.card.playable:hover {
+.cardWrapper.playable:hover {
   transform: translateY(-5%);
+}
+.cardWrapper.playable:hover .belotChooseButton,
+.cardWrapper.playable:focus .belotChooseButton,
+.cardWrapper.playable:active .belotChooseButton {
+  display: inline-block;
 }
 
 /**
@@ -133,40 +156,40 @@
   margin-top: -10px;
   text-align: center;
 }
-.otherPlayer .card {
+.otherPlayer .cardWrapper {
   position: absolute;
   background: white;
   transform-origin: bottom center;
 }
-.otherPlayer .card:nth-child(1) {
+.otherPlayer .cardWrapper:nth-child(1) {
   z-index: 8;
   transform: rotate(-30deg);
 }
-.otherPlayer .card:nth-child(2) {
+.otherPlayer .cardWrapper:nth-child(2) {
   z-index: 7;
   transform: rotate(-20deg);
 }
-.otherPlayer .card:nth-child(3) {
+.otherPlayer .cardWrapper:nth-child(3) {
   z-index: 6;
   transform: rotate(-10deg);
 }
-.otherPlayer .card:nth-child(4) {
+.otherPlayer .cardWrapper:nth-child(4) {
   z-index: 5;
   transform: rotate(0deg);
 }
-.otherPlayer .card:nth-child(5) {
+.otherPlayer .cardWrapper:nth-child(5) {
   z-index: 4;
   transform: rotate(10deg);
 }
-.otherPlayer .card:nth-child(6) {
+.otherPlayer .cardWrapper:nth-child(6) {
   z-index: 3;
   transform: rotate(20deg);
 }
-.otherPlayer .card:nth-child(7) {
+.otherPlayer .cardWrapper:nth-child(7) {
   z-index: 2;
   transform: rotate(30deg);
 }
-.otherPlayer .card:nth-child(8) {
+.otherPlayer .cardWrapper:nth-child(8) {
   z-index: 1;
   transform: rotate(40deg);
 }
@@ -235,12 +258,12 @@
 .playedCards > .playedCard.bottom {
   grid-area: playedCardBottom;
 }
-.playedCard.left .card {
+.playedCard.left .cardWrapper {
   transform: rotate(90deg);
 }
-.playedCard.top .card {
+.playedCard.top .cardWrapper {
   transform: rotate(180deg);
 }
-.playedCard.right .card {
+.playedCard.right .cardWrapper {
   transform: rotate(270deg);
 }

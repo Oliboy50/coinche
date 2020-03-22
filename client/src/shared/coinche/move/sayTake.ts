@@ -4,9 +4,11 @@ import {
   TrumpMode,
   PlayerID,
   PhaseID,
+  TeamID,
   validExpectedPoints,
   validTrumpModes,
-  getPlayerTeam, TeamID, isSayableExpectedPoints,
+  getPlayerTeam,
+  isSayableExpectedPoints,
 } from '../index';
 
 export default (

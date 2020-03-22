@@ -5,7 +5,7 @@ export type I18n = {
   teamType: Record<TeamType, string>;
   trumpMode: Record<TrumpMode, string>;
   announce: {
-    id: Record<AnnounceID, string>;
+    id: Record<AnnounceID | 'Belot', string>;
     group: Record<AnnounceGroup, string>;
   };
   Info: {
