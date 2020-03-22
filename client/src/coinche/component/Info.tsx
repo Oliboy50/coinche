@@ -1,6 +1,6 @@
 import React, {useContext} from 'react';
 import {I18nContext} from '../context/i18n';
-import {Announce, TeamID, TrumpMode} from '../../shared/coinche';
+import {Announce, BelotAnnounce, PlayerID, TeamID, TrumpMode} from '../../shared/coinche';
 
 type ComponentProps = {
   partnerTeamID: TeamID;
@@ -10,7 +10,7 @@ type ComponentProps = {
   attackingTeamID?: TeamID;
   trumpMode?: TrumpMode;
   expectedPoints?: number;
-  displayablePlayersAnnounces: { playerName: string; announces: Announce[] }[];
+  displayablePlayersAnnounces: Record<PlayerID, { playerName: string; announces: (Announce | BelotAnnounce)[] }>;
 };
 export const InfoComponent: React.FunctionComponent<ComponentProps> = ({
   partnerTeamID,
@@ -34,14 +34,17 @@ export const InfoComponent: React.FunctionComponent<ComponentProps> = ({
           <div>{i18n.Info.currentGoal(trumpMode, expectedPoints)}</div>
         </React.Fragment>
       )}
-      {displayablePlayersAnnounces.map(({ playerName, announces }) => (
-        <div key={playerName}>
-          <span>{i18n.Info.announcesOf(playerName)}</span>
-          {announces.map(a => (
-            <div key={a.id}>{`- ${i18n.announce.id[a.id]}`}</div>
-          ))}
-        </div>
-      ))}
+      {Object.entries(displayablePlayersAnnounces)
+        .filter(([_, { announces }]) => announces.length > 0)
+        .map(([playerID, { playerName, announces }]) => (
+          <div key={playerID}>
+            <span>{i18n.Info.announcesOf(playerName)}</span>
+            {announces.map(a => (
+              <div key={a.id}>{`- ${i18n.announce.id[a.id]}`}</div>
+            ))}
+          </div>
+        ))
+      }
     </React.Fragment>
   );
 };

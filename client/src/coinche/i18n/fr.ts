@@ -18,6 +18,7 @@ export const fr: I18n = {
   trumpMode: translatedTrumpMode,
   announce: {
     id: {
+      Belot: 'Belote',
       [AnnounceID.SquareAce]: `Carré d'as`,
       [AnnounceID.SquareKing]: `Carré de roi`,
       [AnnounceID.SquareQueen]: `Carré de dame`,

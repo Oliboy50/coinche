@@ -3,6 +3,7 @@ import React, {useState} from 'react';
 import {BoardProps} from 'boardgame.io/react';
 import {
   Announce,
+  BelotAnnounce,
   GameStatePlayerView,
   Moves,
   PhaseID,
@@ -13,6 +14,7 @@ import {
   getPlayerTeam,
 } from '../shared/coinche';
 import {PlayerScreenPosition, getPlayerIDForPosition} from './service/getPlayerIDForPosition';
+import {getPlayerNameByID} from './service/getPlayerNameByID';
 import {TalkMenuComponent} from './component/TalkMenu';
 import {MyCardsComponent} from './component/MyCards';
 import {OtherPlayerCardsComponent} from './component/OtherPlayerCards';
@@ -22,6 +24,28 @@ import {PlayedCardsComponent} from './component/PlayedCards';
 import {SayAnnounceMenuComponent} from './component/SayAnnounceMenu';
 import {PlayerSaidAnnounceGroupsComponent} from './component/PlayerSaidAnnounceGroups';
 import {InfoComponent} from './component/Info';
+
+const getTurnIndicatorClassForPosition = (
+  position: PlayerScreenPosition,
+  currentPhaseNeedsToWaitForAPlayerMove: boolean,
+  currentPlayerIsTopPlayer: boolean,
+  currentPlayerIsLeftPlayer: boolean,
+  currentPlayerIsRightPlayer: boolean,
+  currentPlayerIsBottomPlayer: boolean,
+): string => {
+  if (!currentPhaseNeedsToWaitForAPlayerMove) {
+    return '';
+  }
+
+  if ((currentPlayerIsTopPlayer && position === 'top')
+    || (currentPlayerIsLeftPlayer && position === 'left')
+    || (currentPlayerIsRightPlayer && position === 'right')
+    || (currentPlayerIsBottomPlayer && position === 'bottom')) {
+    return 'currentPlayer';
+  }
+
+  return '';
+};
 
 export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>> = ({
   G,
@@ -57,28 +81,27 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
 
   const playedCards = isDisplayedPreviousCardsPlayed ? G.playersCardPlayedInPreviousTurn : G.playersCardPlayedInCurrentTurn;
 
-  const getPlayerNameByID = (ID: PlayerID): string => {
-    const playerMetadata = gameMetadata.find(m => (String(m.id) as PlayerID) === ID);
-    if (!playerMetadata) {
-      throw new Error(`No game metadata for player [${ID}]`);
-    }
-
-    return playerMetadata.name;
+  const displayableAnnouncesByPlayerID: Record<PlayerID, { playerName: string; announces: (Announce | BelotAnnounce)[] }> = {
+    [PlayerID.North]: {
+      playerName: getPlayerNameByID(gameMetadata, PlayerID.North),
+      announces: G.playersAnnounces[PlayerID.North].filter(pa => pa.isCardsDisplayable).map(pa => pa.announce!),
+    },
+    [PlayerID.East]: {
+      playerName: getPlayerNameByID(gameMetadata, PlayerID.East),
+      announces: G.playersAnnounces[PlayerID.East].filter(pa => pa.isCardsDisplayable).map(pa => pa.announce!),
+    },
+    [PlayerID.South]: {
+      playerName: getPlayerNameByID(gameMetadata, PlayerID.South),
+      announces: G.playersAnnounces[PlayerID.South].filter(pa => pa.isCardsDisplayable).map(pa => pa.announce!),
+    },
+    [PlayerID.West]: {
+      playerName: getPlayerNameByID(gameMetadata, PlayerID.West),
+      announces: G.playersAnnounces[PlayerID.West].filter(pa => pa.isCardsDisplayable).map(pa => pa.announce!),
+    },
   };
-  const getTurnIndicatorClassForPosition = (position: PlayerScreenPosition): string => {
-    if (!currentPhaseNeedsToWaitForAPlayerMove) {
-      return '';
-    }
-
-    if ((currentPlayerIsTopPlayer && position === 'top')
-      || (currentPlayerIsLeftPlayer && position === 'left')
-      || (currentPlayerIsRightPlayer && position === 'right')
-      || (currentPlayerIsBottomPlayer && position === 'bottom')) {
-      return 'currentPlayer';
-    }
-
-    return '';
-  };
+  if (G.belotAnnounce && G.belotAnnounce.isSaid) {
+    displayableAnnouncesByPlayerID[G.belotAnnounce.owner].announces.push(G.belotAnnounce);
+  }
 
   return (
     <div className="board">
@@ -91,20 +114,13 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
           attackingTeamID={currentPhaseIsPlayCards ? G.attackingTeam : undefined}
           trumpMode={currentPhaseIsPlayCards ? G.trumpMode : undefined}
           expectedPoints={currentPhaseIsPlayCards ? G.expectedPoints : undefined}
-          displayablePlayersAnnounces={
-            Object.entries(G.playersAnnounces)
-              .filter(([_, playerAnnounces]) => playerAnnounces.some(pa => pa.isCardsDisplayable))
-              .map(([p, playerAnnounces]) => ({
-                playerName: getPlayerNameByID(p as PlayerID),
-                announces: playerAnnounces.filter(pa => pa.isCardsDisplayable).map(pa => pa.announce) as Announce[],
-              }))
-          }
+          displayablePlayersAnnounces={displayableAnnouncesByPlayerID}
         />
       </div>
 
-      <div className={`player top ${getTurnIndicatorClassForPosition('top')} otherPlayer`}>
+      <div className={`player top ${getTurnIndicatorClassForPosition('top', currentPhaseNeedsToWaitForAPlayerMove, currentPlayerIsTopPlayer, currentPlayerIsLeftPlayer, currentPlayerIsRightPlayer, currentPlayerIsBottomPlayer)} otherPlayer`}>
         <OtherPlayerCardsComponent cards={G.playersCards[topPlayerID]} />
-        <div className="playerName">{getPlayerNameByID(topPlayerID)}</div>
+        <div className="playerName">{getPlayerNameByID(gameMetadata, topPlayerID)}</div>
         <div className="playerTalks">
           {currentPhaseIsTalk && !currentPlayerIsTopPlayer && G.playersSaid[topPlayerID] && (
             <PlayerSaidComponent playerSaid={G.playersSaid[topPlayerID]}/>
@@ -115,9 +131,9 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
         </div>
       </div>
 
-      <div className={`player left ${getTurnIndicatorClassForPosition('left')} otherPlayer`}>
+      <div className={`player left ${getTurnIndicatorClassForPosition('left', currentPhaseNeedsToWaitForAPlayerMove, currentPlayerIsTopPlayer, currentPlayerIsLeftPlayer, currentPlayerIsRightPlayer, currentPlayerIsBottomPlayer)} otherPlayer`}>
         <OtherPlayerCardsComponent cards={G.playersCards[leftPlayerID]} />
-        <div className="playerName">{getPlayerNameByID(leftPlayerID)}</div>
+        <div className="playerName">{getPlayerNameByID(gameMetadata, leftPlayerID)}</div>
         <div className="playerTalks">
           {currentPhaseIsTalk && !currentPlayerIsLeftPlayer && G.playersSaid[leftPlayerID] && (
             <PlayerSaidComponent playerSaid={G.playersSaid[leftPlayerID]}/>
@@ -132,9 +148,9 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
         <PlayedCardsComponent bottomPlayerID={bottomPlayerID} playedCards={playedCards} />
       </div>
 
-      <div className={`player right ${getTurnIndicatorClassForPosition('right')} otherPlayer`}>
+      <div className={`player right ${getTurnIndicatorClassForPosition('right', currentPhaseNeedsToWaitForAPlayerMove, currentPlayerIsTopPlayer, currentPlayerIsLeftPlayer, currentPlayerIsRightPlayer, currentPlayerIsBottomPlayer)} otherPlayer`}>
         <OtherPlayerCardsComponent cards={G.playersCards[rightPlayerID]} />
-        <div className="playerName">{getPlayerNameByID(rightPlayerID)}</div>
+        <div className="playerName">{getPlayerNameByID(gameMetadata, rightPlayerID)}</div>
         <div className="playerTalks">
           {currentPhaseIsTalk && !currentPlayerIsRightPlayer && G.playersSaid[rightPlayerID] && (
             <PlayerSaidComponent playerSaid={G.playersSaid[rightPlayerID]}/>
@@ -157,7 +173,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
         )}
       </div>
 
-      <div className={`player bottom ${getTurnIndicatorClassForPosition('bottom')} myPlayer`}>
+      <div className={`player bottom ${getTurnIndicatorClassForPosition('bottom', currentPhaseNeedsToWaitForAPlayerMove, currentPlayerIsTopPlayer, currentPlayerIsLeftPlayer, currentPlayerIsRightPlayer, currentPlayerIsBottomPlayer)} myPlayer`}>
         {!isDisplayedPreviousCardsPlayed && (
           <MyCardsComponent
             cards={G.playerCards}

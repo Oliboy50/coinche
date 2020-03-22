@@ -4,6 +4,7 @@ import {
   TurnConfig,
 } from 'boardgame.io/core';
 import playCard from './move/playCard';
+import sayBelotOrNot from './move/sayBelotOrNot';
 import sayAnnounce from './move/sayAnnounce';
 import saySkip from './move/saySkip';
 import sayTake from './move/sayTake';
@@ -174,8 +175,6 @@ export enum AnnounceID {
   TierceNineDiamond = 'TierceNineDiamond',
   TierceNineHeart = 'TierceNineHeart',
   TierceNineClub = 'TierceNineClub',
-  // @TODO
-  // Belot = 'Belot',
 }
 export const validAnnounceIDs: AnnounceID[] = Object.values(AnnounceID);
 
@@ -184,6 +183,13 @@ export enum AnnounceGroup {
   Tierce = 'Tierce',
   Quarte = 'Quarte',
   Quinte = 'Quinte',
+}
+
+export interface BelotAnnounce {
+  id: 'Belot';
+  owner: PlayerID;
+  ownerHasChosen: boolean;
+  isSaid: boolean;
 }
 
 export interface Announce {
@@ -233,6 +239,7 @@ export interface GameState {
   trumpMode: TrumpMode;
   playersSaid: Record<PlayerID, 'skip' | { expectedPoints: number; trumpMode: TrumpMode } | undefined>;
   numberOfSuccessiveSkipSaid: number;
+  belotAnnounce: BelotAnnounce | undefined;
   playersAnnounces: Record<PlayerID, PlayerAnnounce[]>;
 
   // turn state
@@ -240,6 +247,7 @@ export interface GameState {
   playersCardPlayedInCurrentTurn: Record<PlayerID, Card | undefined>;
   playersCardPlayedInPreviousTurn: Record<PlayerID, Card> | undefined;
 }
+// @TODO hide belotAnnounce if not said
 export type GameStatePlayerView = Omit<GameState, 'availableCards' | 'playersCards' | 'playersAnnounces'> & {
   availableCards: SecretCard[];
   playersCards: Record<PlayerID, Card[] | SecretCard[]>;
@@ -252,6 +260,7 @@ export interface Moves {
   saySkip: () => void;
   sayTake: (expectedPoints: number, mode: TrumpMode) => void;
   sayAnnounce: (announce: Announce) => void;
+  sayBelotOrNot: (sayIt: boolean) => void;
   playCard: (card: Card) => void;
 }
 
@@ -299,6 +308,32 @@ export const isSayableExpectedPoints = (expectedPoints: number, playersSaid: Gam
     .filter(said => Boolean(said && said !== 'skip' && said.expectedPoints))
     // @ts-ignore StupidTypescript
     .every(said => said.expectedPoints < expectedPoints);
+};
+
+const getBelotCards = (trumpMode: TrumpMode): Card[] | undefined => {
+  switch (trumpMode) {
+    case TrumpMode.NoTrump:
+      return;
+    case TrumpMode.TrumpSpade:
+      return [{ color: CardColor.Spade, name: CardName.King }, { color: CardColor.Spade, name: CardName.Queen }];
+    case TrumpMode.TrumpDiamond:
+      return [{ color: CardColor.Diamond, name: CardName.King }, { color: CardColor.Diamond, name: CardName.Queen }];
+    case TrumpMode.TrumpHeart:
+      return [{ color: CardColor.Heart, name: CardName.King }, { color: CardColor.Heart, name: CardName.Queen }];
+    case TrumpMode.TrumpClub:
+      return [{ color: CardColor.Club, name: CardName.King }, { color: CardColor.Club, name: CardName.Queen }];
+  }
+};
+export const getBelotOwner = (trumpMode: TrumpMode, playersCards: GameState['playersCards']): PlayerID | undefined => {
+  const belotCards = getBelotCards(trumpMode);
+  if (!belotCards) {
+    return;
+  }
+
+  const playerCardsContainingBelot = Object.entries(playersCards).find(([_, playerCards]) =>
+    belotCards.every(bc => playerCards.some(pc => isSameCard(bc, pc))),
+  );
+  return playerCardsContainingBelot ? playerCardsContainingBelot[0] as PlayerID : undefined;
 };
 
 export const getAnnounces = (): Announce[] => [
@@ -2683,6 +2718,7 @@ export const getSetupGameState = (_: Context<PlayerID, PhaseID>): GameState => {
     howManyPointsATeamMustReachToEndTheGame: 2000,
     playersSaid: getDefaultPlayersSaid(),
     numberOfSuccessiveSkipSaid: 0,
+    belotAnnounce: undefined,
     playersAnnounces: getDefaultPlayersAnnounces(),
     playersCardPlayedInCurrentTurn: getDefaultPlayersCardPlayedInCurrentTurn(),
     playersCardPlayedInPreviousTurn: getDefaultPlayersCardPlayedInPreviousTurn(),
@@ -2816,6 +2852,12 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
             G.playersAnnounces[playerID] = getAnnouncesForCards(G.playersCards[playerID], G.trumpMode).map(announce => ({ announce, announceGroup: getAnnounceGroupByAnnounceID(announce.id), isCardsDisplayable: false, isSaid: false }));
           });
 
+          // set belot announce if available
+          const belotOwner = getBelotOwner(G.trumpMode, G.playersCards);
+          if (belotOwner) {
+            G.belotAnnounce = { id: 'Belot', owner: belotOwner, ownerHasChosen: false, isSaid: false };
+          }
+
           return { next: PhaseID.PlayCards };
         }
 
@@ -2825,30 +2867,12 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
     [PhaseID.PlayCards]: {
       moves: {
         sayAnnounce,
+        sayBelotOrNot,
         playCard,
       },
       turn: {
         ...defaultTurnConfig,
         onBegin: (G, ctx) => {
-          // set said announces displayability
-          const northSouthTeamSaidPlayerAnnounces = [...G.playersAnnounces[PlayerID.North], ...G.playersAnnounces[PlayerID.South]].filter(a => a.isSaid);
-          const eastWestTeamSaidPlayerAnnounces = [...G.playersAnnounces[PlayerID.East], ...G.playersAnnounces[PlayerID.West]].filter(a => a.isSaid);
-          const allSaidPlayerAnnounces = [...northSouthTeamSaidPlayerAnnounces, ...eastWestTeamSaidPlayerAnnounces];
-          if (
-            allSaidPlayerAnnounces.length
-            && allSaidPlayerAnnounces.every(a => !a.isCardsDisplayable)
-            && G.playersCards[G.firstPlayerInCurrentTurn].length <= (G.trumpMode === TrumpMode.NoTrump ? 5 : 6)
-          ) {
-            const bestAnnounceID = getWinningAnnounceID(allSaidPlayerAnnounces.map(a => a.announce.id), G.trumpMode);
-            const bestAnnounceBelongsToNorthSouthTeam = northSouthTeamSaidPlayerAnnounces.map(a => a.announce.id).includes(bestAnnounceID);
-            G.playersAnnounces = {
-              [PlayerID.North]: G.playersAnnounces[PlayerID.North].map(pa => ({ ...pa, isCardsDisplayable: bestAnnounceBelongsToNorthSouthTeam })),
-              [PlayerID.East]: G.playersAnnounces[PlayerID.East].map(pa => ({ ...pa, isCardsDisplayable: !bestAnnounceBelongsToNorthSouthTeam })),
-              [PlayerID.South]: G.playersAnnounces[PlayerID.South].map(pa => ({ ...pa, isCardsDisplayable: bestAnnounceBelongsToNorthSouthTeam })),
-              [PlayerID.West]: G.playersAnnounces[PlayerID.West].map(pa => ({ ...pa, isCardsDisplayable: !bestAnnounceBelongsToNorthSouthTeam })),
-            };
-          }
-
           // set players cards playability
           const player = ctx.currentPlayer;
           const playerPartner = getPlayerPartner(player);
@@ -2871,6 +2895,26 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
             [PlayerID.South]: setCardsPlayability(G.playersCards[PlayerID.South], PlayerID.South === player),
             [PlayerID.West]: setCardsPlayability(G.playersCards[PlayerID.West], PlayerID.West === player),
           };
+        },
+        onEnd: (G) => {
+          // set said announces displayability
+          const northSouthTeamSaidPlayerAnnounces = [...G.playersAnnounces[PlayerID.North], ...G.playersAnnounces[PlayerID.South]].filter(a => a.isSaid);
+          const eastWestTeamSaidPlayerAnnounces = [...G.playersAnnounces[PlayerID.East], ...G.playersAnnounces[PlayerID.West]].filter(a => a.isSaid);
+          const allSaidPlayerAnnounces = [...northSouthTeamSaidPlayerAnnounces, ...eastWestTeamSaidPlayerAnnounces];
+          if (
+            allSaidPlayerAnnounces.length
+            && allSaidPlayerAnnounces.every(a => !a.isCardsDisplayable)
+            && G.playersCards[G.firstPlayerInCurrentTurn].length <= (G.trumpMode === TrumpMode.NoTrump ? 5 : 6)
+          ) {
+            const bestAnnounceID = getWinningAnnounceID(allSaidPlayerAnnounces.map(a => a.announce.id), G.trumpMode);
+            const bestAnnounceBelongsToNorthSouthTeam = northSouthTeamSaidPlayerAnnounces.map(a => a.announce.id).includes(bestAnnounceID);
+            G.playersAnnounces = {
+              [PlayerID.North]: G.playersAnnounces[PlayerID.North].map(pa => ({ ...pa, isCardsDisplayable: bestAnnounceBelongsToNorthSouthTeam })),
+              [PlayerID.East]: G.playersAnnounces[PlayerID.East].map(pa => ({ ...pa, isCardsDisplayable: !bestAnnounceBelongsToNorthSouthTeam })),
+              [PlayerID.South]: G.playersAnnounces[PlayerID.South].map(pa => ({ ...pa, isCardsDisplayable: bestAnnounceBelongsToNorthSouthTeam })),
+              [PlayerID.West]: G.playersAnnounces[PlayerID.West].map(pa => ({ ...pa, isCardsDisplayable: !bestAnnounceBelongsToNorthSouthTeam })),
+            };
+          }
         },
       },
       endIf: (G) => {
