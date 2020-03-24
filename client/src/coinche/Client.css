@@ -289,3 +289,9 @@
 .playedCard.right .cardWrapper {
   transform: rotate(270deg);
 }
+
+/**
+ */
+.info {
+  font-size: 18px;
+}
