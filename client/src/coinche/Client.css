@@ -9,7 +9,7 @@
     "menu         menu            menu        "
     "playerBottom playerBottom    playerBottom";
   grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 200px 200px 200px 200px;
+  grid-template-rows: 200px 200px 150px 200px;
 }
 .board > .player.top {
   grid-area: playerTop;
@@ -88,14 +88,14 @@
   content: '\1f446';
   font-size: 40px;
   position: absolute;
-  top: -70px;
-  left: 50%;
+  top: -40px;
+  left: calc(50% - 40px);
 }
 .myPlayer.currentPlayer::after {
   content: '\1f447';
   font-size: 40px;
   position: absolute;
-  top: -30px;
+  top: -40px;
   left: 50%;
 }
 .myCards {
@@ -112,14 +112,14 @@
   border-radius: 50%;
   font-size: 20px;
   text-align: center;
-  padding: 20px;
+  padding: 18px;
   background: rgba(230, 230, 230, 1);
   z-index: 20;
 }
 .playerTalks > *::after {
   content: '';
   position: absolute;
-  top: 4px;
+  top: 10px;
   left: 50%;
   width: 0;
   height: 0;
@@ -140,7 +140,7 @@
     "name"
     "talks";
   grid-template-columns: 1fr;
-  grid-template-rows: 100px 20px 1fr;
+  grid-template-rows: 100px auto 1fr;
 }
 .otherPlayer > .otherPlayerCards {
   grid-area: cards;
@@ -153,7 +153,8 @@
 }
 .otherPlayerCards {
   position: relative;
-  margin-top: -10px;
+  margin-top: -20px;
+  margin-left: -85px;
   text-align: center;
 }
 .otherPlayer .cardWrapper {
@@ -163,15 +164,15 @@
 }
 .otherPlayer .cardWrapper:nth-child(1) {
   z-index: 8;
-  transform: rotate(-30deg);
+  transform: rotate(-27deg);
 }
 .otherPlayer .cardWrapper:nth-child(2) {
   z-index: 7;
-  transform: rotate(-20deg);
+  transform: rotate(-18deg);
 }
 .otherPlayer .cardWrapper:nth-child(3) {
   z-index: 6;
-  transform: rotate(-10deg);
+  transform: rotate(-9deg);
 }
 .otherPlayer .cardWrapper:nth-child(4) {
   z-index: 5;
@@ -179,24 +180,24 @@
 }
 .otherPlayer .cardWrapper:nth-child(5) {
   z-index: 4;
-  transform: rotate(10deg);
+  transform: rotate(9deg);
 }
 .otherPlayer .cardWrapper:nth-child(6) {
   z-index: 3;
-  transform: rotate(20deg);
+  transform: rotate(18deg);
 }
 .otherPlayer .cardWrapper:nth-child(7) {
   z-index: 2;
-  transform: rotate(30deg);
+  transform: rotate(27deg);
 }
 .otherPlayer .cardWrapper:nth-child(8) {
   z-index: 1;
-  transform: rotate(40deg);
+  transform: rotate(36deg);
 }
 .otherPlayer.currentPlayer .otherPlayerCards::before {
   content: '\1f447';
   position: absolute;
-  top: -10px;
+  top: 0;
   left: 50%;
   font-size: 40px;
   z-index: 10;
@@ -210,24 +211,43 @@
 }
 .sayAnnounce {
   display: grid;
-  grid-template-columns: 80% 20%;
+  grid-template-columns: 75% 25%;
 }
-.sayTake {
-  display: grid;
-  grid-template-columns: 40% 40% 20%;
+.sayAnnounce > * {
+  font-size: 20px;
+  background-color: rgba(127,255,212, .5);
+  color: black;
+  font-weight: bold;
 }
-.saySkip {
+.talk {
   display: grid;
+  grid-template-columns: 25% 25% 25% 25%;
+}
+.talk > * {
+  font-size: 20px;
+  background-color: rgba(127,255,212, .5);
+  color: black;
+  font-weight: bold;
+}
+.talk > .saySkipButton {
+  background-color: rgba(178,34,34, .8);
+  color: white;
 }
 .toggleIsDisplayedPreviousCardsPlayed {
   display: grid;
+}
+.toggleIsDisplayedPreviousCardsPlayed > * {
+  font-size: 20px;
+  width: 50%;
+  margin: 0 auto;
+  color: black;
+  font-weight: bold;
 }
 
 /**
  */
 .playerName {
   z-index: 10;
-  padding-left: 75px;
   font-size: 20px;
   text-transform: capitalize;
   text-align: center;
@@ -235,16 +255,18 @@
 
 /**
  */
+.playedCardsArea {
+  margin: 0 auto;
+}
 .playedCards {
   display: grid;
-  grid-gap: 0;
+  grid-gap: 5px;
   grid-template-areas:
     ".              playedCardTop    .               "
     "playedCardLeft .                playedCardRight "
     ".              playedCardBottom .               ";
   grid-template-columns: 60px 60px 60px;
   grid-template-rows: 60px 60px 60px;
-  margin-left: 50px;
 }
 .playedCards > .playedCard.top {
   grid-area: playedCardTop;
