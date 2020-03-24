@@ -4,13 +4,75 @@ import {
   Card,
   CardColor,
   CardName,
+  TrumpMode,
   getAnnounceByID,
   getAnnounces,
   getAnnouncesForCards,
   isAnnounceIDBeatingTheOtherAnnounceIDs,
-  TrumpMode,
+  isCardBeatingTheOtherCards,
   validAnnounceIDs,
 } from './index';
+
+describe('isCardBeatingTheOtherCards', () => {
+  const testCases: {
+    card: Card;
+    otherCards: Card[];
+    trumpMode: TrumpMode;
+    firstCardColor: CardColor;
+    expectedResult: boolean;
+  }[] = [
+    {
+      card: { name: CardName.Nine, color: CardColor.Spade },
+      otherCards: [
+        { name: CardName.Ace, color: CardColor.Club },
+        { name: CardName.King, color: CardColor.Heart },
+        { name: CardName.Ten, color: CardColor.Spade },
+      ],
+      trumpMode: TrumpMode.NoTrump,
+      firstCardColor: CardColor.Spade,
+      expectedResult: false,
+    },
+    {
+      card: { name: CardName.Ten, color: CardColor.Spade },
+      otherCards: [
+        { name: CardName.Ace, color: CardColor.Club },
+        { name: CardName.King, color: CardColor.Heart },
+        { name: CardName.Nine, color: CardColor.Spade },
+      ],
+      trumpMode: TrumpMode.NoTrump,
+      firstCardColor: CardColor.Spade,
+      expectedResult: true,
+    },
+    {
+      card: { name: CardName.Nine, color: CardColor.Spade },
+      otherCards: [
+        { name: CardName.Ace, color: CardColor.Club },
+        { name: CardName.King, color: CardColor.Heart },
+        { name: CardName.Ten, color: CardColor.Spade },
+      ],
+      trumpMode: TrumpMode.TrumpSpade,
+      firstCardColor: CardColor.Spade,
+      expectedResult: true,
+    },
+    {
+      card: { name: CardName.Ten, color: CardColor.Spade },
+      otherCards: [
+        { name: CardName.Ace, color: CardColor.Club },
+        { name: CardName.King, color: CardColor.Heart },
+        { name: CardName.Nine, color: CardColor.Spade },
+      ],
+      trumpMode: TrumpMode.TrumpSpade,
+      firstCardColor: CardColor.Spade,
+      expectedResult: false,
+    },
+  ];
+
+  testCases.forEach(({card, otherCards, trumpMode, firstCardColor, expectedResult}) => {
+    it(`returns ${expectedResult ? 'true' : 'false'} when card ${card.color}|${card.name} and trumpMode ${trumpMode} and firstCardColor ${firstCardColor} and otherCards ${otherCards.map(c => `${c.color}|${c.name}`).join(', ')}`, () => {
+      expect(isCardBeatingTheOtherCards(card, otherCards, trumpMode, firstCardColor)).toEqual(expectedResult);
+    });
+  });
+});
 
 describe('getAnnounceByID', () => {
   validAnnounceIDs.forEach((announceID ) => {
