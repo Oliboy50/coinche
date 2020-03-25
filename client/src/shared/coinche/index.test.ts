@@ -8,6 +8,7 @@ import {
   getAnnounceByID,
   getAnnounces,
   getAnnouncesForCards,
+  getWinningAnnounceID,
   isAnnounceIDBeatingTheOtherAnnounceIDs,
   isCardBeatingTheOtherCards,
   validAnnounceIDs,
@@ -327,11 +328,41 @@ describe('isAnnounceIDBeatingTheOtherAnnounceIDs', () => {
       otherAnnounceIDs: [AnnounceID.TierceNineSpade],
       expectedResult: true,
     },
+    {
+      testCase: `returns false when trumpMode is ${TrumpMode.NoTrump} and announce is ${AnnounceID.TierceAceHeart} and other announces contain ${AnnounceID.TierceAceSpade}`,
+      trumpMode: TrumpMode.NoTrump,
+      announceID: AnnounceID.TierceAceHeart,
+      otherAnnounceIDs: [AnnounceID.TierceTenClub, AnnounceID.TierceNineHeart, AnnounceID.TierceAceSpade],
+      expectedResult: false,
+    },
   ];
 
   testCases.forEach(({testCase, trumpMode, announceID, otherAnnounceIDs, expectedResult}) => {
     it(testCase, () => {
       expect(isAnnounceIDBeatingTheOtherAnnounceIDs(announceID, otherAnnounceIDs, trumpMode)).toEqual(expectedResult);
+    });
+  });
+});
+
+describe('getWinningAnnounceID', () => {
+  const testCases: {
+    trumpMode: TrumpMode;
+    announceIDs: AnnounceID[];
+    expectedResult: AnnounceID | undefined;
+  }[] = [
+    {
+      trumpMode: TrumpMode.NoTrump,
+      announceIDs: [
+        AnnounceID.TierceAceHeart,
+        AnnounceID.TierceAceSpade,
+      ],
+      expectedResult: undefined,
+    },
+  ];
+
+  testCases.forEach(({trumpMode, announceIDs, expectedResult}) => {
+    it(`returns ${expectedResult ? expectedResult : 'undefined'} when announceIDs ${announceIDs.join(', ')} and trumpMode ${trumpMode}`, () => {
+      expect(getWinningAnnounceID(announceIDs, trumpMode)).toEqual(expectedResult);
     });
   });
 });

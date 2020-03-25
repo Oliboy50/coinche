@@ -2326,19 +2326,18 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
       throw new Error('a case has been forgotten');
   }
 };
-export const getWinningAnnounceID = (announceIDs: AnnounceID[], trumpMode: TrumpMode): AnnounceID => {
+export const getWinningAnnounceID = (announceIDs: AnnounceID[], trumpMode: TrumpMode): AnnounceID | undefined => {
   if (!announceIDs.length) {
     throw new Error();
   }
   if (announceIDs.length === 1) {
     return announceIDs[0];
   }
+  if (announceIDs.every(announceID => !isAnnounceIDBeatingTheOtherAnnounceIDs(announceID, announceIDs.filter(a => a !== announceID), trumpMode))) {
+    return undefined;
+  }
 
   return announceIDs.reduce((currentWinningAnnounceID, announceID) => {
-    if (!currentWinningAnnounceID) {
-      return announceID;
-    }
-
     if (isAnnounceIDBeatingTheOtherAnnounceIDs(announceID, announceIDs.filter(a => a !== announceID), trumpMode)) {
       return announceID;
     }
@@ -2561,7 +2560,7 @@ export const isCardBeatingTheOtherCards = (card: Card, otherCards: Card[], trump
         return !(color === firstCardColor && [CardName.Ace, CardName.Ten, CardName.King, CardName.Queen, CardName.Jack, CardName.Nine].includes(name));
       });
     case CardName.Seven:
-      return otherCards.every(({ color, name }) => {
+      return otherCards.every(({ color }) => {
         if (color === cardColorAssociatedToTrumpMode) {
           return false;
         }
@@ -2961,13 +2960,15 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
             && G.playersCards[G.firstPlayerInCurrentTurn].length <= (G.trumpMode === TrumpMode.NoTrump ? 5 : 6)
           ) {
             const bestAnnounceID = getWinningAnnounceID(allSaidPlayerAnnounces.map(a => a.announce.id), G.trumpMode);
-            const bestAnnounceBelongsToNorthSouthTeam = northSouthTeamSaidPlayerAnnounces.map(a => a.announce.id).includes(bestAnnounceID);
-            G.playersAnnounces = {
-              [PlayerID.North]: G.playersAnnounces[PlayerID.North].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && bestAnnounceBelongsToNorthSouthTeam })),
-              [PlayerID.East]: G.playersAnnounces[PlayerID.East].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && !bestAnnounceBelongsToNorthSouthTeam })),
-              [PlayerID.South]: G.playersAnnounces[PlayerID.South].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && bestAnnounceBelongsToNorthSouthTeam })),
-              [PlayerID.West]: G.playersAnnounces[PlayerID.West].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && !bestAnnounceBelongsToNorthSouthTeam })),
-            };
+            if (bestAnnounceID) {
+              const bestAnnounceBelongsToNorthSouthTeam = northSouthTeamSaidPlayerAnnounces.map(a => a.announce.id).includes(bestAnnounceID);
+              G.playersAnnounces = {
+                [PlayerID.North]: G.playersAnnounces[PlayerID.North].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && bestAnnounceBelongsToNorthSouthTeam })),
+                [PlayerID.East]: G.playersAnnounces[PlayerID.East].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && !bestAnnounceBelongsToNorthSouthTeam })),
+                [PlayerID.South]: G.playersAnnounces[PlayerID.South].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && bestAnnounceBelongsToNorthSouthTeam })),
+                [PlayerID.West]: G.playersAnnounces[PlayerID.West].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && !bestAnnounceBelongsToNorthSouthTeam })),
+              };
+            }
           }
         },
       },
