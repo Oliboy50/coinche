@@ -100,7 +100,7 @@ const sortCardsFromSpadeToHeartAndFromAceToSeven = (a: Card, b: Card): number =>
 type ComponentProps = {
   cards: Card[],
   isMyTurnToPlayACard: boolean,
-  playCard: Moves['playCard'],
+  playCard: (card: Card) => void,
   trumpMode: TrumpMode,
   playersCardPlayedInCurrentTurn: GameState['playersCardPlayedInCurrentTurn'],
   firstPlayerInCurrentTurn: PlayerID,

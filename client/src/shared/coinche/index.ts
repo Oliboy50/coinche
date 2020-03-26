@@ -3,6 +3,8 @@ import {
   GameConfig,
   TurnConfig,
 } from 'boardgame.io/core';
+import endTurn from './move/endTurn';
+import moveToNextPhase from './move/moveToNextPhase';
 import playCard from './move/playCard';
 import sayBelotOrNot from './move/sayBelotOrNot';
 import sayAnnounce from './move/sayAnnounce';
@@ -31,14 +33,6 @@ export interface Card {
 }
 export type SecretCard = true; // SecretCard are Card with hidden properties
 export const secretCard: SecretCard = true;
-export const isSameCard = (card: Card | undefined, otherCard: Card | undefined): boolean => {
-  if (!card || !otherCard) {
-    return false;
-  }
-
-  return card.color === otherCard.color && card.name === otherCard.name;
-};
-export const cardsContainCard = (cards: Card[], card: Card): boolean => cards.some(c => isSameCard(c, card));
 
 export enum TrumpMode {
   TrumpSpade = 'TrumpSpade',
@@ -55,7 +49,7 @@ export enum PlayerID {
   South = '2',
   West = '3',
 }
-const howManyPlayers = Object.keys(PlayerID).length;
+export const howManyPlayers = Object.keys(PlayerID).length;
 
 export enum PhaseID {
   Deal = 'Deal',
@@ -168,20 +162,13 @@ export interface SecretPlayerAnnounce {
   isSaid: boolean;
   isCardsDisplayable: boolean;
 }
-const transformPlayerAnnounceToSecretPlayerAnnounce = (playerAnnounce: PlayerAnnounce): SecretPlayerAnnounce => ({
-  announce: playerAnnounce.isCardsDisplayable ? playerAnnounce.announce : undefined,
-  announceGroup: playerAnnounce.isSaid ? playerAnnounce.announceGroup : undefined,
-  isSaid: playerAnnounce.isSaid,
-  isCardsDisplayable: playerAnnounce.isCardsDisplayable,
-});
 
 export interface GameState {
   // internal state
   __forcedNextPhase?: PhaseID;
+  __canMoveToNextPhase: boolean; // used to wait before moving to another phase
 
   // global state
-  howManyPlayers: number;
-  howManyCards: number;
   howManyPointsATeamMustReachToEndTheGame: number;
   howManyCardsToDealToEachPlayerBeforeTalking: number;
   howManyCardsToDealToEachPlayerAfterTalking: number;
@@ -217,6 +204,8 @@ export type GameStatePlayerView = Omit<GameState, 'availableCards' | 'playersCar
 }
 
 export interface Moves {
+  endTurn: () => void;
+  moveToNextPhase: () => void;
   saySkip: () => void;
   sayTake: (expectedPoints: ExpectedPoints, mode: TrumpMode) => void;
   sayAnnounce: (announce: Announce) => void;
@@ -2305,6 +2294,12 @@ export const getWinningAnnounceID = (announceIDs: AnnounceID[], trumpMode: Trump
     return currentWinningAnnounceID;
   });
 };
+const transformPlayerAnnounceToSecretPlayerAnnounce = (playerAnnounce: PlayerAnnounce): SecretPlayerAnnounce => ({
+  announce: playerAnnounce.isCardsDisplayable ? playerAnnounce.announce : undefined,
+  announceGroup: playerAnnounce.isSaid ? playerAnnounce.announceGroup : undefined,
+  isSaid: playerAnnounce.isSaid,
+  isCardsDisplayable: playerAnnounce.isCardsDisplayable,
+});
 
 export const getCards = (): Card[] => [
   {
@@ -2436,6 +2431,15 @@ export const getCards = (): Card[] => [
     name: CardName.King,
   },
 ];
+export const howManyCards = getCards().length;
+export const isSameCard = (card: Card | undefined, otherCard: Card | undefined): boolean => {
+  if (!card || !otherCard) {
+    return false;
+  }
+
+  return card.color === otherCard.color && card.name === otherCard.name;
+};
+export const cardsContainCard = (cards: Card[], card: Card): boolean => cards.some(c => isSameCard(c, card));
 export const isCardBeatingTheOtherCards = (card: Card, otherCards: Card[], trumpMode: TrumpMode, firstCardColor: CardColor): boolean => {
   if (!otherCards.length) {
     return true;
@@ -2698,13 +2702,11 @@ export const getSetupGameState = (_: Context<PlayerID, PhaseID>): GameState => {
   const dealer = PlayerID.North;
   const nextDealer = dealer;
   const availableCards = getCards();
-  const howManyCards = availableCards.length;
   const howManyCardsToDealToEachPlayerBeforeTalking = 6;
   const howManyCardsToDealToEachPlayerAfterTalking = Math.floor(howManyCards / howManyPlayers) - howManyCardsToDealToEachPlayerBeforeTalking;
 
   return {
-    howManyPlayers,
-    howManyCards,
+    __canMoveToNextPhase: false,
     availableCards,
     playersCards: getDefaultPlayersCards(),
     wonTeamsCards: getDefaultWonTeamsCards(),
@@ -2727,14 +2729,14 @@ export const getSetupGameState = (_: Context<PlayerID, PhaseID>): GameState => {
     playersCardPlayedInPreviousTurn: getDefaultPlayersCardPlayedInPreviousTurn(),
   };
 };
-const mustGoFromTalkPhaseToPlayCardsPhase = (G: GameState): boolean => {
+export const mustGoFromTalkPhaseToPlayCardsPhase = (expectedPoints: ExpectedPoints | undefined, numberOfSuccessiveSkipSaid: number): boolean => {
   return Boolean(
-    G.expectedPoints
+    expectedPoints
     && (
       // 3 successive skips
-      G.numberOfSuccessiveSkipSaid >= (G.howManyPlayers - 1)
+      numberOfSuccessiveSkipSaid >= (howManyPlayers - 1)
       // maximum validExpectedPoints
-      || G.expectedPoints === validExpectedPoints[validExpectedPoints.length - 1]
+      || expectedPoints === validExpectedPoints[validExpectedPoints.length - 1]
     ),
   );
 };
@@ -2842,22 +2844,29 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
     },
     [PhaseID.Talk]: {
       moves: {
+        endTurn,
+        moveToNextPhase,
         saySkip,
         sayTake,
       },
       endIf: (G) => {
-        if (G.numberOfSuccessiveSkipSaid >= G.howManyPlayers) {
+        if (G.__canMoveToNextPhase && G.numberOfSuccessiveSkipSaid >= howManyPlayers) {
           return { next: PhaseID.Deal };
         }
 
-        if (mustGoFromTalkPhaseToPlayCardsPhase(G)) {
+        if (G.__canMoveToNextPhase && mustGoFromTalkPhaseToPlayCardsPhase(G.expectedPoints, G.numberOfSuccessiveSkipSaid)) {
           return { next: PhaseID.PlayCards };
         }
 
         return false;
       },
       onEnd: (G) => {
-        if (mustGoFromTalkPhaseToPlayCardsPhase(G)) {
+        G.__canMoveToNextPhase = false;
+
+        if (
+          G.numberOfSuccessiveSkipSaid < howManyPlayers
+          && mustGoFromTalkPhaseToPlayCardsPhase(G.expectedPoints, G.numberOfSuccessiveSkipSaid)
+        ) {
           getTurnOrder(G.nextDealer).forEach(playerID => {
             // deal remaining cards
             for (let i = 0; i < G.howManyCardsToDealToEachPlayerAfterTalking; i++) {
@@ -2878,6 +2887,8 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
     },
     [PhaseID.PlayCards]: {
       moves: {
+        endTurn,
+        moveToNextPhase,
         sayAnnounce,
         sayBelotOrNot,
         playCard,
@@ -2932,11 +2943,14 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
         },
       },
       endIf: (G) => {
-        if (Object.values(G.playersCardPlayedInCurrentTurn).every(card => card !== undefined)) {
+        if (G.__canMoveToNextPhase && Object.values(G.playersCardPlayedInCurrentTurn).every(card => card !== undefined)) {
           return { next: PhaseID.CountPoints };
         }
 
         return false;
+      },
+      onEnd: (G) => {
+        G.__canMoveToNextPhase = false;
       },
     },
     [PhaseID.CountPoints]: {
@@ -2959,7 +2973,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
         G.firstPlayerInCurrentTurn = winner;
 
         // go to PlayCards phase if not all cards have been played
-        if (Object.values(G.wonTeamsCards).reduce((acc, cards) => acc.concat(cards), []).length < G.howManyCards) {
+        if (Object.values(G.wonTeamsCards).reduce((acc, cards) => acc.concat(cards), []).length < howManyCards) {
           G.__forcedNextPhase = PhaseID.PlayCards;
           return;
         }

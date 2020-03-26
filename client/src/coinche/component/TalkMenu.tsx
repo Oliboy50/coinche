@@ -14,8 +14,8 @@ import {
 import {I18nContext} from '../context/i18n';
 
 type ComponentProps = {
-  saySkip: Moves['saySkip'],
-  sayTake: Moves['sayTake'],
+  saySkip: () => void,
+  sayTake: (selectedExpectedPoints: ExpectedPoints, selectedTrumpMode: TrumpMode) => void,
   playersSaid: BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>['G']['playersSaid'],
 };
 export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({

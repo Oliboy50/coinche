@@ -7,11 +7,7 @@ import {
 
 export default (
   G: GameState,
-  ctx: Context<PlayerID, PhaseID>,
+  _: Context<PlayerID, PhaseID>,
 ): void => {
-  G.numberOfSuccessiveSkipSaid++;
-  G.playersSaid = {
-    ...G.playersSaid,
-    [ctx.currentPlayer]: 'skip',
-  };
+  G.__canMoveToNextPhase = true;
 };

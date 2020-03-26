@@ -39,15 +39,12 @@ describe(`move/sayTake`, () => {
             ])
             .forEach(expectedPoints => {
               it(`throws if expected points is ${expectedPoints}`, () => {
-                const endTurn = jest.spyOn(ctx.events, 'endTurn');
                 G.playersSaid[PlayerID.West] = { expectedPoints: higherAlreadySaidExpectedPoints, trumpMode};
                 G.playersSaid[PlayerID.South] = 'skip';
 
                 expect(() => {
                   sayTake(G, ctx, expectedPoints, trumpMode);
                 }).toThrow();
-
-                expect(endTurn).toHaveBeenCalledTimes(0);
               });
             });
 
@@ -55,11 +52,8 @@ describe(`move/sayTake`, () => {
             .filter(expectedPoints => expectedPoints > higherAlreadySaidExpectedPoints)
             .forEach(expectedPoints => {
               it(`sets attacking and defensing team, expected points to ${expectedPoints} and trump mode to ${trumpMode} and reset number of successive skip said`, () => {
-                const endTurn = jest.spyOn(ctx.events, 'endTurn');
-
                 sayTake(G, ctx, expectedPoints, trumpMode);
 
-                expect(endTurn).toHaveBeenCalledTimes(1);
                 expect(G.numberOfSuccessiveSkipSaid).toBe(0);
                 expect(G.attackingTeam).toBe(TeamID.NorthSouth);
                 expect(G.defensingTeam).toBe(TeamID.EastWest);

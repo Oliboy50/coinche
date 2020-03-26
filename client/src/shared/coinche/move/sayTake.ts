@@ -37,6 +37,4 @@ export default (
     ...G.playersSaid,
     [ctx.currentPlayer]: { expectedPoints, trumpMode },
   };
-
-  ctx.events.endTurn();
 };
