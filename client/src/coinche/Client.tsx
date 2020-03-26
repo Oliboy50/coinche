@@ -11,7 +11,13 @@ import {
   SecretPlayerAnnounce,
   TeamID,
   getPlayerPartner,
-  getPlayerTeam, getBelotCards, isSameCard,
+  getPlayerTeam,
+  getBelotCards,
+  isSameCard,
+  howManyPlayers,
+  mustGoFromTalkPhaseToPlayCardsPhase,
+  ExpectedPoints,
+  TrumpMode, Card,
 } from '../shared/coinche';
 import {PlayerScreenPosition, getPlayerIDForPosition} from './service/getPlayerIDForPosition';
 import {getPlayerNameByID} from './service/getPlayerNameByID';
@@ -24,6 +30,8 @@ import {PlayedCardsComponent} from './component/PlayedCards';
 import {SayAnnounceMenuComponent} from './component/SayAnnounceMenu';
 import {PlayerSaidAnnounceGroupsComponent} from './component/PlayerSaidAnnounceGroups';
 import {InfoComponent} from './component/Info';
+
+let isWaitingBeforeMovingToNextPhase = false;
 
 const getTurnIndicatorClassForPosition = (
   position: PlayerScreenPosition,
@@ -104,6 +112,51 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
     displayableAnnouncesByPlayerID[G.belotAnnounce.owner].announces.push(G.belotAnnounce);
   }
 
+  const sayTake = (selectedExpectedPoint: ExpectedPoints, selectedTrumpMode: TrumpMode) => {
+    moves.sayTake(selectedExpectedPoint, selectedTrumpMode);
+
+    if (mustGoFromTalkPhaseToPlayCardsPhase(selectedExpectedPoint, 0)) {
+      isWaitingBeforeMovingToNextPhase = true;
+      setTimeout(() => {
+        moves.moveToNextPhase();
+        isWaitingBeforeMovingToNextPhase = false;
+      }, 1000);
+    } else {
+      moves.endTurn();
+    }
+  };
+  const saySkip = () => {
+    const numberOfSuccessiveSkipSaidBeforeSayingThisSkip = G.numberOfSuccessiveSkipSaid;
+    moves.saySkip();
+
+    if (
+      numberOfSuccessiveSkipSaidBeforeSayingThisSkip >= (howManyPlayers - 1)
+      || (G.expectedPoints && numberOfSuccessiveSkipSaidBeforeSayingThisSkip >= (howManyPlayers - 2))
+    ) {
+      isWaitingBeforeMovingToNextPhase = true;
+      setTimeout(() => {
+        moves.moveToNextPhase();
+        isWaitingBeforeMovingToNextPhase = false;
+      }, 1000);
+    } else {
+      moves.endTurn();
+    }
+  };
+  const playCard = (card: Card) => {
+    const numberOfCardsPlayedBeforePlayingThisCard = Object.values(G.playersCardPlayedInCurrentTurn).filter(card => card !== undefined).length;
+    moves.playCard(card);
+
+    if (numberOfCardsPlayedBeforePlayingThisCard >= (howManyPlayers - 1)) {
+      isWaitingBeforeMovingToNextPhase = true;
+      setTimeout(() => {
+        moves.moveToNextPhase();
+        isWaitingBeforeMovingToNextPhase = false;
+      }, 2000);
+    } else {
+      moves.endTurn();
+    }
+  };
+
   return (
     <div className="board">
       <div className="info">
@@ -163,14 +216,21 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
       </div>
 
       <div className="menu">
-        {currentPhaseIsPlayCards && isNotFirstPlayCardTurn && (
-          <PreviousCardsPlayedMenuComponent isDisplayedPreviousCardsPlayed={isDisplayedPreviousCardsPlayed} toggleIsDisplayedPreviousCardsPlayed={() => setIsDisplayedPreviousCardsPlayed(!isDisplayedPreviousCardsPlayed)} />
+        {!isWaitingBeforeMovingToNextPhase && currentPhaseIsPlayCards && isNotFirstPlayCardTurn && (
+          <PreviousCardsPlayedMenuComponent
+            isDisplayedPreviousCardsPlayed={isDisplayedPreviousCardsPlayed}
+            toggleIsDisplayedPreviousCardsPlayed={() => setIsDisplayedPreviousCardsPlayed(!isDisplayedPreviousCardsPlayed)}
+          />
         )}
-        {!isDisplayedPreviousCardsPlayed && currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && currentPlayerIsBottomPlayer && (
+        {!isWaitingBeforeMovingToNextPhase && !isDisplayedPreviousCardsPlayed && currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && currentPlayerIsBottomPlayer && (
           <SayAnnounceMenuComponent sayAnnounce={moves.sayAnnounce} availableAnnounces={G.playerAnnounces.filter(a => !a.isSaid).map(a => a.announce)} />
         )}
-        {!isDisplayedPreviousCardsPlayed && currentPhaseIsTalk && currentPlayerIsBottomPlayer && (
-          <TalkMenuComponent saySkip={moves.saySkip} sayTake={moves.sayTake} playersSaid={G.playersSaid} />
+        {!isWaitingBeforeMovingToNextPhase && !isDisplayedPreviousCardsPlayed && currentPhaseIsTalk && currentPlayerIsBottomPlayer && (
+          <TalkMenuComponent
+            saySkip={saySkip}
+            sayTake={sayTake}
+            playersSaid={G.playersSaid}
+          />
         )}
       </div>
 
@@ -178,8 +238,8 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
         {!isDisplayedPreviousCardsPlayed && (
           <MyCardsComponent
             cards={G.playerCards}
-            isMyTurnToPlayACard={currentPhaseIsPlayCards && currentPlayerIsBottomPlayer}
-            playCard={moves.playCard}
+            isMyTurnToPlayACard={!isWaitingBeforeMovingToNextPhase && currentPhaseIsPlayCards && currentPlayerIsBottomPlayer}
+            playCard={playCard}
             trumpMode={G.trumpMode}
             playersCardPlayedInCurrentTurn={G.playersCardPlayedInCurrentTurn}
             firstPlayerInCurrentTurn={G.firstPlayerInCurrentTurn}

@@ -11,7 +11,7 @@ describe(`move/sayTake`, () => {
     G = {
       ...getDefaultGameState(),
       numberOfSuccessiveSkipSaid: 3,
-      expectedPoints: 0,
+      expectedPoints: undefined,
       trumpMode: TrumpMode.NoTrump,
     };
     ctx = {
@@ -29,25 +29,22 @@ describe(`move/sayTake`, () => {
             .filter(expectedPoints => expectedPoints <= higherAlreadySaidExpectedPoints)
             // can't say take with invalid expected points
             .concat([
-              -1,
-              0,
-              80,
-              81,
-              100.5,
-              251,
-              255,
+              -1 as any,
+              0 as any,
+              80 as any,
+              81 as any,
+              100.5 as any,
+              251 as any,
+              255 as any,
             ])
             .forEach(expectedPoints => {
               it(`throws if expected points is ${expectedPoints}`, () => {
-                const endTurn = jest.spyOn(ctx.events, 'endTurn');
                 G.playersSaid[PlayerID.West] = { expectedPoints: higherAlreadySaidExpectedPoints, trumpMode};
                 G.playersSaid[PlayerID.South] = 'skip';
 
                 expect(() => {
                   sayTake(G, ctx, expectedPoints, trumpMode);
                 }).toThrow();
-
-                expect(endTurn).toHaveBeenCalledTimes(0);
               });
             });
 
@@ -55,11 +52,8 @@ describe(`move/sayTake`, () => {
             .filter(expectedPoints => expectedPoints > higherAlreadySaidExpectedPoints)
             .forEach(expectedPoints => {
               it(`sets attacking and defensing team, expected points to ${expectedPoints} and trump mode to ${trumpMode} and reset number of successive skip said`, () => {
-                const endTurn = jest.spyOn(ctx.events, 'endTurn');
-
                 sayTake(G, ctx, expectedPoints, trumpMode);
 
-                expect(endTurn).toHaveBeenCalledTimes(1);
                 expect(G.numberOfSuccessiveSkipSaid).toBe(0);
                 expect(G.attackingTeam).toBe(TeamID.NorthSouth);
                 expect(G.defensingTeam).toBe(TeamID.EastWest);

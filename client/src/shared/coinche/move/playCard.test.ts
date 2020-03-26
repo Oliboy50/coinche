@@ -63,11 +63,8 @@ describe(`move/playCard`, () => {
                   },
                 };
 
-                const endTurn = jest.spyOn(ctx.events, 'endTurn');
-
                 playCard(G, ctx, card);
 
-                expect(endTurn).toHaveBeenCalledTimes(1);
                 expect(G.playersCardPlayedInCurrentTurn).toEqual({
                   [PlayerID.North]: card,
                   [PlayerID.East]: undefined,
@@ -111,11 +108,9 @@ describe(`move/playCard`, () => {
                         ],
                       },
                     };
-                    const endTurn = jest.spyOn(ctx.events, 'endTurn');
 
                     playCard(G, ctx, card);
 
-                    expect(endTurn).toHaveBeenCalledTimes(1);
                     expect(G.playersCardPlayedInCurrentTurn).toEqual({
                       [PlayerID.North]: card,
                       [PlayerID.East]: undefined,
@@ -141,11 +136,9 @@ describe(`move/playCard`, () => {
                         ],
                       },
                     };
-                    const endTurn = jest.spyOn(ctx.events, 'endTurn');
 
                     playCard(G, ctx, card);
 
-                    expect(endTurn).toHaveBeenCalledTimes(1);
                     expect(G.playersCardPlayedInCurrentTurn).toEqual({
                       [PlayerID.North]: card,
                       [PlayerID.East]: undefined,
@@ -172,13 +165,10 @@ describe(`move/playCard`, () => {
                         ],
                       },
                     };
-                    const endTurn = jest.spyOn(ctx.events, 'endTurn');
 
                     expect(() => {
                       playCard(G, ctx, card);
                     }).toThrow();
-
-                    expect(endTurn).toHaveBeenCalledTimes(0);
                   });
                 });
 
@@ -217,13 +207,10 @@ describe(`move/playCard`, () => {
                           ],
                         },
                       };
-                      const endTurn = jest.spyOn(ctx.events, 'endTurn');
 
                       expect(() => {
                         playCard(G, ctx, card);
                       }).toThrow();
-
-                      expect(endTurn).toHaveBeenCalledTimes(0);
                     });
                   });
               });
@@ -263,11 +250,9 @@ describe(`move/playCard`, () => {
                         ],
                       },
                     };
-                    const endTurn = jest.spyOn(ctx.events, 'endTurn');
 
                     playCard(G, ctx, card);
 
-                    expect(endTurn).toHaveBeenCalledTimes(1);
                     expect(G.playersCardPlayedInCurrentTurn).toEqual({
                       [PlayerID.North]: card,
                       [PlayerID.East]: undefined,
@@ -293,11 +278,9 @@ describe(`move/playCard`, () => {
                         ],
                       },
                     };
-                    const endTurn = jest.spyOn(ctx.events, 'endTurn');
 
                     playCard(G, ctx, card);
 
-                    expect(endTurn).toHaveBeenCalledTimes(1);
                     expect(G.playersCardPlayedInCurrentTurn).toEqual({
                       [PlayerID.North]: card,
                       [PlayerID.East]: undefined,
@@ -324,13 +307,10 @@ describe(`move/playCard`, () => {
                         ],
                       },
                     };
-                    const endTurn = jest.spyOn(ctx.events, 'endTurn');
 
                     expect(() => {
                       playCard(G, ctx, card);
                     }).toThrow();
-
-                    expect(endTurn).toHaveBeenCalledTimes(0);
                   });
                 });
 
@@ -350,11 +330,9 @@ describe(`move/playCard`, () => {
                         ],
                       },
                     };
-                    const endTurn = jest.spyOn(ctx.events, 'endTurn');
 
                     playCard(G, ctx, card);
 
-                    expect(endTurn).toHaveBeenCalledTimes(1);
                     expect(G.playersCardPlayedInCurrentTurn).toEqual({
                       [PlayerID.North]: card,
                       [PlayerID.East]: undefined,
@@ -381,13 +359,10 @@ describe(`move/playCard`, () => {
                         ],
                       },
                     };
-                    const endTurn = jest.spyOn(ctx.events, 'endTurn');
 
                     expect(() => {
                       playCard(G, ctx, card);
                     }).toThrow();
-
-                    expect(endTurn).toHaveBeenCalledTimes(0);
                   });
                 });
             });
@@ -429,11 +404,8 @@ describe(`move/playCard`, () => {
                   },
                 };
 
-                const endTurn = jest.spyOn(ctx.events, 'endTurn');
-
                 playCard(G, ctx, card);
 
-                expect(endTurn).toHaveBeenCalledTimes(1);
                 expect(G.playersCardPlayedInCurrentTurn).toEqual({
                   [PlayerID.North]: card,
                   [PlayerID.East]: undefined,
@@ -477,11 +449,9 @@ describe(`move/playCard`, () => {
                         ],
                       },
                     };
-                    const endTurn = jest.spyOn(ctx.events, 'endTurn');
 
                     playCard(G, ctx, card);
 
-                    expect(endTurn).toHaveBeenCalledTimes(1);
                     expect(G.playersCardPlayedInCurrentTurn).toEqual({
                       [PlayerID.North]: card,
                       [PlayerID.East]: undefined,
@@ -507,11 +477,9 @@ describe(`move/playCard`, () => {
                         ],
                       },
                     };
-                    const endTurn = jest.spyOn(ctx.events, 'endTurn');
 
                     playCard(G, ctx, card);
 
-                    expect(endTurn).toHaveBeenCalledTimes(1);
                     expect(G.playersCardPlayedInCurrentTurn).toEqual({
                       [PlayerID.North]: card,
                       [PlayerID.East]: undefined,
@@ -538,13 +506,10 @@ describe(`move/playCard`, () => {
                         ],
                       },
                     };
-                    const endTurn = jest.spyOn(ctx.events, 'endTurn');
 
                     expect(() => {
                       playCard(G, ctx, card);
                     }).toThrow();
-
-                    expect(endTurn).toHaveBeenCalledTimes(0);
                   });
                 });
             });

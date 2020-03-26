@@ -1,6 +1,7 @@
 import React, {useContext, useState} from 'react';
 import {BoardProps} from 'boardgame.io/react';
 import {
+  ExpectedPoints,
   GameStatePlayerView,
   isSayableExpectedPoints,
   Moves,
@@ -13,8 +14,8 @@ import {
 import {I18nContext} from '../context/i18n';
 
 type ComponentProps = {
-  saySkip: Moves['saySkip'],
-  sayTake: Moves['sayTake'],
+  saySkip: () => void,
+  sayTake: (selectedExpectedPoints: ExpectedPoints, selectedTrumpMode: TrumpMode) => void,
   playersSaid: BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>['G']['playersSaid'],
 };
 export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
@@ -33,7 +34,7 @@ export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
     }
   };
   const onChangeExpectedPoint = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newExpectedPoint = parseInt(event.target.value, 10);
+    const newExpectedPoint = parseInt(event.target.value, 10) as ExpectedPoints;
     if (validExpectedPoints.includes(newExpectedPoint)) {
       setSelectedExpectedPoint(newExpectedPoint);
     }

@@ -34,6 +34,4 @@ export default (
     ...G.playersCards[ctx.currentPlayer].slice(cardIndexInPlayerCards + 1),
   ];
   G.playersCardPlayedInCurrentTurn[ctx.currentPlayer] = card;
-
-  ctx.events.endTurn();
 };

@@ -25,11 +25,8 @@ describe(`move/saySkip`, () => {
       numberOfSuccessiveSkipSaid: 0,
     };
 
-    const endTurn = jest.spyOn(ctx.events, 'endTurn');
-
     saySkip(G, ctx);
 
-    expect(endTurn).toHaveBeenCalledTimes(1);
     expect(G.numberOfSuccessiveSkipSaid).toBe(1);
     expect(G.playersSaid).toEqual({
       ...getDefaultGameState().playersSaid,
