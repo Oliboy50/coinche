@@ -15,7 +15,6 @@ export enum CardColor {
   Heart = 'Heart',
   Club = 'Club',
 }
-
 export enum CardName {
   Ace = 'Ace',
   Seven = 'Seven',
@@ -26,7 +25,6 @@ export enum CardName {
   Queen = 'Queen',
   King = 'King',
 }
-
 export interface Card {
   color: CardColor;
   name: CardName;
@@ -70,43 +68,8 @@ export enum TeamID {
   EastWest = 'EastWest',
 }
 
-export const validExpectedPoints = [
-  82,
-  85,
-  90,
-  95,
-  100,
-  105,
-  110,
-  115,
-  120,
-  125,
-  130,
-  135,
-  140,
-  145,
-  150,
-  155,
-  160,
-  165,
-  170,
-  175,
-  180,
-  185,
-  190,
-  195,
-  200,
-  205,
-  210,
-  215,
-  220,
-  225,
-  230,
-  235,
-  240,
-  245,
-  250,
-];
+export type ExpectedPoints = 82 | 85 | 90 | 95 | 100 | 105 | 110 | 115 | 120 | 125 | 130 | 135 | 140 | 145 | 150 | 155 | 160 | 165 | 170 | 175 | 180 | 185 | 190 | 195 | 200 | 205 | 210 | 215 | 220 | 225 | 230 | 235 | 240 | 245 | 250;
+export const validExpectedPoints: ExpectedPoints[] = [82, 85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185, 190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240, 245, 250];
 
 export enum AnnounceID {
   SquareAce = 'SquareAce',
@@ -177,21 +140,18 @@ export enum AnnounceID {
   TierceNineClub = 'TierceNineClub',
 }
 export const validAnnounceIDs: AnnounceID[] = Object.values(AnnounceID);
-
 export enum AnnounceGroup {
   Square = 'Square',
   Tierce = 'Tierce',
   Quarte = 'Quarte',
   Quinte = 'Quinte',
 }
-
 export interface BelotAnnounce {
   id: 'Belot';
   owner: PlayerID;
   ownerHasChosen: boolean;
   isSaid: boolean;
 }
-
 export interface Announce {
   id: AnnounceID;
   cards: Card[];
@@ -235,9 +195,9 @@ export interface GameState {
   nextDealer: PlayerID;
   attackingTeam: TeamID;
   defensingTeam: TeamID;
-  expectedPoints: number;
+  expectedPoints: ExpectedPoints | undefined;
   trumpMode: TrumpMode;
-  playersSaid: Record<PlayerID, 'skip' | { expectedPoints: number; trumpMode: TrumpMode } | undefined>;
+  playersSaid: Record<PlayerID, 'skip' | { expectedPoints: ExpectedPoints; trumpMode: TrumpMode } | undefined>;
   numberOfSuccessiveSkipSaid: number;
   belotAnnounce: BelotAnnounce | undefined;
   playersAnnounces: Record<PlayerID, PlayerAnnounce[]>;
@@ -258,7 +218,7 @@ export type GameStatePlayerView = Omit<GameState, 'availableCards' | 'playersCar
 
 export interface Moves {
   saySkip: () => void;
-  sayTake: (expectedPoints: number, mode: TrumpMode) => void;
+  sayTake: (expectedPoints: ExpectedPoints, mode: TrumpMode) => void;
   sayAnnounce: (announce: Announce) => void;
   sayBelotOrNot: (sayIt: boolean) => void;
   playCard: (card: Card) => void;
@@ -305,7 +265,7 @@ export const getPlayerPartner = (player: PlayerID): PlayerID => {
 };
 export const getPlayerTeam = (player: PlayerID): TeamID => [PlayerID.North, PlayerID.South].includes(player) ? TeamID.NorthSouth : TeamID.EastWest;
 
-export const isSayableExpectedPoints = (expectedPoints: number, playersSaid: GameState['playersSaid']): boolean => {
+export const isSayableExpectedPoints = (expectedPoints: ExpectedPoints, playersSaid: GameState['playersSaid']): boolean => {
   return Object.values(playersSaid)
     .filter(said => Boolean(said && said !== 'skip' && said.expectedPoints))
     // @ts-ignore StupidTypescript
@@ -2755,7 +2715,7 @@ export const getSetupGameState = (_: Context<PlayerID, PhaseID>): GameState => {
     trumpMode: TrumpMode.NoTrump,
     attackingTeam: TeamID.NorthSouth,
     defensingTeam: TeamID.EastWest,
-    expectedPoints: 0,
+    expectedPoints: undefined,
     howManyCardsToDealToEachPlayerBeforeTalking,
     howManyCardsToDealToEachPlayerAfterTalking,
     howManyPointsATeamMustReachToEndTheGame: 2000,
@@ -2859,7 +2819,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
         G.nextDealer = nextDealer;
         G.firstPlayerInCurrentTurn = nextDealer;
         G.playersCardPlayedInPreviousTurn = getDefaultPlayersCardPlayedInPreviousTurn();
-        G.expectedPoints = 0;
+        G.expectedPoints = undefined;
         G.trumpMode = TrumpMode.NoTrump;
         G.availableCards = ctx.random.Shuffle(getCards());
 
@@ -2881,7 +2841,6 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
       },
     },
     [PhaseID.Talk]: {
-      // @TODO: sayCoinche and saySurcoinche
       moves: {
         saySkip,
         sayTake,
@@ -2982,6 +2941,10 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
     },
     [PhaseID.CountPoints]: {
       onBegin: (G, ctx) => {
+        if (!G.expectedPoints) {
+          throw new Error();
+        }
+
         const winner = getWinner(G.playersCardPlayedInCurrentTurn, G.trumpMode, G.playersCardPlayedInCurrentTurn[G.firstPlayerInCurrentTurn]!.color);
         const winnerTeam = getPlayerTeam(winner);
 
@@ -3039,7 +3002,6 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
           return;
         }
 
-        // @TODO: congrats winning team
         console.log(`The winner is... ${gameWinnerTeam || 'both'}!`, G, ctx);
         ctx.events.endGame();
       },

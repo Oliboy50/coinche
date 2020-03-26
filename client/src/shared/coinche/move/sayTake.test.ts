@@ -11,7 +11,7 @@ describe(`move/sayTake`, () => {
     G = {
       ...getDefaultGameState(),
       numberOfSuccessiveSkipSaid: 3,
-      expectedPoints: 0,
+      expectedPoints: undefined,
       trumpMode: TrumpMode.NoTrump,
     };
     ctx = {
@@ -29,13 +29,13 @@ describe(`move/sayTake`, () => {
             .filter(expectedPoints => expectedPoints <= higherAlreadySaidExpectedPoints)
             // can't say take with invalid expected points
             .concat([
-              -1,
-              0,
-              80,
-              81,
-              100.5,
-              251,
-              255,
+              -1 as any,
+              0 as any,
+              80 as any,
+              81 as any,
+              100.5 as any,
+              251 as any,
+              255 as any,
             ])
             .forEach(expectedPoints => {
               it(`throws if expected points is ${expectedPoints}`, () => {

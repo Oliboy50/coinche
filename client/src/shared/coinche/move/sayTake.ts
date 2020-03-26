@@ -1,5 +1,6 @@
 import { Context } from 'boardgame.io/core';
 import {
+  ExpectedPoints,
   GameState,
   TrumpMode,
   PlayerID,
@@ -14,7 +15,7 @@ import {
 export default (
   G: GameState,
   ctx: Context<PlayerID, PhaseID>,
-  expectedPoints: number,
+  expectedPoints: ExpectedPoints,
   trumpMode: TrumpMode,
 ) => {
   if (!validExpectedPoints.includes(expectedPoints)) {

@@ -1,6 +1,7 @@
 import React, {useContext, useState} from 'react';
 import {BoardProps} from 'boardgame.io/react';
 import {
+  ExpectedPoints,
   GameStatePlayerView,
   isSayableExpectedPoints,
   Moves,
@@ -33,7 +34,7 @@ export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
     }
   };
   const onChangeExpectedPoint = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newExpectedPoint = parseInt(event.target.value, 10);
+    const newExpectedPoint = parseInt(event.target.value, 10) as ExpectedPoints;
     if (validExpectedPoints.includes(newExpectedPoint)) {
       setSelectedExpectedPoint(newExpectedPoint);
     }
