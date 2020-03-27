@@ -9,5 +9,6 @@ export default (
   G: GameState,
   _: Context<PlayerID, PhaseID>,
 ): void => {
+  G.__isWaitingBeforeMovingToNextPhase = false;
   G.__canMoveToNextPhase = true;
 };

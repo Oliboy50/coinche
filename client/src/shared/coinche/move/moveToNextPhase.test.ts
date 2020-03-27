@@ -16,14 +16,16 @@ describe(`move/moveToNextPhase`, () => {
     ctx = getDefaultContext();
   });
 
-  it(`sets __canMoveToNextPhase to true`, () => {
+  it(`sets __isWaitingBeforeMovingToNextPhase to false and __canMoveToNextPhase to true`, () => {
     G = {
       ...G,
+      __isWaitingBeforeMovingToNextPhase: true,
       __canMoveToNextPhase: false,
     };
 
     moveToNextPhase(G, ctx);
 
+    expect(G.__isWaitingBeforeMovingToNextPhase).toBe(false);
     expect(G.__canMoveToNextPhase).toBe(true);
   });
 });

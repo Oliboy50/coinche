@@ -4,7 +4,7 @@ import {
   TurnConfig,
 } from 'boardgame.io/core';
 import endTurn from './move/endTurn';
-import setIsWaitingBeforeMovingToNextPhase from './move/setIsWaitingBeforeMovingToNextPhase';
+import waitBeforeMovingToNextPhase from './move/waitBeforeMovingToNextPhase';
 import moveToNextPhase from './move/moveToNextPhase';
 import playCard from './move/playCard';
 import sayBelotOrNot from './move/sayBelotOrNot';
@@ -207,7 +207,7 @@ export type GameStatePlayerView = Omit<GameState, 'availableCards' | 'playersCar
 
 export interface Moves {
   endTurn: () => void;
-  setIsWaitingBeforeMovingToNextPhase: (isWaitingBeforeMovingToNextPhase: boolean) => void;
+  waitBeforeMovingToNextPhase: () => void;
   moveToNextPhase: () => void;
   saySkip: () => void;
   sayTake: (expectedPoints: ExpectedPoints, mode: TrumpMode) => void;
@@ -2849,7 +2849,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
     [PhaseID.Talk]: {
       moves: {
         endTurn,
-        setIsWaitingBeforeMovingToNextPhase,
+        waitBeforeMovingToNextPhase,
         moveToNextPhase,
         saySkip,
         sayTake,
@@ -2893,7 +2893,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
     [PhaseID.PlayCards]: {
       moves: {
         endTurn,
-        setIsWaitingBeforeMovingToNextPhase,
+        waitBeforeMovingToNextPhase,
         moveToNextPhase,
         sayAnnounce,
         sayBelotOrNot,

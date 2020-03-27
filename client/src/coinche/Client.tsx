@@ -117,10 +117,9 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
     moves.sayTake(selectedExpectedPoint, selectedTrumpMode);
 
     if (mustGoFromTalkPhaseToPlayCardsPhase(selectedExpectedPoint, 0)) {
-      moves.setIsWaitingBeforeMovingToNextPhase(true);
+      moves.waitBeforeMovingToNextPhase();
       setTimeout(() => {
         moves.moveToNextPhase();
-        moves.setIsWaitingBeforeMovingToNextPhase(false);
       }, 1000);
     } else {
       moves.endTurn();
@@ -134,10 +133,9 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
       numberOfSuccessiveSkipSaidBeforeSayingThisSkip >= (howManyPlayers - 1)
       || (G.expectedPoints && numberOfSuccessiveSkipSaidBeforeSayingThisSkip >= (howManyPlayers - 2))
     ) {
-      moves.setIsWaitingBeforeMovingToNextPhase(true);
+      moves.waitBeforeMovingToNextPhase();
       setTimeout(() => {
         moves.moveToNextPhase();
-        moves.setIsWaitingBeforeMovingToNextPhase(false);
       }, 1000);
     } else {
       moves.endTurn();
@@ -148,10 +146,9 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
     moves.playCard(card);
 
     if (numberOfCardsPlayedBeforePlayingThisCard >= (howManyPlayers - 1)) {
-      moves.setIsWaitingBeforeMovingToNextPhase(true);
+      moves.waitBeforeMovingToNextPhase();
       setTimeout(() => {
         moves.moveToNextPhase();
-        moves.setIsWaitingBeforeMovingToNextPhase(false);
       }, 2000);
     } else {
       moves.endTurn();
