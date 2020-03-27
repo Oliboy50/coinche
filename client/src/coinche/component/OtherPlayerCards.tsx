@@ -11,9 +11,9 @@ export const OtherPlayerCardsComponent: React.FunctionComponent<ComponentProps> 
   return (
     <div className="otherPlayerCards">
       {cards.map((card, i) => {
-        const cardKey = `${i}`;
+        const key = `${i}`;
 
-        return <CardComponent key={cardKey} card={card} />;
+        return <CardComponent key={key} card={card} />;
       })}
     </div>
   );

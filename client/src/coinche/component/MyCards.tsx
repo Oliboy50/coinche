@@ -122,7 +122,7 @@ export const MyCardsComponent: React.FunctionComponent<ComponentProps> = ({
   return (
     <div className="myCards">
       {cards.sort(sortCardsFromSpadeToHeartAndFromAceToSeven).map(card => {
-        const cardKey = `${card.color}${card.name}`;
+        const key = `${card.color}${card.name}`;
         const isBelotCard = belotCards.some(bc => isSameCard(bc, card));
         const playCardState = isMyTurnToPlayACard
           ? (isPlayableCard(card, cards, trumpMode, playersCardPlayedInCurrentTurn, firstPlayerInCurrentTurn, playerPartner) ? 'playable' : 'forbidden')
@@ -137,15 +137,14 @@ export const MyCardsComponent: React.FunctionComponent<ComponentProps> = ({
           playCard(card);
         } : undefined;
 
-        return <React.Fragment key={cardKey}>
-          <CardComponent
-            card={card}
-            playCardState={playCardState}
-            onCardClick={onCardClick}
-            onSayBelotClick={onSayBelotClick}
-            onDontSayBelotClick={onDontSayBelotClick}
-          />
-        </React.Fragment>;
+        return <CardComponent
+          key={key}
+          card={card}
+          playCardState={playCardState}
+          onCardClick={onCardClick}
+          onSayBelotClick={onSayBelotClick}
+          onDontSayBelotClick={onDontSayBelotClick}
+        />;
       })}
     </div>
   );
