@@ -278,6 +278,9 @@
 .hiddenAdditionalCards {
   margin-left: -25px;
 }
+.otherPlayer .hiddenAdditionalCards {
+  margin-left: -30px;
+}
 
 /**
  */

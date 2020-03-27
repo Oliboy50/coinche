@@ -4,6 +4,7 @@ import {
   TurnConfig,
 } from 'boardgame.io/core';
 import endTurn from './move/endTurn';
+import setIsWaitingBeforeMovingToNextPhase from './move/setIsWaitingBeforeMovingToNextPhase';
 import moveToNextPhase from './move/moveToNextPhase';
 import playCard from './move/playCard';
 import sayBelotOrNot from './move/sayBelotOrNot';
@@ -166,7 +167,8 @@ export interface SecretPlayerAnnounce {
 export interface GameState {
   // internal state
   __forcedNextPhase?: PhaseID;
-  __canMoveToNextPhase: boolean; // used to wait before moving to another phase
+  __isWaitingBeforeMovingToNextPhase: boolean;
+  __canMoveToNextPhase: boolean;
 
   // global state
   howManyPointsATeamMustReachToEndTheGame: number;
@@ -205,6 +207,7 @@ export type GameStatePlayerView = Omit<GameState, 'availableCards' | 'playersCar
 
 export interface Moves {
   endTurn: () => void;
+  setIsWaitingBeforeMovingToNextPhase: (isWaitingBeforeMovingToNextPhase: boolean) => void;
   moveToNextPhase: () => void;
   saySkip: () => void;
   sayTake: (expectedPoints: ExpectedPoints, mode: TrumpMode) => void;
@@ -2706,6 +2709,7 @@ export const getSetupGameState = (_: Context<PlayerID, PhaseID>): GameState => {
   const howManyCardsToDealToEachPlayerAfterTalking = Math.floor(howManyCards / howManyPlayers) - howManyCardsToDealToEachPlayerBeforeTalking;
 
   return {
+    __isWaitingBeforeMovingToNextPhase: false,
     __canMoveToNextPhase: false,
     availableCards,
     playersCards: getDefaultPlayersCards(),
@@ -2845,6 +2849,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
     [PhaseID.Talk]: {
       moves: {
         endTurn,
+        setIsWaitingBeforeMovingToNextPhase,
         moveToNextPhase,
         saySkip,
         sayTake,
@@ -2888,6 +2893,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
     [PhaseID.PlayCards]: {
       moves: {
         endTurn,
+        setIsWaitingBeforeMovingToNextPhase,
         moveToNextPhase,
         sayAnnounce,
         sayBelotOrNot,

@@ -33,8 +33,6 @@ import {PlayerSaidAnnounceGroupsComponent} from './component/PlayerSaidAnnounceG
 import {InfoComponent} from './component/Info';
 import {HiddenStackedCardsComponent} from './component/HiddenStackedCards';
 
-let isWaitingBeforeMovingToNextPhase = false;
-
 const getTurnIndicatorClassForPosition = (
   position: PlayerScreenPosition,
   currentPhaseNeedsToWaitForAPlayerMove: boolean,
@@ -119,10 +117,10 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
     moves.sayTake(selectedExpectedPoint, selectedTrumpMode);
 
     if (mustGoFromTalkPhaseToPlayCardsPhase(selectedExpectedPoint, 0)) {
-      isWaitingBeforeMovingToNextPhase = true;
+      moves.setIsWaitingBeforeMovingToNextPhase(true);
       setTimeout(() => {
         moves.moveToNextPhase();
-        isWaitingBeforeMovingToNextPhase = false;
+        moves.setIsWaitingBeforeMovingToNextPhase(false);
       }, 1000);
     } else {
       moves.endTurn();
@@ -136,10 +134,10 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
       numberOfSuccessiveSkipSaidBeforeSayingThisSkip >= (howManyPlayers - 1)
       || (G.expectedPoints && numberOfSuccessiveSkipSaidBeforeSayingThisSkip >= (howManyPlayers - 2))
     ) {
-      isWaitingBeforeMovingToNextPhase = true;
+      moves.setIsWaitingBeforeMovingToNextPhase(true);
       setTimeout(() => {
         moves.moveToNextPhase();
-        isWaitingBeforeMovingToNextPhase = false;
+        moves.setIsWaitingBeforeMovingToNextPhase(false);
       }, 1000);
     } else {
       moves.endTurn();
@@ -150,10 +148,10 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
     moves.playCard(card);
 
     if (numberOfCardsPlayedBeforePlayingThisCard >= (howManyPlayers - 1)) {
-      isWaitingBeforeMovingToNextPhase = true;
+      moves.setIsWaitingBeforeMovingToNextPhase(true);
       setTimeout(() => {
         moves.moveToNextPhase();
-        isWaitingBeforeMovingToNextPhase = false;
+        moves.setIsWaitingBeforeMovingToNextPhase(false);
       }, 2000);
     } else {
       moves.endTurn();
@@ -187,7 +185,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
         </div>
         <div className="playerName">{getPlayerNameByID(gameMetadata, topPlayerID)}</div>
         <div className="playerTalks">
-          {currentPhaseIsTalk && (!currentPlayerIsTopPlayer || isWaitingBeforeMovingToNextPhase) && G.playersSaid[topPlayerID] && (
+          {currentPhaseIsTalk && (!currentPlayerIsTopPlayer || G.__isWaitingBeforeMovingToNextPhase) && G.playersSaid[topPlayerID] && (
             <PlayerSaidComponent playerSaid={G.playersSaid[topPlayerID]}/>
           )}
           {currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && topPlayerSaidAnnounces.length > 0 && (
@@ -208,7 +206,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
         </div>
         <div className="playerName">{getPlayerNameByID(gameMetadata, leftPlayerID)}</div>
         <div className="playerTalks">
-          {currentPhaseIsTalk && (!currentPlayerIsLeftPlayer || isWaitingBeforeMovingToNextPhase) && G.playersSaid[leftPlayerID] && (
+          {currentPhaseIsTalk && (!currentPlayerIsLeftPlayer || G.__isWaitingBeforeMovingToNextPhase) && G.playersSaid[leftPlayerID] && (
             <PlayerSaidComponent playerSaid={G.playersSaid[leftPlayerID]}/>
           )}
           {currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && leftPlayerSaidAnnounces.length > 0 && (
@@ -226,7 +224,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
         </div>
         <div className="playerName">{getPlayerNameByID(gameMetadata, rightPlayerID)}</div>
         <div className="playerTalks">
-          {currentPhaseIsTalk && (!currentPlayerIsRightPlayer || isWaitingBeforeMovingToNextPhase) && G.playersSaid[rightPlayerID] && (
+          {currentPhaseIsTalk && (!currentPlayerIsRightPlayer || G.__isWaitingBeforeMovingToNextPhase) && G.playersSaid[rightPlayerID] && (
             <PlayerSaidComponent playerSaid={G.playersSaid[rightPlayerID]}/>
           )}
           {currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && rightPlayerSaidAnnounces.length > 0 && (
@@ -241,7 +239,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
 
       <div className={`myPlayer player bottom ${getTurnIndicatorClassForPosition('bottom', currentPhaseNeedsToWaitForAPlayerMove, currentPlayerIsTopPlayer, currentPlayerIsLeftPlayer, currentPlayerIsRightPlayer, currentPlayerIsBottomPlayer)}`}>
         <div className="playerTalks">
-          {currentPhaseIsTalk && (!currentPlayerIsBottomPlayer || isWaitingBeforeMovingToNextPhase) && G.playersSaid[bottomPlayerID] && (
+          {currentPhaseIsTalk && (!currentPlayerIsBottomPlayer || G.__isWaitingBeforeMovingToNextPhase) && G.playersSaid[bottomPlayerID] && (
             <PlayerSaidComponent playerSaid={G.playersSaid[bottomPlayerID]}/>
           )}
           {currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && bottomPlayerSaidAnnounces.length > 0 && (
@@ -249,16 +247,16 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
           )}
         </div>
         <div className="menu">
-          {!isWaitingBeforeMovingToNextPhase && currentPhaseIsPlayCards && isNotFirstPlayCardTurn && (
+          {!G.__isWaitingBeforeMovingToNextPhase && currentPhaseIsPlayCards && isNotFirstPlayCardTurn && (
             <PreviousCardsPlayedMenuComponent
               isDisplayedPreviousCardsPlayed={isDisplayedPreviousCardsPlayed}
               toggleIsDisplayedPreviousCardsPlayed={() => setIsDisplayedPreviousCardsPlayed(!isDisplayedPreviousCardsPlayed)}
             />
           )}
-          {!isWaitingBeforeMovingToNextPhase && !isDisplayedPreviousCardsPlayed && currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && currentPlayerIsBottomPlayer && (
+          {!G.__isWaitingBeforeMovingToNextPhase && !isDisplayedPreviousCardsPlayed && currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && currentPlayerIsBottomPlayer && (
             <SayAnnounceMenuComponent sayAnnounce={moves.sayAnnounce} availableAnnounces={G.playerAnnounces.filter(a => !a.isSaid).map(a => a.announce)} />
           )}
-          {!isWaitingBeforeMovingToNextPhase && !isDisplayedPreviousCardsPlayed && currentPhaseIsTalk && currentPlayerIsBottomPlayer && (
+          {!G.__isWaitingBeforeMovingToNextPhase && !isDisplayedPreviousCardsPlayed && currentPhaseIsTalk && currentPlayerIsBottomPlayer && (
             <TalkMenuComponent
               saySkip={saySkip}
               sayTake={sayTake}
@@ -270,7 +268,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
         {!isDisplayedPreviousCardsPlayed && (
           <MyCardsComponent
             cards={G.playerCards}
-            isMyTurnToPlayACard={!isWaitingBeforeMovingToNextPhase && currentPhaseIsPlayCards && currentPlayerIsBottomPlayer}
+            isMyTurnToPlayACard={!G.__isWaitingBeforeMovingToNextPhase && currentPhaseIsPlayCards && currentPlayerIsBottomPlayer}
             playCard={playCard}
             trumpMode={G.trumpMode}
             playersCardPlayedInCurrentTurn={G.playersCardPlayedInCurrentTurn}
