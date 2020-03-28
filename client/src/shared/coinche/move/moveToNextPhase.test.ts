@@ -16,16 +16,18 @@ describe(`move/moveToNextPhase`, () => {
     ctx = getDefaultContext();
   });
 
-  it(`sets __isWaitingBeforeMovingToNextPhase to false and __canMoveToNextPhase to true`, () => {
+  it(`sets __isWaitingBeforeMovingToNextPhase to false and __canMoveToNextPhase to true and ends the current player turn`, () => {
     G = {
       ...G,
       __isWaitingBeforeMovingToNextPhase: true,
       __canMoveToNextPhase: false,
     };
+    const endTurnSpy = jest.spyOn(ctx.events, 'endTurn');
 
     moveToNextPhase(G, ctx);
 
     expect(G.__isWaitingBeforeMovingToNextPhase).toBe(false);
     expect(G.__canMoveToNextPhase).toBe(true);
+    expect(endTurnSpy).toHaveBeenCalledTimes(1);
   });
 });

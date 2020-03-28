@@ -16,7 +16,7 @@ describe(`move/endTurn`, () => {
     ctx = getDefaultContext();
   });
 
-  it(`sets __canMoveToNextPhase to true`, () => {
+  it(`ends the current player turn`, () => {
     const endTurnSpy = jest.spyOn(ctx.events, 'endTurn');
 
     endTurn(G, ctx);
