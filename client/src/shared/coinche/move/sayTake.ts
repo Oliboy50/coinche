@@ -28,6 +28,7 @@ export default (
     throw new Error('Must say a higher expected points');
   }
 
+  G.isCurrentSayTakeCoinched = false;
   G.numberOfSuccessiveSkipSaid = 0;
   G.attackingTeam = getPlayerTeam(ctx.currentPlayer);
   G.defensingTeam = G.attackingTeam === TeamID.NorthSouth ? TeamID.EastWest : TeamID.NorthSouth;

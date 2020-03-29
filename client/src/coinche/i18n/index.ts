@@ -17,6 +17,8 @@ export type I18n = {
   TalkMenu: {
     takeButton: string;
     skipButton: string;
+    coincheButton: string;
+    surcoincheButton: string;
   },
   PreviousCardsPlayedMenu: {
     displayPreviousCardsPlayed: string;
@@ -24,6 +26,8 @@ export type I18n = {
   },
   PlayerSaid: {
     skip: string;
+    coinche: string;
+    surcoinche: string;
   },
   SayAnnounceMenu: {
     noAvailableAnnounce: string;

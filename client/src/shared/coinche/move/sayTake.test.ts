@@ -10,6 +10,7 @@ describe(`move/sayTake`, () => {
   beforeEach(() => {
     G = {
       ...getDefaultGameState(),
+      isCurrentSayTakeCoinched: true,
       numberOfSuccessiveSkipSaid: 3,
       expectedPoints: undefined,
       trumpMode: TrumpMode.NoTrump,
@@ -51,10 +52,11 @@ describe(`move/sayTake`, () => {
           validExpectedPoints
             .filter(expectedPoints => expectedPoints > higherAlreadySaidExpectedPoints)
             .forEach(expectedPoints => {
-              it(`sets attacking and defensing team, expected points to ${expectedPoints} and trump mode to ${trumpMode} and reset number of successive skip said`, () => {
+              it(`sets attacking and defensing team, isCurrentSayTakeCoinched to false, expected points to ${expectedPoints} and trump mode to ${trumpMode} and resets number of successive skip said`, () => {
                 sayTake(G, ctx, expectedPoints, trumpMode);
 
                 expect(G.numberOfSuccessiveSkipSaid).toBe(0);
+                expect(G.isCurrentSayTakeCoinched).toBe(false);
                 expect(G.attackingTeam).toBe(TeamID.NorthSouth);
                 expect(G.defensingTeam).toBe(TeamID.EastWest);
                 expect(G.expectedPoints).toBe(expectedPoints);

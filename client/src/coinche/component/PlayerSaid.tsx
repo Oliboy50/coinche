@@ -14,19 +14,27 @@ type ComponentProps = {
 export const PlayerSaidComponent: React.FunctionComponent<ComponentProps> = ({
   playerSaid,
 }) => {
+  const rootElementClassName = 'playerSaid';
+
   const i18n = useContext(I18nContext);
 
   if (!playerSaid) {
     return null;
   }
 
+  if (playerSaid === 'skip') {
+    return <div className={rootElementClassName}>{i18n.PlayerSaid.skip}</div>;
+  }
+
+  if (playerSaid === 'coinche') {
+    return <div className={rootElementClassName}>{i18n.PlayerSaid.coinche}</div>;
+  }
+
+  if (playerSaid === 'surcoinche') {
+    return <div className={rootElementClassName}>{i18n.PlayerSaid.surcoinche}</div>;
+  }
+
   return (
-    <div className="playerSaid">
-      {playerSaid === 'skip' ? (
-        i18n.PlayerSaid.skip
-      ) : (
-        `${playerSaid.expectedPoints} ${i18n.trumpMode[playerSaid.trumpMode]}`
-      )}
-    </div>
+    <div className={rootElementClassName}>{`${playerSaid.expectedPoints} ${i18n.trumpMode[playerSaid.trumpMode]}`}</div>
   );
 };

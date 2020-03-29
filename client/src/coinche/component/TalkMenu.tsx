@@ -16,11 +16,17 @@ import {I18nContext} from '../context/i18n';
 type ComponentProps = {
   saySkip: () => void,
   sayTake: (selectedExpectedPoints: ExpectedPoints, selectedTrumpMode: TrumpMode) => void,
+  sayCoinche: () => void,
+  displaySayCoincheButton: boolean,
+  displaySaySurcoincheButton: boolean,
   playersSaid: BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>['G']['playersSaid'],
 };
 export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
   saySkip,
   sayTake,
+  sayCoinche,
+  displaySayCoincheButton,
+  displaySaySurcoincheButton,
   playersSaid,
 }) => {
   const i18n = useContext(I18nContext);
@@ -63,6 +69,9 @@ export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
         ))}
       </select>
       <button onClick={() => sayTake(selectedExpectedPoint, selectedTrumpMode)} data-testid="button sayTake">{i18n.TalkMenu.takeButton}</button>
+      {(displaySayCoincheButton || displaySaySurcoincheButton) && (
+        <button className="sayCoincheButton" onClick={() => sayCoinche()} data-testid="button sayCoinche">{displaySaySurcoincheButton ? i18n.TalkMenu.surcoincheButton : i18n.TalkMenu.coincheButton}</button>
+      )}
       <button className="saySkipButton" onClick={() => saySkip()} data-testid="button saySkip">{i18n.TalkMenu.skipButton}</button>
     </div>
   );

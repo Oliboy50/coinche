@@ -275,11 +275,13 @@
   z-index: 12;
   transform: rotate(-12deg);
 }
+/* @TODO: don't need it if constraint by parent size */
 .hiddenAdditionalCards {
   margin-left: -25px;
 }
+/* @TODO: don't need it if constraint by parent size */
 .otherPlayer .hiddenAdditionalCards {
-  margin-left: -30px;
+  margin-left: -35px;
 }
 
 /**
@@ -298,18 +300,21 @@
   font-weight: bold;
 }
 .talk {
-  display: grid;
-  grid-template-columns: 25% 25% 25% 25%;
+  display: flex;
+  flex-wrap: wrap;
 }
 .talk > * {
+  flex: 1 1 auto;
   font-size: 20px;
-  background-color: rgba(110,220,250, .5);
-  color: black;
   font-weight: bold;
 }
-.talk > .saySkipButton {
+.talk > .sayCoincheButton {
   background-color: rgba(178,34,34, .8);
   color: white;
+}
+.talk > .saySkipButton {
+  background-color: rgba(110,220,250, .5);
+  color: black;
 }
 .toggleIsDisplayedPreviousCardsPlayed {
   display: grid;

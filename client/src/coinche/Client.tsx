@@ -17,8 +17,8 @@ import {
   getPlayerPartner,
   getPlayerTeam,
   isSameCard,
-  mustGoFromTalkPhaseToPlayCardsPhase,
   howManyPlayers,
+  validExpectedPoints,
 } from '../shared/coinche';
 import {PlayerScreenPosition, getPlayerIDForPosition} from './service/getPlayerIDForPosition';
 import {getPlayerNameByID} from './service/getPlayerNameByID';
@@ -116,7 +116,20 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
   const sayTake = (selectedExpectedPoint: ExpectedPoints, selectedTrumpMode: TrumpMode) => {
     moves.sayTake(selectedExpectedPoint, selectedTrumpMode);
 
-    if (mustGoFromTalkPhaseToPlayCardsPhase(selectedExpectedPoint, 0)) {
+    if (selectedExpectedPoint === validExpectedPoints[validExpectedPoints.length - 1]) {
+      moves.waitBeforeMovingToNextPhase();
+      setTimeout(() => {
+        moves.moveToNextPhase();
+      }, 1000);
+    } else {
+      moves.endTurn();
+    }
+  };
+  const sayCoinche = () => {
+    const isCurrentSayTakeCoinchedBeforeSayingCoinche = G.isCurrentSayTakeCoinched;
+    moves.sayCoinche();
+
+    if (isCurrentSayTakeCoinchedBeforeSayingCoinche) {
       moves.waitBeforeMovingToNextPhase();
       setTimeout(() => {
         moves.moveToNextPhase();
@@ -257,6 +270,9 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
             <TalkMenuComponent
               saySkip={saySkip}
               sayTake={sayTake}
+              sayCoinche={sayCoinche}
+              displaySayCoincheButton={Boolean(G.expectedPoints)}
+              displaySaySurcoincheButton={G.isCurrentSayTakeCoinched}
               playersSaid={G.playersSaid}
             />
           )}

@@ -106,9 +106,13 @@ export const fr: I18n = {
   TalkMenu: {
     takeButton: 'Prendre',
     skipButton: 'Passer',
+    coincheButton: 'Coincher',
+    surcoincheButton: 'Surcoincher',
   },
   PlayerSaid: {
     skip: 'Je passe',
+    coinche: 'Je coinche',
+    surcoinche: 'Je surcoinche',
   },
   SayAnnounceMenu: {
     noAvailableAnnounce: 'Aucune annonce disponible',
