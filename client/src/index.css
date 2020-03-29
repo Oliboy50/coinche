@@ -19,7 +19,7 @@ body {
   margin-top: 40px;
 }
 .hidden {
-  /*display: none;*/
+  display: none;
 }
 .phase {
   border: none;

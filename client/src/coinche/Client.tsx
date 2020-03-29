@@ -10,6 +10,7 @@ import {
   Moves,
   PhaseID,
   PlayerID,
+  SayTakeLevel,
   SecretPlayerAnnounce,
   TeamID,
   TrumpMode,
@@ -87,8 +88,9 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
   const isNotFirstPlayCardTurn = G.playersCardPlayedInPreviousTurn !== undefined;
 
   const [isDisplayedPreviousCardsPlayed, setIsDisplayedPreviousCardsPlayed] = useState(false);
-
   const playedCards = isDisplayedPreviousCardsPlayed ? G.playersCardPlayedInPreviousTurn : G.playersCardPlayedInCurrentTurn;
+
+  const bottomPlayerSelectedTrumpMode: SayTakeLevel[] = (Object.entries(G.playersSaid).filter(([p, said]) => !(p !== bottomPlayerID || said === 'skip' || said === 'coinche' || said === 'surcoinche')) as [string, SayTakeLevel][]).map(([_, said]) => said);
 
   const belotCards = getBelotCards(G.trumpMode);
   const displayableAnnouncesByPlayerID: Record<PlayerID, { playerName: string; announces: (Announce | BelotAnnounce)[] }> = {
@@ -273,6 +275,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
               sayCoinche={sayCoinche}
               displaySayCoincheButton={Boolean(G.expectedPoints)}
               displaySaySurcoincheButton={G.isCurrentSayTakeCoinched}
+              selectedTrumpModeDefaultValue={bottomPlayerSelectedTrumpMode.length ? bottomPlayerSelectedTrumpMode[0].trumpMode : undefined}
               playersSaid={G.playersSaid}
             />
           )}

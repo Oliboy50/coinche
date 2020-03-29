@@ -19,6 +19,8 @@ type ComponentProps = {
   sayCoinche: () => void,
   displaySayCoincheButton: boolean,
   displaySaySurcoincheButton: boolean,
+  selectedTrumpModeDefaultValue: TrumpMode | undefined,
+  // @TODO: stop to rely directly on playersSaid
   playersSaid: BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>['G']['playersSaid'],
 };
 export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
@@ -27,16 +29,19 @@ export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
   sayCoinche,
   displaySayCoincheButton,
   displaySaySurcoincheButton,
+  selectedTrumpModeDefaultValue,
   playersSaid,
 }) => {
   const i18n = useContext(I18nContext);
-  const [selectedTrumpMode, setSelectedTrumpMode] = useState(validTrumpModes[0]);
+  const [selectedTrumpMode, setSelectedTrumpMode] = useState(selectedTrumpModeDefaultValue);
   const [selectedExpectedPoint, setSelectedExpectedPoint] = useState(validExpectedPoints[0]);
 
   const onChangeTrumpMode = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newTrumpMode = event.target.value as TrumpMode;
     if (validTrumpModes.includes(newTrumpMode)) {
       setSelectedTrumpMode(newTrumpMode);
+    } else {
+      setSelectedTrumpMode(undefined);
     }
   };
   const onChangeExpectedPoint = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -62,13 +67,14 @@ export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
         ))}
       </select>
       <select value={selectedTrumpMode} onChange={onChangeTrumpMode} data-testid="select sayTakeTrumpMode">
+        <option value="">{i18n.TalkMenu.selectTrumpModeDefaultMessage}</option>
         {validTrumpModes.map(trumpMode => (
           <option value={trumpMode} key={`trumpMode_${trumpMode}`}>
             {i18n.trumpMode[trumpMode]}
           </option>
         ))}
       </select>
-      <button onClick={() => sayTake(selectedExpectedPoint, selectedTrumpMode)} data-testid="button sayTake">{i18n.TalkMenu.takeButton}</button>
+      <button disabled={!selectedTrumpMode} onClick={selectedTrumpMode ? () => sayTake(selectedExpectedPoint, selectedTrumpMode) : undefined} data-testid="button sayTake">{i18n.TalkMenu.takeButton}</button>
       {(displaySayCoincheButton || displaySaySurcoincheButton) && (
         <button className="sayCoincheButton" onClick={() => sayCoinche()} data-testid="button sayCoinche">{displaySaySurcoincheButton ? i18n.TalkMenu.surcoincheButton : i18n.TalkMenu.coincheButton}</button>
       )}
