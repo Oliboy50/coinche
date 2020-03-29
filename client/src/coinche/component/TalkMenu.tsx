@@ -1,12 +1,6 @@
 import React, {useContext, useState} from 'react';
-import {BoardProps} from 'boardgame.io/react';
 import {
   ExpectedPoints,
-  GameStatePlayerView,
-  isSayableExpectedPoints,
-  Moves,
-  PhaseID,
-  PlayerID,
   TrumpMode,
   validExpectedPoints,
   validTrumpModes,
@@ -15,26 +9,27 @@ import {I18nContext} from '../context/i18n';
 
 type ComponentProps = {
   saySkip: () => void,
+  canSayTake: boolean,
   sayTake: (selectedExpectedPoints: ExpectedPoints, selectedTrumpMode: TrumpMode) => void,
+  canSayCoinche: boolean,
+  canSaySurcoinche: boolean,
   sayCoinche: () => void,
-  displaySayCoincheButton: boolean,
-  displaySaySurcoincheButton: boolean,
   selectedTrumpModeDefaultValue: TrumpMode | undefined,
-  // @TODO: stop to rely directly on playersSaid
-  playersSaid: BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>['G']['playersSaid'],
+  sayableExpectedPoints: ExpectedPoints[],
 };
 export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
   saySkip,
+  canSayTake,
   sayTake,
   sayCoinche,
-  displaySayCoincheButton,
-  displaySaySurcoincheButton,
+  canSayCoinche,
+  canSaySurcoinche,
   selectedTrumpModeDefaultValue,
-  playersSaid,
+  sayableExpectedPoints,
 }) => {
   const i18n = useContext(I18nContext);
   const [selectedTrumpMode, setSelectedTrumpMode] = useState(selectedTrumpModeDefaultValue);
-  const [selectedExpectedPoint, setSelectedExpectedPoint] = useState(validExpectedPoints[0]);
+  const [selectedExpectedPoint, setSelectedExpectedPoint] = useState(sayableExpectedPoints.length ? sayableExpectedPoints[0] : undefined);
 
   const onChangeTrumpMode = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newTrumpMode = event.target.value as TrumpMode;
@@ -51,22 +46,16 @@ export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
     }
   };
 
-  const sayableExpectedPoints = validExpectedPoints.filter(expectedPoint => isSayableExpectedPoints(expectedPoint, playersSaid));
-  // Force selectedExpectedPoint to be at least the minimum sayable expectedPoints when playersSaid changes
-  if (sayableExpectedPoints.length && sayableExpectedPoints[0] > selectedExpectedPoint) {
-    setSelectedExpectedPoint(sayableExpectedPoints[0]);
-  }
-
   return (
     <div className="talk">
-      <select value={selectedExpectedPoint} onChange={onChangeExpectedPoint} data-testid="select sayTakeExpectedPoint">
+      <select disabled={!canSayTake} value={selectedExpectedPoint} onChange={onChangeExpectedPoint} data-testid="select sayTakeExpectedPoint">
         {sayableExpectedPoints.map(expectedPoint => (
           <option value={expectedPoint} key={`expectedPoint_${expectedPoint}`}>
             {expectedPoint}
           </option>
         ))}
       </select>
-      <select value={selectedTrumpMode} onChange={onChangeTrumpMode} data-testid="select sayTakeTrumpMode">
+      <select disabled={!canSayTake} value={selectedTrumpMode} onChange={onChangeTrumpMode} data-testid="select sayTakeTrumpMode">
         <option value="">{i18n.TalkMenu.selectTrumpModeDefaultMessage}</option>
         {validTrumpModes.map(trumpMode => (
           <option value={trumpMode} key={`trumpMode_${trumpMode}`}>
@@ -74,9 +63,9 @@ export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
           </option>
         ))}
       </select>
-      <button disabled={!selectedTrumpMode} onClick={selectedTrumpMode ? () => sayTake(selectedExpectedPoint, selectedTrumpMode) : undefined} data-testid="button sayTake">{i18n.TalkMenu.takeButton}</button>
-      {(displaySayCoincheButton || displaySaySurcoincheButton) && (
-        <button className="sayCoincheButton" onClick={() => sayCoinche()} data-testid="button sayCoinche">{displaySaySurcoincheButton ? i18n.TalkMenu.surcoincheButton : i18n.TalkMenu.coincheButton}</button>
+      <button disabled={!canSayTake || !selectedTrumpMode} onClick={(selectedExpectedPoint && selectedTrumpMode) ? () => sayTake(selectedExpectedPoint, selectedTrumpMode) : undefined} data-testid="button sayTake">{i18n.TalkMenu.takeButton}</button>
+      {(canSayCoinche || canSaySurcoinche) && (
+        <button className="sayCoincheButton" onClick={() => sayCoinche()} data-testid="button sayCoinche">{canSaySurcoinche ? i18n.TalkMenu.surcoincheButton : i18n.TalkMenu.coincheButton}</button>
       )}
       <button className="saySkipButton" onClick={() => saySkip()} data-testid="button saySkip">{i18n.TalkMenu.skipButton}</button>
     </div>

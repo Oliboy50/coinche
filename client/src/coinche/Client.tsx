@@ -10,7 +10,6 @@ import {
   Moves,
   PhaseID,
   PlayerID,
-  SayTakeLevel,
   SecretPlayerAnnounce,
   TeamID,
   TrumpMode,
@@ -19,7 +18,7 @@ import {
   getPlayerTeam,
   isSameCard,
   howManyPlayers,
-  validExpectedPoints,
+  validExpectedPoints, isSayableExpectedPoints,
 } from '../shared/coinche';
 import {PlayerScreenPosition, getPlayerIDForPosition} from './service/getPlayerIDForPosition';
 import {getPlayerNameByID} from './service/getPlayerNameByID';
@@ -90,7 +89,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
   const [isDisplayedPreviousCardsPlayed, setIsDisplayedPreviousCardsPlayed] = useState(false);
   const playedCards = isDisplayedPreviousCardsPlayed ? G.playersCardPlayedInPreviousTurn : G.playersCardPlayedInCurrentTurn;
 
-  const bottomPlayerSelectedTrumpMode: SayTakeLevel[] = (Object.entries(G.playersSaid).filter(([p, said]) => !(p !== bottomPlayerID || said === 'skip' || said === 'coinche' || said === 'surcoinche')) as [string, SayTakeLevel][]).map(([_, said]) => said);
+  const lastBottomPlayerTakeSaid = G.lastPlayersTakeSaid[bottomPlayerID];
 
   const belotCards = getBelotCards(G.trumpMode);
   const displayableAnnouncesByPlayerID: Record<PlayerID, { playerName: string; announces: (Announce | BelotAnnounce)[] }> = {
@@ -271,12 +270,14 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
           {!G.__isWaitingBeforeMovingToNextPhase && !isDisplayedPreviousCardsPlayed && currentPhaseIsTalk && currentPlayerIsBottomPlayer && (
             <TalkMenuComponent
               saySkip={saySkip}
+              // @TODO: canSayTake
+              canSayTake={true}
               sayTake={sayTake}
               sayCoinche={sayCoinche}
-              displaySayCoincheButton={Boolean(G.expectedPoints)}
-              displaySaySurcoincheButton={G.isCurrentSayTakeCoinched}
-              selectedTrumpModeDefaultValue={bottomPlayerSelectedTrumpMode.length ? bottomPlayerSelectedTrumpMode[0].trumpMode : undefined}
-              playersSaid={G.playersSaid}
+              canSayCoinche={Boolean(G.expectedPoints)}
+              canSaySurcoinche={G.isCurrentSayTakeCoinched}
+              selectedTrumpModeDefaultValue={lastBottomPlayerTakeSaid ? lastBottomPlayerTakeSaid.trumpMode : undefined}
+              sayableExpectedPoints={validExpectedPoints.filter(expectedPoint => isSayableExpectedPoints(expectedPoint, G.playersSaid))}
             />
           )}
         </div>

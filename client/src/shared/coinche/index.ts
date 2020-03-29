@@ -193,6 +193,7 @@ export interface GameState {
   expectedPoints: ExpectedPoints | undefined;
   trumpMode: TrumpMode;
   playersSaid: Record<PlayerID, 'skip' | SayTakeLevel | SayCoincheLevel | undefined>;
+  lastPlayersTakeSaid: Record<PlayerID, SayTakeLevel | undefined>;
   numberOfSuccessiveSkipSaid: number;
   isCurrentSayTakeCoinched: boolean;
   belotAnnounce: BelotAnnounce | undefined;
@@ -2718,6 +2719,12 @@ const getDefaultPlayersSaid = () => ({
   [PlayerID.South]: undefined,
   [PlayerID.West]: undefined,
 });
+const getDefaultLastPlayersTakeSaid = () => ({
+  [PlayerID.North]: undefined,
+  [PlayerID.East]: undefined,
+  [PlayerID.South]: undefined,
+  [PlayerID.West]: undefined,
+});
 
 export const getSetupGameState = (_: Context<PlayerID, PhaseID>): GameState => {
   const dealer = PlayerID.North;
@@ -2744,6 +2751,7 @@ export const getSetupGameState = (_: Context<PlayerID, PhaseID>): GameState => {
     howManyCardsToDealToEachPlayerAfterTalking,
     howManyPointsATeamMustReachToEndTheGame: 2000,
     playersSaid: getDefaultPlayersSaid(),
+    lastPlayersTakeSaid: getDefaultLastPlayersTakeSaid(),
     numberOfSuccessiveSkipSaid: 0,
     isCurrentSayTakeCoinched: false,
     belotAnnounce: undefined,
@@ -2839,6 +2847,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
         G.playersCards = getDefaultPlayersCards();
         G.wonTeamsCards = getDefaultWonTeamsCards();
         G.playersSaid = getDefaultPlayersSaid();
+        G.lastPlayersTakeSaid = getDefaultLastPlayersTakeSaid();
         G.belotAnnounce = undefined;
         G.playersAnnounces = getDefaultPlayersAnnounces();
         G.numberOfSuccessiveSkipSaid = 0;

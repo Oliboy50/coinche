@@ -307,6 +307,8 @@
   flex: 1 1 auto;
   font-size: 20px;
   font-weight: bold;
+  background-color: rgba(100, 100, 100, .1);
+  color: black;
 }
 .talk > .sayCoincheButton {
   background-color: rgba(178,34,34, .8);
@@ -314,7 +316,6 @@
 }
 .talk > .saySkipButton {
   background-color: rgba(110,220,250, .5);
-  color: black;
 }
 .toggleIsDisplayedPreviousCardsPlayed {
   display: grid;

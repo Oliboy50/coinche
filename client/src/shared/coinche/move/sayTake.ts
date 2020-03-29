@@ -38,4 +38,8 @@ export default (
     ...G.playersSaid,
     [ctx.currentPlayer]: { expectedPoints, trumpMode },
   };
+  G.lastPlayersTakeSaid = {
+    ...G.lastPlayersTakeSaid,
+    [ctx.currentPlayer]: { expectedPoints, trumpMode },
+  };
 };
