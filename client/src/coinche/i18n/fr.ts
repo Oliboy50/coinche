@@ -104,7 +104,7 @@ export const fr: I18n = {
     announcesOf: (playerName) => `Annonces de ${playerName} :`,
   },
   TalkMenu: {
-    selectTrumpModeDefaultMessage: 'atout... ?',
+    selectTrumpModePlaceholder: `Choisir l'atout…`,
     takeButton: 'Prendre',
     skipButton: 'Passer',
     coincheButton: 'Coincher',

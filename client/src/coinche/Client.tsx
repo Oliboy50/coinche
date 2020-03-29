@@ -274,8 +274,8 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
               canSayTake={true}
               sayTake={sayTake}
               sayCoinche={sayCoinche}
-              canSayCoinche={Boolean(G.expectedPoints)}
-              canSaySurcoinche={G.isCurrentSayTakeCoinched}
+              canSayCoinche={Boolean(G.expectedPoints && G.attackingTeam === opponentTeamID && !G.isCurrentSayTakeCoinched)}
+              canSaySurcoinche={G.isCurrentSayTakeCoinched && G.attackingTeam === partnerTeamID}
               selectedTrumpModeDefaultValue={lastBottomPlayerTakeSaid ? lastBottomPlayerTakeSaid.trumpMode : undefined}
               sayableExpectedPoints={validExpectedPoints.filter(expectedPoint => isSayableExpectedPoints(expectedPoint, G.playersSaid))}
             />

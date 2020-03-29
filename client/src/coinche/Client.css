@@ -307,8 +307,10 @@
   flex: 1 1 auto;
   font-size: 20px;
   font-weight: bold;
-  background-color: rgba(100, 100, 100, .1);
   color: black;
+}
+.talk > select {
+  background-color: rgba(100, 100, 100, .1);
 }
 .talk > .sayCoincheButton {
   background-color: rgba(178,34,34, .8);

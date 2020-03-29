@@ -56,7 +56,7 @@ export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
         ))}
       </select>
       <select disabled={!canSayTake} value={selectedTrumpMode} onChange={onChangeTrumpMode} data-testid="select sayTakeTrumpMode">
-        <option value="">{i18n.TalkMenu.selectTrumpModeDefaultMessage}</option>
+        <option value="">{i18n.TalkMenu.selectTrumpModePlaceholder}</option>
         {validTrumpModes.map(trumpMode => (
           <option value={trumpMode} key={`trumpMode_${trumpMode}`}>
             {i18n.trumpMode[trumpMode]}

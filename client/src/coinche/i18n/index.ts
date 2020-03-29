@@ -15,7 +15,7 @@ export type I18n = {
     announcesOf: (playerName: string) => string;
   },
   TalkMenu: {
-    selectTrumpModeDefaultMessage: string;
+    selectTrumpModePlaceholder: string;
     takeButton: string;
     skipButton: string;
     coincheButton: string;
