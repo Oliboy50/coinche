@@ -3024,8 +3024,8 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
         const defensingTeamBelotAnnouncePoints = (G.belotAnnounce && G.belotAnnounce.isSaid && getPlayerTeam(G.belotAnnounce.owner) === G.defensingTeam) ? 20 : 0;
 
         // compute announces points
-        const northSouthTeamAnnouncesPoints = [...G.playersAnnounces[PlayerID.North], ...G.playersAnnounces[PlayerID.South]].filter(a => a.isCardsDisplayable).reduce((acc, a) => getAnnouncePoints(a.announce, G.currentSayTake!.trumpMode), 0);
-        const eastWestTeamAnnouncesPoints = [...G.playersAnnounces[PlayerID.East], ...G.playersAnnounces[PlayerID.West]].filter(a => a.isCardsDisplayable).reduce((acc, a) => getAnnouncePoints(a.announce, G.currentSayTake!.trumpMode), 0);
+        const northSouthTeamAnnouncesPoints = [...G.playersAnnounces[PlayerID.North], ...G.playersAnnounces[PlayerID.South]].filter(a => a.isCardsDisplayable).reduce((acc, a) => acc + getAnnouncePoints(a.announce, G.currentSayTake!.trumpMode), 0);
+        const eastWestTeamAnnouncesPoints = [...G.playersAnnounces[PlayerID.East], ...G.playersAnnounces[PlayerID.West]].filter(a => a.isCardsDisplayable).reduce((acc, a) => acc + getAnnouncePoints(a.announce, G.currentSayTake!.trumpMode), 0);
         const attackingTeamAnnouncesPoints = G.attackingTeam === TeamID.NorthSouth ? northSouthTeamAnnouncesPoints : eastWestTeamAnnouncesPoints;
         const defensingTeamAnnouncesPoints = G.defensingTeam === TeamID.NorthSouth ? northSouthTeamAnnouncesPoints : eastWestTeamAnnouncesPoints;
 
