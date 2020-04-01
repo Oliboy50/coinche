@@ -1,6 +1,6 @@
 import React, {useContext} from 'react';
 import {I18nContext} from '../context/i18n';
-import {Announce, BelotAnnounce, PlayerID, TeamID, TrumpMode} from '../../shared/coinche';
+import {Announce, BelotAnnounce, ExpectedPoints, PlayerID, TeamID, TrumpMode} from '../../shared/coinche';
 
 type ComponentProps = {
   partnerTeamID: TeamID;
@@ -9,7 +9,7 @@ type ComponentProps = {
   howManyPointsATeamMustReachToEndTheGame: number;
   attackingTeamID?: TeamID;
   trumpMode?: TrumpMode;
-  expectedPoints?: number;
+  expectedPoints?: ExpectedPoints;
   displayablePlayersAnnounces: Record<PlayerID, { playerName: string; announces: (Announce | BelotAnnounce)[] }>;
 };
 export const InfoComponent: React.FunctionComponent<ComponentProps> = ({

@@ -28,12 +28,15 @@ export default (
     throw new Error('Must say a higher expected points');
   }
 
-  G.isCurrentSayTakeCoinched = false;
   G.numberOfSuccessiveSkipSaid = 0;
   G.attackingTeam = getPlayerTeam(ctx.currentPlayer);
   G.defensingTeam = G.attackingTeam === TeamID.NorthSouth ? TeamID.EastWest : TeamID.NorthSouth;
-  G.expectedPoints = expectedPoints;
-  G.trumpMode = trumpMode;
+  G.currentSayTake = {
+    playerID: ctx.currentPlayer,
+    trumpMode,
+    expectedPoints,
+    sayCoincheLevel: undefined,
+  };
   G.playersSaid = {
     ...G.playersSaid,
     [ctx.currentPlayer]: { expectedPoints, trumpMode },

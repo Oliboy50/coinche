@@ -1,5 +1,5 @@
 import {Context} from 'boardgame.io/core';
-import {GameState, PhaseID, PlayerID} from '../index';
+import {GameState, PhaseID, PlayerID, TrumpMode} from '../index';
 import sayCoinche from './sayCoinche';
 import {getDefaultContext, getDefaultGameState} from './__testHelper';
 
@@ -10,6 +10,7 @@ describe(`move/sayCoinche`, () => {
   beforeEach(() => {
     G = {
       ...getDefaultGameState(),
+      currentSayTake: {trumpMode: TrumpMode.NoTrump, expectedPoints: 82, playerID: PlayerID.North, sayCoincheLevel: undefined},
       numberOfSuccessiveSkipSaid: 3,
     };
     ctx = {
@@ -18,15 +19,15 @@ describe(`move/sayCoinche`, () => {
     };
   });
 
-  it(`says coinche and sets isCurrentSayTakeCoinched to true and resets number of successive skip said when isCurrentSayTakeCoinched is false`, () => {
+  it(`sets currentSayTake.sayCoincheLevel to 'coinche' and resets number of successive skip said when currentSayTake.sayCoincheLevel is undefined`, () => {
     G = {
       ...G,
-      isCurrentSayTakeCoinched: false,
+      currentSayTake: { ...G.currentSayTake!, sayCoincheLevel: undefined },
     };
 
     sayCoinche(G, ctx);
 
-    expect(G.isCurrentSayTakeCoinched).toBe(true);
+    expect(G.currentSayTake!.sayCoincheLevel).toBe('coinche');
     expect(G.numberOfSuccessiveSkipSaid).toBe(0);
     expect(G.playersSaid).toEqual({
       ...getDefaultGameState().playersSaid,
@@ -34,18 +35,30 @@ describe(`move/sayCoinche`, () => {
     });
   });
 
-  it(`says surcoinche and resets number of successive skip said when isCurrentSayTakeCoinched is true`, () => {
+  it(`sets currentSayTake.sayCoincheLevel to 'surcoinche' and resets number of successive skip said when currentSayTake.sayCoincheLevel is 'coinche'`, () => {
     G = {
       ...G,
-      isCurrentSayTakeCoinched: true,
+      currentSayTake: { ...G.currentSayTake!, sayCoincheLevel: 'coinche' },
     };
 
     sayCoinche(G, ctx);
 
+    expect(G.currentSayTake!.sayCoincheLevel).toBe('surcoinche');
     expect(G.numberOfSuccessiveSkipSaid).toBe(0);
     expect(G.playersSaid).toEqual({
       ...getDefaultGameState().playersSaid,
       [PlayerID.North]: 'surcoinche',
     });
+  });
+
+  it(`throws when currentSayTake.sayCoincheLevel is 'surcoinche'`, () => {
+    G = {
+      ...G,
+      currentSayTake: { ...G.currentSayTake!, sayCoincheLevel: 'surcoinche' },
+    };
+
+    expect(() => {
+      sayCoinche(G, ctx);
+    }).toThrow();
   });
 });

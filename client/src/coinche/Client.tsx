@@ -91,7 +91,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
 
   const lastBottomPlayerTakeSaid = G.lastPlayersTakeSaid[bottomPlayerID];
 
-  const belotCards = getBelotCards(G.trumpMode);
+  const belotCards = G.currentSayTake ? getBelotCards(G.currentSayTake.trumpMode) : [];
   const displayableAnnouncesByPlayerID: Record<PlayerID, { playerName: string; announces: (Announce | BelotAnnounce)[] }> = {
     [PlayerID.North]: {
       playerName: getPlayerNameByID(gameMetadata, PlayerID.North),
@@ -127,7 +127,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
     }
   };
   const sayCoinche = () => {
-    const isCurrentSayTakeCoinchedBeforeSayingCoinche = G.isCurrentSayTakeCoinched;
+    const isCurrentSayTakeCoinchedBeforeSayingCoinche = Boolean(G.currentSayTake && G.currentSayTake.sayCoincheLevel === 'coinche');
     moves.sayCoinche();
 
     if (isCurrentSayTakeCoinchedBeforeSayingCoinche) {
@@ -145,7 +145,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
 
     if (
       numberOfSuccessiveSkipSaidBeforeSayingThisSkip >= (howManyPlayers - 1)
-      || (G.expectedPoints && numberOfSuccessiveSkipSaidBeforeSayingThisSkip >= (howManyPlayers - 2))
+      || (G.currentSayTake && numberOfSuccessiveSkipSaidBeforeSayingThisSkip >= (howManyPlayers - 2))
     ) {
       moves.waitBeforeMovingToNextPhase();
       setTimeout(() => {
@@ -177,9 +177,9 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
           partnerTeamPoints={G.teamsPoints[partnerTeamID]}
           opponentTeamPoints={G.teamsPoints[opponentTeamID]}
           howManyPointsATeamMustReachToEndTheGame={G.howManyPointsATeamMustReachToEndTheGame}
-          attackingTeamID={currentPhaseIsPlayCards ? G.attackingTeam : undefined}
-          trumpMode={currentPhaseIsPlayCards ? G.trumpMode : undefined}
-          expectedPoints={currentPhaseIsPlayCards ? G.expectedPoints : undefined}
+          attackingTeamID={G.currentSayTake && G.attackingTeam}
+          trumpMode={G.currentSayTake?.trumpMode}
+          expectedPoints={G.currentSayTake?.expectedPoints}
           displayablePlayersAnnounces={displayableAnnouncesByPlayerID}
         />
       </div>
@@ -270,29 +270,28 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
           {!G.__isWaitingBeforeMovingToNextPhase && !isDisplayedPreviousCardsPlayed && currentPhaseIsTalk && currentPlayerIsBottomPlayer && (
             <TalkMenuComponent
               saySkip={saySkip}
-              // @TODO: canSayTake
-              canSayTake={true}
+              canSayTake={!(G.currentSayTake && G.currentSayTake.sayCoincheLevel === 'coinche' && G.currentSayTake.playerID === playerID)}
               sayTake={sayTake}
               sayCoinche={sayCoinche}
-              canSayCoinche={Boolean(G.expectedPoints && G.attackingTeam === opponentTeamID && !G.isCurrentSayTakeCoinched)}
-              canSaySurcoinche={G.isCurrentSayTakeCoinched && G.attackingTeam === partnerTeamID}
+              canSayCoinche={Boolean(G.currentSayTake && G.attackingTeam === opponentTeamID && G.currentSayTake.sayCoincheLevel !== 'coinche')}
+              canSaySurcoinche={Boolean(G.currentSayTake && G.attackingTeam === partnerTeamID && G.currentSayTake.sayCoincheLevel === 'coinche')}
               selectedTrumpModeDefaultValue={lastBottomPlayerTakeSaid ? lastBottomPlayerTakeSaid.trumpMode : undefined}
               sayableExpectedPoints={validExpectedPoints.filter(expectedPoint => isSayableExpectedPoints(expectedPoint, G.playersSaid))}
             />
           )}
         </div>
         <div className="currentPlayerIndicator" />
-        {!isDisplayedPreviousCardsPlayed && (
+        {!isDisplayedPreviousCardsPlayed && G.currentSayTake && (
           <MyCardsComponent
             cards={G.playerCards}
             isMyTurnToPlayACard={!G.__isWaitingBeforeMovingToNextPhase && currentPhaseIsPlayCards && currentPlayerIsBottomPlayer}
             playCard={playCard}
-            trumpMode={G.trumpMode}
+            trumpMode={G.currentSayTake.trumpMode}
             playersCardPlayedInCurrentTurn={G.playersCardPlayedInCurrentTurn}
             firstPlayerInCurrentTurn={G.firstPlayerInCurrentTurn}
             playerPartner={getPlayerPartner(bottomPlayerID)}
             sayBelotOrNot={moves.sayBelotOrNot}
-            belotCards={belotCards.every(bc => G.playerCards.some(pc => isSameCard(bc, pc))) ? belotCards : []}
+            belotCards={(belotCards.length && belotCards.every(bc => G.playerCards.some(pc => isSameCard(bc, pc)))) ? belotCards : []}
           />
         )}
         <div className="additionalCards">

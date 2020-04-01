@@ -1,28 +1,29 @@
-import { Context } from 'boardgame.io/core';
+import {Context} from 'boardgame.io/core';
 import {
   CardName,
-  GameState, getCardColorAssociatedToTrumpMode,
-  getCards,
-  getTrumpModeAssociatedToCardColor,
-  isCardBeatingTheOtherCards,
-  isSameCard,
+  GameState,
   PhaseID,
   PlayerID,
   TrumpMode,
   validTrumpModes,
+  getCardColorAssociatedToTrumpMode,
+  getCards,
+  getTrumpModeAssociatedToCardColor,
+  isCardBeatingTheOtherCards,
+  isSameCard,
 } from '../index';
 import playCard from './playCard';
-import {
-  getDefaultContext,
-  getDefaultGameState,
-} from './__testHelper';
+import {getDefaultContext, getDefaultGameState} from './__testHelper';
 
 describe(`move/playCard`, () => {
   let G: GameState;
   let ctx: Context<PlayerID, PhaseID>;
 
   beforeEach(() => {
-    G = getDefaultGameState();
+    G = {
+      ...getDefaultGameState(),
+      currentSayTake: {trumpMode: TrumpMode.NoTrump, expectedPoints: 82, playerID: PlayerID.North, sayCoincheLevel: undefined},
+    };
     ctx = {
       ...getDefaultContext(),
       currentPlayer: PlayerID.North,
@@ -37,7 +38,7 @@ describe(`move/playCard`, () => {
         beforeEach(() => {
           G = {
             ...G,
-            trumpMode,
+            currentSayTake: { ...G.currentSayTake!, trumpMode},
           };
         });
 
@@ -378,7 +379,7 @@ describe(`move/playCard`, () => {
         beforeEach(() => {
           G = {
             ...G,
-            trumpMode,
+            currentSayTake: { ...G.currentSayTake!, trumpMode},
           };
         });
 

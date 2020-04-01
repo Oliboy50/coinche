@@ -9,18 +9,24 @@ export default (
   G: GameState,
   ctx: Context<PlayerID, PhaseID>,
 ): void => {
+  if (!G.currentSayTake || G.currentSayTake.sayCoincheLevel === 'surcoinche') {
+    throw new Error();
+  }
+
   G.numberOfSuccessiveSkipSaid = 0;
 
-  if (G.isCurrentSayTakeCoinched) {
+  if (G.currentSayTake.sayCoincheLevel === 'coinche') {
+    G.currentSayTake.sayCoincheLevel = 'surcoinche';
     G.playersSaid = {
       ...G.playersSaid,
       [ctx.currentPlayer]: 'surcoinche',
     };
-  } else {
-    G.isCurrentSayTakeCoinched = true;
-    G.playersSaid = {
-      ...G.playersSaid,
-      [ctx.currentPlayer]: 'coinche',
-    };
+    return;
   }
+
+  G.currentSayTake.sayCoincheLevel = 'coinche';
+  G.playersSaid = {
+    ...G.playersSaid,
+    [ctx.currentPlayer]: 'coinche',
+  };
 };

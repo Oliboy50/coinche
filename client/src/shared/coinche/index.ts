@@ -170,6 +170,10 @@ export interface SayTakeLevel {
   trumpMode: TrumpMode;
 }
 export type SayCoincheLevel = 'coinche' | 'surcoinche';
+export interface SayTake extends SayTakeLevel {
+  playerID: PlayerID;
+  sayCoincheLevel: SayCoincheLevel | undefined;
+}
 export interface GameState {
   // internal state
   __forcedNextPhase?: PhaseID;
@@ -190,12 +194,10 @@ export interface GameState {
   nextDealer: PlayerID;
   attackingTeam: TeamID;
   defensingTeam: TeamID;
-  expectedPoints: ExpectedPoints | undefined;
-  trumpMode: TrumpMode;
   playersSaid: Record<PlayerID, 'skip' | SayTakeLevel | SayCoincheLevel | undefined>;
   lastPlayersTakeSaid: Record<PlayerID, SayTakeLevel | undefined>;
   numberOfSuccessiveSkipSaid: number;
-  isCurrentSayTakeCoinched: boolean;
+  currentSayTake: SayTake | undefined;
   belotAnnounce: BelotAnnounce | undefined;
   playersAnnounces: Record<PlayerID, PlayerAnnounce[]>;
 
@@ -271,16 +273,10 @@ export const isSayableExpectedPoints = (expectedPoints: ExpectedPoints, playersS
     .filter(said => Boolean(said && said !== 'skip' && said !== 'coinche' && said !== 'surcoinche')) as SayTakeLevel[])
     .every(said => said.expectedPoints < expectedPoints);
 };
-const getExpectedPointsValue = (playersSaid: GameState['playersSaid'], trumpMode: TrumpMode, expectedPoints: ExpectedPoints, isCurrentSayTakeCoinched: boolean): number => {
-  const trumpModePoints = trumpMode === TrumpMode.NoTrump ? (expectedPoints * 2) : expectedPoints;
+const getExpectedPointsValue = (currentSayTake: SayTake): number => {
+  const trumpModePoints = currentSayTake.trumpMode === TrumpMode.NoTrump ? (currentSayTake.expectedPoints * 2) : currentSayTake.expectedPoints;
 
-  if (Object.values(playersSaid).includes('surcoinche')) {
-    return trumpModePoints * 4;
-  } else if (isCurrentSayTakeCoinched) {
-    return trumpModePoints * 2;
-  } else {
-    return trumpModePoints;
-  }
+  return currentSayTake.sayCoincheLevel ? (currentSayTake.sayCoincheLevel === 'surcoinche' ? trumpModePoints * 4 : trumpModePoints * 2) : trumpModePoints;
 };
 
 export const getBelotCards = (trumpMode: TrumpMode): Card[] => {
@@ -2743,33 +2739,31 @@ export const getSetupGameState = (_: Context<PlayerID, PhaseID>): GameState => {
     dealer,
     nextDealer,
     firstPlayerInCurrentTurn: nextDealer,
-    trumpMode: TrumpMode.NoTrump,
     attackingTeam: TeamID.NorthSouth,
     defensingTeam: TeamID.EastWest,
-    expectedPoints: undefined,
     howManyCardsToDealToEachPlayerBeforeTalking,
     howManyCardsToDealToEachPlayerAfterTalking,
     howManyPointsATeamMustReachToEndTheGame: 2000,
     playersSaid: getDefaultPlayersSaid(),
     lastPlayersTakeSaid: getDefaultLastPlayersTakeSaid(),
     numberOfSuccessiveSkipSaid: 0,
-    isCurrentSayTakeCoinched: false,
+    currentSayTake: undefined,
     belotAnnounce: undefined,
     playersAnnounces: getDefaultPlayersAnnounces(),
     playersCardPlayedInCurrentTurn: getDefaultPlayersCardPlayedInCurrentTurn(),
     playersCardPlayedInPreviousTurn: getDefaultPlayersCardPlayedInPreviousTurn(),
   };
 };
-const mustGoFromTalkPhaseToPlayCardsPhase = (playersSaid: GameState['playersSaid'], expectedPoints: ExpectedPoints | undefined, numberOfSuccessiveSkipSaid: number): boolean => {
+const mustGoFromTalkPhaseToPlayCardsPhase = (currentSayTake: SayTake | undefined, numberOfSuccessiveSkipSaid: number): boolean => {
   return Boolean(
-    expectedPoints
+    currentSayTake
     && (
       // 3 successive skips
       numberOfSuccessiveSkipSaid >= (howManyPlayers - 1)
       // maximum validExpectedPoints
-      || expectedPoints === validExpectedPoints[validExpectedPoints.length - 1]
+      || currentSayTake.expectedPoints === validExpectedPoints[validExpectedPoints.length - 1]
       // surcoinche
-      || Object.values(playersSaid).includes('surcoinche')
+      || currentSayTake.sayCoincheLevel === 'surcoinche'
     ),
   );
 };
@@ -2851,13 +2845,11 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
         G.belotAnnounce = undefined;
         G.playersAnnounces = getDefaultPlayersAnnounces();
         G.numberOfSuccessiveSkipSaid = 0;
-        G.isCurrentSayTakeCoinched = false;
+        G.currentSayTake = undefined;
         G.dealer = dealer;
         G.nextDealer = nextDealer;
         G.firstPlayerInCurrentTurn = nextDealer;
         G.playersCardPlayedInPreviousTurn = getDefaultPlayersCardPlayedInPreviousTurn();
-        G.expectedPoints = undefined;
-        G.trumpMode = TrumpMode.NoTrump;
         G.availableCards = ctx.random.Shuffle(getCards());
 
         // deal cards before talking
@@ -2891,7 +2883,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
           return { next: PhaseID.Deal };
         }
 
-        if (G.__canMoveToNextPhase && mustGoFromTalkPhaseToPlayCardsPhase(G.playersSaid, G.expectedPoints, G.numberOfSuccessiveSkipSaid)) {
+        if (G.__canMoveToNextPhase && mustGoFromTalkPhaseToPlayCardsPhase(G.currentSayTake, G.numberOfSuccessiveSkipSaid)) {
           return { next: PhaseID.PlayCards };
         }
 
@@ -2902,7 +2894,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
 
         if (
           G.numberOfSuccessiveSkipSaid < howManyPlayers
-          && mustGoFromTalkPhaseToPlayCardsPhase(G.playersSaid, G.expectedPoints, G.numberOfSuccessiveSkipSaid)
+          && mustGoFromTalkPhaseToPlayCardsPhase(G.currentSayTake, G.numberOfSuccessiveSkipSaid)
         ) {
           getTurnOrder(G.nextDealer).forEach(playerID => {
             // deal remaining cards
@@ -2911,13 +2903,13 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
               G.playersCards[playerID].push(card!);
             }
             // list available announces
-            G.playersAnnounces[playerID] = getAnnouncesForCards(G.playersCards[playerID], G.trumpMode).map(announce => ({ announce, announceGroup: getAnnounceGroupByAnnounceID(announce.id), isCardsDisplayable: false, isSaid: false }));
+            G.playersAnnounces[playerID] = getAnnouncesForCards(G.playersCards[playerID], G.currentSayTake!.trumpMode).map(announce => ({ announce, announceGroup: getAnnounceGroupByAnnounceID(announce.id), isCardsDisplayable: false, isSaid: false }));
           });
 
           // set belot announce if available
-          const belotOwner = getBelotOwner(G.trumpMode, G.playersCards);
+          const belotOwner = getBelotOwner(G.currentSayTake!.trumpMode, G.playersCards);
           if (belotOwner) {
-            G.belotAnnounce = { id: 'Belot', owner: belotOwner, ownerHasChosen: false, isSaid: false };
+            G.belotAnnounce = {id: 'Belot', owner: belotOwner, ownerHasChosen: false, isSaid: false};
           }
         }
       },
@@ -2944,7 +2936,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
               : isPlayableCard(
                 card,
                 G.playersCards[player],
-                G.trumpMode,
+                G.currentSayTake!.trumpMode,
                 G.playersCardPlayedInCurrentTurn,
                 G.firstPlayerInCurrentTurn,
                 playerPartner,
@@ -2965,9 +2957,9 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
           if (
             allSaidPlayerAnnounces.length
             && allSaidPlayerAnnounces.every(a => !a.isCardsDisplayable)
-            && G.playersCards[G.firstPlayerInCurrentTurn].length <= (G.trumpMode === TrumpMode.NoTrump ? 5 : 6)
+            && G.playersCards[G.firstPlayerInCurrentTurn].length <= (G.currentSayTake!.trumpMode === TrumpMode.NoTrump ? 5 : 6)
           ) {
-            const bestAnnounceID = getWinningAnnounceID(allSaidPlayerAnnounces.map(a => a.announce.id), G.trumpMode);
+            const bestAnnounceID = getWinningAnnounceID(allSaidPlayerAnnounces.map(a => a.announce.id), G.currentSayTake!.trumpMode);
             if (bestAnnounceID) {
               const bestAnnounceBelongsToNorthSouthTeam = northSouthTeamSaidPlayerAnnounces.map(a => a.announce.id).includes(bestAnnounceID);
               G.playersAnnounces = {
@@ -2993,11 +2985,11 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
     },
     [PhaseID.CountPoints]: {
       onBegin: (G, ctx) => {
-        if (!G.expectedPoints) {
+        if (!G.currentSayTake) {
           throw new Error();
         }
 
-        const winner = getWinner(G.playersCardPlayedInCurrentTurn, G.trumpMode, G.playersCardPlayedInCurrentTurn[G.firstPlayerInCurrentTurn]!.color);
+        const winner = getWinner(G.playersCardPlayedInCurrentTurn, G.currentSayTake.trumpMode, G.playersCardPlayedInCurrentTurn[G.firstPlayerInCurrentTurn]!.color);
         const winnerTeam = getPlayerTeam(winner);
 
         // fill cards played in previous turn
@@ -3017,30 +3009,30 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
         }
 
         // compute Talk phase points
-        const talkPhasePoints = getExpectedPointsValue(G.playersSaid, G.trumpMode, G.expectedPoints, G.isCurrentSayTakeCoinched);
+        const talkPhasePoints = getExpectedPointsValue(G.currentSayTake);
 
         // compute capot (100) or last turn (10) extra points
         const attackingTeamExtraPoints = G.attackingTeam === winnerTeam  ? (!G.wonTeamsCards[G.defensingTeam].length ? 100 : 10) : 0;
         const defensingTeamExtraPoints = G.defensingTeam === winnerTeam  ? (!G.wonTeamsCards[G.attackingTeam].length ? 100 : 10) : 0;
 
         // compute cards points
-        const attackingTeamCardsPoints = G.wonTeamsCards[G.attackingTeam].reduce((acc, card) => acc + getCardPoints(card, G.trumpMode), 0);
-        const defensingTeamCardsPoints = G.wonTeamsCards[G.defensingTeam].reduce((acc, card) => acc + getCardPoints(card, G.trumpMode), 0);
+        const attackingTeamCardsPoints = G.wonTeamsCards[G.attackingTeam].reduce((acc, card) => acc + getCardPoints(card, G.currentSayTake!.trumpMode), 0);
+        const defensingTeamCardsPoints = G.wonTeamsCards[G.defensingTeam].reduce((acc, card) => acc + getCardPoints(card, G.currentSayTake!.trumpMode), 0);
 
         // compute belot announce points
         const attackingTeamBelotAnnouncePoints = (G.belotAnnounce && G.belotAnnounce.isSaid && getPlayerTeam(G.belotAnnounce.owner) === G.attackingTeam) ? 20 : 0;
         const defensingTeamBelotAnnouncePoints = (G.belotAnnounce && G.belotAnnounce.isSaid && getPlayerTeam(G.belotAnnounce.owner) === G.defensingTeam) ? 20 : 0;
 
         // compute announces points
-        const northSouthTeamAnnouncesPoints = [...G.playersAnnounces[PlayerID.North], ...G.playersAnnounces[PlayerID.South]].filter(a => a.isCardsDisplayable).reduce((acc, a) => getAnnouncePoints(a.announce, G.trumpMode), 0);
-        const eastWestTeamAnnouncesPoints = [...G.playersAnnounces[PlayerID.East], ...G.playersAnnounces[PlayerID.West]].filter(a => a.isCardsDisplayable).reduce((acc, a) => getAnnouncePoints(a.announce, G.trumpMode), 0);
+        const northSouthTeamAnnouncesPoints = [...G.playersAnnounces[PlayerID.North], ...G.playersAnnounces[PlayerID.South]].filter(a => a.isCardsDisplayable).reduce((acc, a) => getAnnouncePoints(a.announce, G.currentSayTake!.trumpMode), 0);
+        const eastWestTeamAnnouncesPoints = [...G.playersAnnounces[PlayerID.East], ...G.playersAnnounces[PlayerID.West]].filter(a => a.isCardsDisplayable).reduce((acc, a) => getAnnouncePoints(a.announce, G.currentSayTake!.trumpMode), 0);
         const attackingTeamAnnouncesPoints = G.attackingTeam === TeamID.NorthSouth ? northSouthTeamAnnouncesPoints : eastWestTeamAnnouncesPoints;
         const defensingTeamAnnouncesPoints = G.defensingTeam === TeamID.NorthSouth ? northSouthTeamAnnouncesPoints : eastWestTeamAnnouncesPoints;
 
         // check which team won the round then assign their points accordingly
         const attackingTeamTotalPoints = (attackingTeamExtraPoints + attackingTeamCardsPoints + attackingTeamBelotAnnouncePoints + attackingTeamAnnouncesPoints);
         const defensingTeamTotalPoints = (defensingTeamExtraPoints + defensingTeamCardsPoints + defensingTeamBelotAnnouncePoints + defensingTeamAnnouncesPoints);
-        if (attackingTeamTotalPoints >= G.expectedPoints && attackingTeamTotalPoints >= defensingTeamTotalPoints) {
+        if (attackingTeamTotalPoints >= G.currentSayTake.expectedPoints && attackingTeamTotalPoints >= defensingTeamTotalPoints) {
           G.teamsPoints[G.attackingTeam] += (attackingTeamTotalPoints + talkPhasePoints);
           G.teamsPoints[G.defensingTeam] += defensingTeamTotalPoints;
         } else {

@@ -20,7 +20,7 @@ export default (
   if (cardIndexInPlayerCards < 0 || !isPlayableCard(
     card,
     G.playersCards[ctx.currentPlayer],
-    G.trumpMode,
+    G.currentSayTake!.trumpMode,
     G.playersCardPlayedInCurrentTurn,
     G.firstPlayerInCurrentTurn,
     playerPartner,
