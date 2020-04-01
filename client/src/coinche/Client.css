@@ -319,6 +319,10 @@
 .talk > .saySkipButton {
   background-color: rgba(110,220,250, .5);
 }
+.talk button:disabled {
+  cursor: not-allowed;
+  opacity: .4;
+}
 .toggleIsDisplayedPreviousCardsPlayed {
   display: grid;
 }

@@ -268,11 +268,7 @@ export const getPlayerPartner = (player: PlayerID): PlayerID => {
 };
 export const getPlayerTeam = (player: PlayerID): TeamID => [PlayerID.North, PlayerID.South].includes(player) ? TeamID.NorthSouth : TeamID.EastWest;
 
-export const isSayableExpectedPoints = (expectedPoints: ExpectedPoints, playersSaid: GameState['playersSaid']): boolean => {
-  return (Object.values(playersSaid)
-    .filter(said => Boolean(said && said !== 'skip' && said !== 'coinche' && said !== 'surcoinche')) as SayTakeLevel[])
-    .every(said => said.expectedPoints < expectedPoints);
-};
+export const isSayableExpectedPoints = (expectedPoints: ExpectedPoints, currentSayTakeExpectedPoints: ExpectedPoints | undefined): boolean => expectedPoints > (currentSayTakeExpectedPoints || 0);
 const getExpectedPointsValue = (currentSayTake: SayTake): number => {
   const trumpModePoints = currentSayTake.trumpMode === TrumpMode.NoTrump ? (currentSayTake.expectedPoints * 2) : currentSayTake.expectedPoints;
 
@@ -2754,14 +2750,12 @@ export const getSetupGameState = (_: Context<PlayerID, PhaseID>): GameState => {
     playersCardPlayedInPreviousTurn: getDefaultPlayersCardPlayedInPreviousTurn(),
   };
 };
-const mustGoFromTalkPhaseToPlayCardsPhase = (currentSayTake: SayTake | undefined, numberOfSuccessiveSkipSaid: number): boolean => {
+const mustMoveFromTalkPhaseToPlayCardsPhase = (currentSayTake: SayTake | undefined, numberOfSuccessiveSkipSaid: number): boolean => {
   return Boolean(
     currentSayTake
     && (
       // 3 successive skips
       numberOfSuccessiveSkipSaid >= (howManyPlayers - 1)
-      // maximum validExpectedPoints
-      || currentSayTake.expectedPoints === validExpectedPoints[validExpectedPoints.length - 1]
       // surcoinche
       || currentSayTake.sayCoincheLevel === 'surcoinche'
     ),
@@ -2883,7 +2877,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
           return { next: PhaseID.Deal };
         }
 
-        if (G.__canMoveToNextPhase && mustGoFromTalkPhaseToPlayCardsPhase(G.currentSayTake, G.numberOfSuccessiveSkipSaid)) {
+        if (G.__canMoveToNextPhase && mustMoveFromTalkPhaseToPlayCardsPhase(G.currentSayTake, G.numberOfSuccessiveSkipSaid)) {
           return { next: PhaseID.PlayCards };
         }
 
@@ -2894,7 +2888,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
 
         if (
           G.numberOfSuccessiveSkipSaid < howManyPlayers
-          && mustGoFromTalkPhaseToPlayCardsPhase(G.currentSayTake, G.numberOfSuccessiveSkipSaid)
+          && mustMoveFromTalkPhaseToPlayCardsPhase(G.currentSayTake, G.numberOfSuccessiveSkipSaid)
         ) {
           getTurnOrder(G.nextDealer).forEach(playerID => {
             // deal remaining cards

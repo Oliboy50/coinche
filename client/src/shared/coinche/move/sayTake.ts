@@ -24,7 +24,7 @@ export default (
   if (!validTrumpModes.includes(trumpMode)) {
     throw new Error('Trump mode is not valid');
   }
-  if (!isSayableExpectedPoints(expectedPoints, G.playersSaid)) {
+  if (!isSayableExpectedPoints(expectedPoints, G.currentSayTake?.expectedPoints)) {
     throw new Error('Must say a higher expected points');
   }
 

@@ -17,8 +17,9 @@ import {
   getPlayerPartner,
   getPlayerTeam,
   isSameCard,
+  isSayableExpectedPoints,
   howManyPlayers,
-  validExpectedPoints, isSayableExpectedPoints,
+  validExpectedPoints,
 } from '../shared/coinche';
 import {PlayerScreenPosition, getPlayerIDForPosition} from './service/getPlayerIDForPosition';
 import {getPlayerNameByID} from './service/getPlayerNameByID';
@@ -116,15 +117,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
 
   const sayTake = (selectedExpectedPoint: ExpectedPoints, selectedTrumpMode: TrumpMode) => {
     moves.sayTake(selectedExpectedPoint, selectedTrumpMode);
-
-    if (selectedExpectedPoint === validExpectedPoints[validExpectedPoints.length - 1]) {
-      moves.waitBeforeMovingToNextPhase();
-      setTimeout(() => {
-        moves.moveToNextPhase();
-      }, 1000);
-    } else {
-      moves.endTurn();
-    }
+    moves.endTurn();
   };
   const sayCoinche = () => {
     const isCurrentSayTakeCoinchedBeforeSayingCoinche = Boolean(G.currentSayTake && G.currentSayTake.sayCoincheLevel === 'coinche');
@@ -276,7 +269,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
               canSayCoinche={Boolean(G.currentSayTake && G.attackingTeam === opponentTeamID && G.currentSayTake.sayCoincheLevel !== 'coinche')}
               canSaySurcoinche={Boolean(G.currentSayTake && G.attackingTeam === partnerTeamID && G.currentSayTake.sayCoincheLevel === 'coinche')}
               selectedTrumpModeDefaultValue={lastBottomPlayerTakeSaid ? lastBottomPlayerTakeSaid.trumpMode : undefined}
-              sayableExpectedPoints={validExpectedPoints.filter(expectedPoint => isSayableExpectedPoints(expectedPoint, G.playersSaid))}
+              sayableExpectedPoints={validExpectedPoints.filter(expectedPoint => isSayableExpectedPoints(expectedPoint, G.currentSayTake?.expectedPoints))}
             />
           )}
         </div>

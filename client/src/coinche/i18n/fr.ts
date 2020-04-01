@@ -6,7 +6,7 @@ const translatedTrumpMode = {
   [TrumpMode.TrumpDiamond]: 'Carreau',
   [TrumpMode.TrumpClub]: 'Trèfle',
   [TrumpMode.TrumpHeart]: 'Coeur',
-  [TrumpMode.NoTrump]: 'Sans Atout',
+  [TrumpMode.NoTrump]: 'Sans atout',
 };
 const translatedTeamType = {
   partner: 'Nous',

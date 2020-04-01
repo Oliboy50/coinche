@@ -48,22 +48,26 @@ export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
 
   return (
     <div className="talk">
-      <select disabled={!canSayTake} value={selectedExpectedPoint} onChange={onChangeExpectedPoint} data-testid="select sayTakeExpectedPoint">
-        {sayableExpectedPoints.map(expectedPoint => (
-          <option value={expectedPoint} key={`expectedPoint_${expectedPoint}`}>
-            {expectedPoint}
-          </option>
-        ))}
-      </select>
-      <select disabled={!canSayTake} value={selectedTrumpMode} onChange={onChangeTrumpMode} data-testid="select sayTakeTrumpMode">
-        <option value="">{i18n.TalkMenu.selectTrumpModePlaceholder}</option>
-        {validTrumpModes.map(trumpMode => (
-          <option value={trumpMode} key={`trumpMode_${trumpMode}`}>
-            {i18n.trumpMode[trumpMode]}
-          </option>
-        ))}
-      </select>
-      <button disabled={!canSayTake || !selectedTrumpMode} onClick={(selectedExpectedPoint && selectedTrumpMode) ? () => sayTake(selectedExpectedPoint, selectedTrumpMode) : undefined} data-testid="button sayTake">{i18n.TalkMenu.takeButton}</button>
+      {canSayTake && sayableExpectedPoints.length > 0 && (
+        <React.Fragment>
+          <select value={selectedExpectedPoint} onChange={onChangeExpectedPoint} data-testid="select sayTakeExpectedPoint">
+            {sayableExpectedPoints.map(expectedPoint => (
+              <option value={expectedPoint} key={`expectedPoint_${expectedPoint}`}>
+                {expectedPoint}
+              </option>
+            ))}
+          </select>
+          <select value={selectedTrumpMode} onChange={onChangeTrumpMode} data-testid="select sayTakeTrumpMode">
+            <option value="">{i18n.TalkMenu.selectTrumpModePlaceholder}</option>
+            {validTrumpModes.map(trumpMode => (
+              <option value={trumpMode} key={`trumpMode_${trumpMode}`}>
+                {i18n.trumpMode[trumpMode]}
+              </option>
+            ))}
+          </select>
+          <button disabled={!selectedTrumpMode} onClick={(selectedExpectedPoint && selectedTrumpMode) ? () => sayTake(selectedExpectedPoint, selectedTrumpMode) : undefined} data-testid="button sayTake">{i18n.TalkMenu.takeButton}</button>
+        </React.Fragment>
+      )}
       {(canSayCoinche || canSaySurcoinche) && (
         <button className="sayCoincheButton" onClick={() => sayCoinche()} data-testid="button sayCoinche">{canSaySurcoinche ? i18n.TalkMenu.surcoincheButton : i18n.TalkMenu.coincheButton}</button>
       )}
