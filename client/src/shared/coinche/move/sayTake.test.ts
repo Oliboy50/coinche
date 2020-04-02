@@ -10,13 +10,28 @@ describe(`move/sayTake`, () => {
   beforeEach(() => {
     G = {
       ...getDefaultGameState(),
-      currentSayTake: {trumpMode: TrumpMode.NoTrump, expectedPoints: 82, playerID: PlayerID.North, sayCoincheLevel: 'coinche'},
       numberOfSuccessiveSkipSaid: 3,
     };
     ctx = {
       ...getDefaultContext(),
       currentPlayer: PlayerID.North,
     };
+  });
+
+  it(`says take when no currentSayTake`, () => {
+    const expectedPoints = 82;
+    const trumpMode = TrumpMode.NoTrump;
+
+    G.currentSayTake = undefined;
+
+    sayTake(G, ctx, expectedPoints, trumpMode);
+
+    expect(G.currentSayTake).toEqual({
+      playerID: PlayerID.North,
+      sayCoincheLevel: undefined,
+      expectedPoints,
+      trumpMode,
+    });
   });
 
   validExpectedPoints.forEach(higherAlreadySaidExpectedPoints => {
@@ -38,8 +53,7 @@ describe(`move/sayTake`, () => {
             ])
             .forEach(expectedPoints => {
               it(`throws if expected points is ${expectedPoints}`, () => {
-                G.playersSaid[PlayerID.West] = { expectedPoints: higherAlreadySaidExpectedPoints, trumpMode};
-                G.playersSaid[PlayerID.South] = 'skip';
+                G.currentSayTake = {trumpMode: TrumpMode.NoTrump, expectedPoints: higherAlreadySaidExpectedPoints, playerID: PlayerID.West, sayCoincheLevel: 'coinche'};
 
                 expect(() => {
                   sayTake(G, ctx, expectedPoints, trumpMode);
@@ -47,31 +61,31 @@ describe(`move/sayTake`, () => {
               });
             });
 
-          validExpectedPoints
-            .filter(expectedPoints => expectedPoints > higherAlreadySaidExpectedPoints)
-            .forEach(expectedPoints => {
-              it(`says take with ${expectedPoints} ${trumpMode} and sets lastPlayersTakeSaid to ${expectedPoints} ${trumpMode}, attacking and defensing team, sayCoincheLevel to undefined, expectedPoints to ${expectedPoints} and trumpMode to ${trumpMode} and resets numberOfSuccessiveSkipSaid`, () => {
-                sayTake(G, ctx, expectedPoints, trumpMode);
+          validExpectedPoints.filter(expectedPoints => expectedPoints > higherAlreadySaidExpectedPoints).forEach(expectedPoints => {
+            it(`says take with ${expectedPoints} ${trumpMode} and sets lastPlayersTakeSaid to ${expectedPoints} ${trumpMode}, attacking and defensing team, sayCoincheLevel to undefined, expectedPoints to ${expectedPoints} and trumpMode to ${trumpMode} and resets numberOfSuccessiveSkipSaid`, () => {
+              G.currentSayTake = {trumpMode: TrumpMode.NoTrump, expectedPoints: higherAlreadySaidExpectedPoints, playerID: PlayerID.West, sayCoincheLevel: 'coinche'};
 
-                expect(G.numberOfSuccessiveSkipSaid).toBe(0);
-                expect(G.currentSayTake).toEqual({
-                  playerID: PlayerID.North,
-                  sayCoincheLevel: undefined,
-                  expectedPoints,
-                  trumpMode,
-                });
-                expect(G.attackingTeam).toBe(TeamID.NorthSouth);
-                expect(G.defensingTeam).toBe(TeamID.EastWest);
-                expect(G.playersSaid).toEqual({
-                  ...getDefaultGameState().playersSaid,
-                  [PlayerID.North]: { expectedPoints, trumpMode },
-                });
-                expect(G.lastPlayersTakeSaid).toEqual({
-                  ...getDefaultGameState().lastPlayersTakeSaid,
-                  [PlayerID.North]: { expectedPoints, trumpMode },
-                });
+              sayTake(G, ctx, expectedPoints, trumpMode);
+
+              expect(G.numberOfSuccessiveSkipSaid).toBe(0);
+              expect(G.currentSayTake).toEqual({
+                playerID: PlayerID.North,
+                sayCoincheLevel: undefined,
+                expectedPoints,
+                trumpMode,
+              });
+              expect(G.attackingTeam).toBe(TeamID.NorthSouth);
+              expect(G.defensingTeam).toBe(TeamID.EastWest);
+              expect(G.playersSaid).toEqual({
+                ...getDefaultGameState().playersSaid,
+                [PlayerID.North]: { expectedPoints, trumpMode },
+              });
+              expect(G.lastPlayersTakeSaid).toEqual({
+                ...getDefaultGameState().lastPlayersTakeSaid,
+                [PlayerID.North]: { expectedPoints, trumpMode },
               });
             });
+          });
         });
       });
     });
