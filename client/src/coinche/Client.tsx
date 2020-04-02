@@ -274,12 +274,12 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
           )}
         </div>
         <div className="currentPlayerIndicator" />
-        {!isDisplayedPreviousCardsPlayed && G.currentSayTake && (
+        {!isDisplayedPreviousCardsPlayed && (
           <MyCardsComponent
             cards={G.playerCards}
             isMyTurnToPlayACard={!G.__isWaitingBeforeMovingToNextPhase && currentPhaseIsPlayCards && currentPlayerIsBottomPlayer}
             playCard={playCard}
-            trumpMode={G.currentSayTake.trumpMode}
+            trumpMode={G.currentSayTake?.trumpMode}
             playersCardPlayedInCurrentTurn={G.playersCardPlayedInCurrentTurn}
             firstPlayerInCurrentTurn={G.firstPlayerInCurrentTurn}
             playerPartner={getPlayerPartner(bottomPlayerID)}

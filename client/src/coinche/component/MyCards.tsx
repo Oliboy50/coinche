@@ -101,7 +101,7 @@ type ComponentProps = {
   cards: Card[],
   isMyTurnToPlayACard: boolean,
   playCard: (card: Card) => void,
-  trumpMode: TrumpMode,
+  trumpMode: TrumpMode | undefined,
   playersCardPlayedInCurrentTurn: GameState['playersCardPlayedInCurrentTurn'],
   firstPlayerInCurrentTurn: PlayerID,
   playerPartner: PlayerID,
@@ -124,7 +124,7 @@ export const MyCardsComponent: React.FunctionComponent<ComponentProps> = ({
       {cards.sort(sortCardsFromSpadeToHeartAndFromAceToSeven).map(card => {
         const key = `${card.color}${card.name}`;
         const isBelotCard = belotCards.some(bc => isSameCard(bc, card));
-        const playCardState = isMyTurnToPlayACard
+        const playCardState = (isMyTurnToPlayACard && trumpMode)
           ? (isPlayableCard(card, cards, trumpMode, playersCardPlayedInCurrentTurn, firstPlayerInCurrentTurn, playerPartner) ? 'playable' : 'forbidden')
           : undefined;
         const onCardClick = (playCardState === 'playable' && !isBelotCard) ? () => playCard(card) : undefined;
