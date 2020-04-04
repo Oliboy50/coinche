@@ -8,7 +8,7 @@
     "playerLeft   playedCardsArea playerRight "
     "playerBottom playerBottom    playerBottom";
   grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 200px 250px auto;
+  grid-template-rows: 210px 240px auto;
 }
 .board > .player.top {
   grid-area: playerTop;
@@ -383,6 +383,12 @@
 .info {
   font-size: 18px;
   overflow: auto;
+}
+.info .label {
+  text-align: left;
+}
+.info .data {
+  text-align: right;
 }
 .info .teamPoints {
   display: flex;

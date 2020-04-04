@@ -11,6 +11,8 @@ export type I18n = {
     opponentTeam: string;
     attackingPlayer: string;
     goal: string;
+    coinched: string;
+    surcoinched: string;
     announcesOf: (playerName: string) => string;
   },
   TalkMenu: {

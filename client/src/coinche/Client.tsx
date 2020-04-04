@@ -166,7 +166,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
     <div className="board">
       <div className="info">
         <InfoComponent
-          partnerTeamID={partnerTeamID}
+          sayCoincheLevel={G.currentSayTake?.sayCoincheLevel}
           partnerTeamPoints={G.teamsPoints[partnerTeamID]}
           opponentTeamPoints={G.teamsPoints[opponentTeamID]}
           howManyPointsATeamMustReachToEndTheGame={G.howManyPointsATeamMustReachToEndTheGame}

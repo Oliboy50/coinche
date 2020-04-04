@@ -1,9 +1,16 @@
 import React, {useContext} from 'react';
 import {I18nContext} from '../context/i18n';
-import {Announce, BelotAnnounce, ExpectedPoints, PlayerID, TeamID, TrumpMode} from '../../shared/coinche';
+import {
+  Announce,
+  BelotAnnounce,
+  ExpectedPoints,
+  PlayerID,
+  SayCoincheLevel,
+  TrumpMode,
+} from '../../shared/coinche';
 
 type ComponentProps = {
-  partnerTeamID: TeamID;
+  sayCoincheLevel?: SayCoincheLevel;
   partnerTeamPoints: number;
   opponentTeamPoints: number;
   howManyPointsATeamMustReachToEndTheGame: number;
@@ -13,7 +20,7 @@ type ComponentProps = {
   displayablePlayersAnnounces: Record<PlayerID, { playerName: string; announces: (Announce | BelotAnnounce)[] }>;
 };
 export const InfoComponent: React.FunctionComponent<ComponentProps> = ({
-  partnerTeamID,
+  sayCoincheLevel,
   partnerTeamPoints,
   opponentTeamPoints,
   howManyPointsATeamMustReachToEndTheGame,
@@ -27,22 +34,22 @@ export const InfoComponent: React.FunctionComponent<ComponentProps> = ({
   return (
     <React.Fragment>
       <div className="teamPoints">
-        <span>{i18n.Info.partnerTeam}</span>
-        <span>{` ${partnerTeamPoints}/${howManyPointsATeamMustReachToEndTheGame}`}</span>
+        <span className="label">{i18n.Info.partnerTeam}</span>
+        <span className="data">{`${partnerTeamPoints}/${howManyPointsATeamMustReachToEndTheGame}`}</span>
       </div>
       <div className="teamPoints">
-        <span>{i18n.Info.opponentTeam}</span>
-        <span>{` ${opponentTeamPoints}/${howManyPointsATeamMustReachToEndTheGame}`}</span>
+        <span className="label">{i18n.Info.opponentTeam}</span>
+        <span className="data">{`${opponentTeamPoints}/${howManyPointsATeamMustReachToEndTheGame}`}</span>
       </div>
       {attackingPlayerName && trumpMode && expectedPoints && (
         <React.Fragment>
           <div className="attackingPlayer">
-            <span>{i18n.Info.attackingPlayer}</span>
-            <span>{` ${attackingPlayerName}`}</span>
+            <span className="label">{i18n.Info.attackingPlayer}</span>
+            <span className="data">{`${attackingPlayerName}`}</span>
           </div>
           <div className="goal">
-            <span>{i18n.Info.goal}</span>
-            <span>{` ${expectedPoints} ${i18n.trumpMode[trumpMode]}`}</span>
+            <span className="label">{i18n.Info.goal}</span>
+            <span className="data">{`${expectedPoints} ${i18n.trumpMode[trumpMode]}${sayCoincheLevel === 'coinche' ? ` (${i18n.Info.coinched})` : ''}${sayCoincheLevel === 'surcoinche' ? ` (${i18n.Info.surcoinched})` : ''}`}</span>
           </div>
         </React.Fragment>
       )}
