@@ -2546,20 +2546,39 @@ export const getWinner = (playersCardPlayedInCurrentTurn: Record<PlayerID, Card 
 
   return winningPlayerCard[0] as PlayerID;
 };
-export const getGameWinnerTeam = (teamsPoints: Record<TeamID, number>, howManyPointsATeamMustReachToEndTheGame: number): TeamID | null | undefined => {
-  if (Object.values(teamsPoints).every(points => points < howManyPointsATeamMustReachToEndTheGame)) {
-    return;
+export const getGameWinnerTeam = (teamsPoints: Record<TeamID, number>, howManyPointsATeamMustReachToEndTheGame: number, wonTeamsCards: Record<TeamID, Card[]>): TeamID | null | undefined => {
+  const northSouthTeamHasReachTheRequiredNumberOfPoints = teamsPoints[TeamID.NorthSouth] >= howManyPointsATeamMustReachToEndTheGame;
+  const eastWestTeamHasReachTheRequiredNumberOfPoints = teamsPoints[TeamID.EastWest] >= howManyPointsATeamMustReachToEndTheGame;
+  const northSouthTeamWonAtLeastOneCard = wonTeamsCards[TeamID.NorthSouth].length > 0;
+  const eastWestTeamWonAtLeastOneCard = wonTeamsCards[TeamID.EastWest].length > 0;
+
+  // no team has reach the required number of points
+  if (!northSouthTeamHasReachTheRequiredNumberOfPoints && !eastWestTeamHasReachTheRequiredNumberOfPoints) {
+    return undefined;
   }
 
-  if (teamsPoints[TeamID.NorthSouth] === teamsPoints[TeamID.EastWest]) {
-    return null;
+  // NorthSouth team only has reach the required number of points
+  if (northSouthTeamHasReachTheRequiredNumberOfPoints && !eastWestTeamHasReachTheRequiredNumberOfPoints) {
+    return northSouthTeamWonAtLeastOneCard ? TeamID.NorthSouth : undefined;
   }
 
-  if (teamsPoints[TeamID.NorthSouth] >= teamsPoints[TeamID.EastWest]) {
-    return TeamID.NorthSouth;
+  // EastWest team only has reach the required number of points
+  if (!northSouthTeamHasReachTheRequiredNumberOfPoints && eastWestTeamHasReachTheRequiredNumberOfPoints) {
+    return eastWestTeamWonAtLeastOneCard ? TeamID.EastWest : undefined;
   }
 
-  return TeamID.EastWest;
+  // both team have reach the required number of points and NorthSouth team has more points
+  if (teamsPoints[TeamID.NorthSouth] > teamsPoints[TeamID.EastWest]) {
+    return northSouthTeamWonAtLeastOneCard ? TeamID.NorthSouth : TeamID.EastWest;
+  }
+
+  // both team have reach the required number of points and EastWest team has more points
+  if (teamsPoints[TeamID.EastWest] > teamsPoints[TeamID.NorthSouth]) {
+    return eastWestTeamWonAtLeastOneCard ? TeamID.EastWest : TeamID.NorthSouth;
+  }
+
+  // draw
+  return null;
 };
 
 export const getTurnOrder = (firstPlayerID: PlayerID): PlayerID[] => {
@@ -2918,7 +2937,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
         G.teamsPoints[G.defensingTeam] = newDefensingTeamPoints;
 
         // go to Deal phase if the end of the game has not been reached
-        const gameWinnerTeam = getGameWinnerTeam(G.teamsPoints, G.howManyPointsATeamMustReachToEndTheGame);
+        const gameWinnerTeam = getGameWinnerTeam(G.teamsPoints, G.howManyPointsATeamMustReachToEndTheGame, G.wonTeamsCards);
         if (gameWinnerTeam === undefined) {
           G.__forcedNextPhase = PhaseID.Deal;
           return;
