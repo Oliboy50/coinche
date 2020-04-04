@@ -7,7 +7,7 @@ type ComponentProps = {
   partnerTeamPoints: number;
   opponentTeamPoints: number;
   howManyPointsATeamMustReachToEndTheGame: number;
-  attackingTeamID?: TeamID;
+  attackingPlayerName?: string;
   trumpMode?: TrumpMode;
   expectedPoints?: ExpectedPoints;
   displayablePlayersAnnounces: Record<PlayerID, { playerName: string; announces: (Announce | BelotAnnounce)[] }>;
@@ -17,7 +17,7 @@ export const InfoComponent: React.FunctionComponent<ComponentProps> = ({
   partnerTeamPoints,
   opponentTeamPoints,
   howManyPointsATeamMustReachToEndTheGame,
-  attackingTeamID,
+  attackingPlayerName,
   trumpMode,
   expectedPoints,
   displayablePlayersAnnounces,
@@ -26,12 +26,24 @@ export const InfoComponent: React.FunctionComponent<ComponentProps> = ({
 
   return (
     <React.Fragment>
-      <div>{i18n.Info.currentTeamScore('partner', partnerTeamPoints, howManyPointsATeamMustReachToEndTheGame)}</div>
-      <div>{i18n.Info.currentTeamScore('opponent', opponentTeamPoints, howManyPointsATeamMustReachToEndTheGame)}</div>
-      {attackingTeamID && trumpMode && expectedPoints && (
+      <div className="teamPoints">
+        <span>{i18n.Info.partnerTeam}</span>
+        <span>{` ${partnerTeamPoints}/${howManyPointsATeamMustReachToEndTheGame}`}</span>
+      </div>
+      <div className="teamPoints">
+        <span>{i18n.Info.opponentTeam}</span>
+        <span>{` ${opponentTeamPoints}/${howManyPointsATeamMustReachToEndTheGame}`}</span>
+      </div>
+      {attackingPlayerName && trumpMode && expectedPoints && (
         <React.Fragment>
-          <div>{i18n.Info.currentAttackingTeam(attackingTeamID === partnerTeamID ? 'partner' : 'opponent')}</div>
-          <div>{i18n.Info.currentGoal(trumpMode, expectedPoints)}</div>
+          <div className="attackingPlayer">
+            <span>{i18n.Info.attackingPlayer}</span>
+            <span>{` ${attackingPlayerName}`}</span>
+          </div>
+          <div className="goal">
+            <span>{i18n.Info.goal}</span>
+            <span>{` ${expectedPoints} ${i18n.trumpMode[trumpMode]}`}</span>
+          </div>
         </React.Fragment>
       )}
       {Object.entries(displayablePlayersAnnounces)

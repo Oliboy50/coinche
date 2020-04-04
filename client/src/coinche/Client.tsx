@@ -170,7 +170,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
           partnerTeamPoints={G.teamsPoints[partnerTeamID]}
           opponentTeamPoints={G.teamsPoints[opponentTeamID]}
           howManyPointsATeamMustReachToEndTheGame={G.howManyPointsATeamMustReachToEndTheGame}
-          attackingTeamID={G.currentSayTake && G.attackingTeam}
+          attackingPlayerName={G.currentSayTake && getPlayerNameByID(gameMetadata, G.currentSayTake.playerID)}
           trumpMode={G.currentSayTake?.trumpMode}
           expectedPoints={G.currentSayTake?.expectedPoints}
           displayablePlayersAnnounces={displayableAnnouncesByPlayerID}

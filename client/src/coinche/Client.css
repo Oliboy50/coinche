@@ -177,6 +177,8 @@
     "otherPlayerTalks otherPlayerTalks";
   grid-template-columns: 1fr 40px;
   grid-template-rows: 100px auto 1fr;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 .otherPlayer > .otherPlayerCards {
   grid-area: otherPlayerCards;
@@ -192,9 +194,12 @@
 }
 .otherPlayerCards {
   position: relative;
-  margin-top: -20px;
+  margin-top: -10px;
   margin-left: -30px;
   text-align: center;
+}
+.otherPlayerCards .card {
+  font-size: 90px;
 }
 .otherPlayerCards .cardWrapper {
   position: absolute;
@@ -234,15 +239,17 @@
   transform: rotate(36deg);
 }
 .otherPlayer.currentPlayer .otherPlayerCards::before {
-  content: '\1f447';
-  position: absolute;
-  top: 0;
-  left: 50%;
+  content: '\1f449';
+  position: relative;
+  top: 50%;
+  left: -25px;
   font-size: 40px;
   z-index: 10;
 }
 .hiddenAdditionalCards {
-  transform: scale(.6);
+  /* @TODO: don't need it if constraint by parent size */
+  margin-left: -25px;
+  transform: scale(.5);
 }
 .hiddenAdditionalCards .cardWrapper {
   position: absolute;
@@ -274,14 +281,6 @@
 .hiddenAdditionalCards .cardWrapper:nth-child(12) {
   z-index: 12;
   transform: rotate(-12deg);
-}
-/* @TODO: don't need it if constraint by parent size */
-.hiddenAdditionalCards {
-  margin-left: -25px;
-}
-/* @TODO: don't need it if constraint by parent size */
-.otherPlayer .hiddenAdditionalCards {
-  margin-left: -35px;
 }
 
 /**
@@ -383,4 +382,20 @@
  */
 .info {
   font-size: 18px;
+  overflow: auto;
+}
+.info .teamPoints {
+  display: flex;
+  justify-content: space-between;
+  max-width: 250px;
+}
+.info .attackingPlayer {
+  display: flex;
+  justify-content: space-between;
+  max-width: 250px;
+}
+.info .goal {
+  display: flex;
+  justify-content: space-between;
+  max-width: 250px;
 }

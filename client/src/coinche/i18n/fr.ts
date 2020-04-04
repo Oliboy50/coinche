@@ -8,13 +8,8 @@ const translatedTrumpMode = {
   [TrumpMode.TrumpHeart]: 'Coeur',
   [TrumpMode.NoTrump]: 'Sans atout',
 };
-const translatedTeamType = {
-  partner: 'Nous',
-  opponent: 'Eux',
-};
 
 export const fr: I18n = {
-  teamType: translatedTeamType,
   trumpMode: translatedTrumpMode,
   announce: {
     id: {
@@ -98,9 +93,10 @@ export const fr: I18n = {
     doNotDisplayPreviousCardsPlayed: 'Ne plus voir les cartes jouées au tour précédent',
   },
   Info: {
-    currentTeamScore: (teamType, teamPoints, howManyPointsATeamMustReachToEndTheGame) => `${translatedTeamType[teamType]} : ${teamPoints}/${howManyPointsATeamMustReachToEndTheGame}`,
-    currentAttackingTeam: (teamType) => `Attaquant : ${translatedTeamType[teamType]}`,
-    currentGoal: (trumpMode, expectedPoints) => `Objectif : ${expectedPoints} ${translatedTrumpMode[trumpMode]}`,
+    partnerTeam: 'Notre équipe :',
+    opponentTeam: 'Leur équipe :',
+    attackingPlayer: 'Attaquant :',
+    goal: 'Objectif :',
     announcesOf: (playerName) => `Annonces de ${playerName} :`,
   },
   TalkMenu: {
