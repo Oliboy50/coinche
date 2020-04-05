@@ -240,9 +240,9 @@
 }
 .otherPlayer.currentPlayer .otherPlayerCards::before {
   content: '\1f449';
-  position: relative;
+  position: absolute;
   top: 50%;
-  left: -25px;
+  left: 55px;
   font-size: 40px;
   z-index: 10;
 }

@@ -206,6 +206,7 @@ export interface GameState {
   firstPlayerInCurrentTurn: PlayerID;
   playersCardPlayedInCurrentTurn: Record<PlayerID, Card | undefined>;
   playersCardPlayedInPreviousTurn: Record<PlayerID, Card> | undefined;
+  playersAnnouncesDisplayedInCurrentTurn: Record<PlayerID, { id: AnnounceID | 'Belot' }[]>;
 }
 // @TODO: hide belotAnnounce if not said
 export type GameStatePlayerView = Omit<GameState, 'availableCards' | 'playersCards' | 'playersAnnounces'> & {
@@ -2623,6 +2624,12 @@ const getDefaultPlayersCardPlayedInCurrentTurn = () => ({
   [PlayerID.West]: undefined,
 });
 const getDefaultPlayersCardPlayedInPreviousTurn = () => undefined;
+const getDefaultPlayersAnnouncesDisplayedInCurrentTurn = () => ({
+  [PlayerID.North]: [],
+  [PlayerID.East]: [],
+  [PlayerID.South]: [],
+  [PlayerID.West]: [],
+});
 const getDefaultPlayersSaid = () => ({
   [PlayerID.North]: undefined,
   [PlayerID.East]: undefined,
@@ -2666,6 +2673,7 @@ export const getSetupGameState = (_: Context<PlayerID, PhaseID>): GameState => {
     playersAnnounces: getDefaultPlayersAnnounces(),
     playersCardPlayedInCurrentTurn: getDefaultPlayersCardPlayedInCurrentTurn(),
     playersCardPlayedInPreviousTurn: getDefaultPlayersCardPlayedInPreviousTurn(),
+    playersAnnouncesDisplayedInCurrentTurn: getDefaultPlayersAnnouncesDisplayedInCurrentTurn(),
   };
 };
 const mustMoveFromTalkPhaseToPlayCardsPhase = (currentSayTake: SayTake | undefined, numberOfSuccessiveSkipSaid: number): boolean => {
@@ -2874,11 +2882,33 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
             const bestAnnounceID = getWinningAnnounceID(allSaidPlayerAnnounces.map(a => a.announce.id), G.currentSayTake!.trumpMode);
             if (bestAnnounceID) {
               const bestAnnounceBelongsToNorthSouthTeam = northSouthTeamSaidPlayerAnnounces.map(a => a.announce.id).includes(bestAnnounceID);
+              const northPlayerAnnounces = G.playersAnnounces[PlayerID.North].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && bestAnnounceBelongsToNorthSouthTeam }));
+              const eastPlayerAnnounces = G.playersAnnounces[PlayerID.East].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && !bestAnnounceBelongsToNorthSouthTeam }));
+              const southPlayerAnnounces = G.playersAnnounces[PlayerID.South].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && bestAnnounceBelongsToNorthSouthTeam }));
+              const westPlayerAnnounces = G.playersAnnounces[PlayerID.West].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && !bestAnnounceBelongsToNorthSouthTeam }));
               G.playersAnnounces = {
-                [PlayerID.North]: G.playersAnnounces[PlayerID.North].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && bestAnnounceBelongsToNorthSouthTeam })),
-                [PlayerID.East]: G.playersAnnounces[PlayerID.East].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && !bestAnnounceBelongsToNorthSouthTeam })),
-                [PlayerID.South]: G.playersAnnounces[PlayerID.South].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && bestAnnounceBelongsToNorthSouthTeam })),
-                [PlayerID.West]: G.playersAnnounces[PlayerID.West].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && !bestAnnounceBelongsToNorthSouthTeam })),
+                [PlayerID.North]: northPlayerAnnounces,
+                [PlayerID.East]: eastPlayerAnnounces,
+                [PlayerID.South]: southPlayerAnnounces,
+                [PlayerID.West]: westPlayerAnnounces,
+              };
+              G.playersAnnouncesDisplayedInCurrentTurn = {
+                [PlayerID.North]: [
+                  ...G.playersAnnouncesDisplayedInCurrentTurn[PlayerID.North],
+                  ...northPlayerAnnounces.filter(a => a.isCardsDisplayable).map(a => ({ id: a.announce.id })),
+                ],
+                [PlayerID.East]: [
+                  ...G.playersAnnouncesDisplayedInCurrentTurn[PlayerID.East],
+                  ...eastPlayerAnnounces.filter(a => a.isCardsDisplayable).map(a => ({ id: a.announce.id })),
+                ],
+                [PlayerID.South]: [
+                  ...G.playersAnnouncesDisplayedInCurrentTurn[PlayerID.South],
+                  ...southPlayerAnnounces.filter(a => a.isCardsDisplayable).map(a => ({ id: a.announce.id })),
+                ],
+                [PlayerID.West]: [
+                  ...G.playersAnnouncesDisplayedInCurrentTurn[PlayerID.West],
+                  ...westPlayerAnnounces.filter(a => a.isCardsDisplayable).map(a => ({ id: a.announce.id })),
+                ],
               };
             }
           }
@@ -2900,6 +2930,9 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
         if (!G.currentSayTake) {
           throw new Error();
         }
+
+        // clear playersAnnouncesDisplayedInCurrentTurn
+        G.playersAnnouncesDisplayedInCurrentTurn = getDefaultPlayersAnnouncesDisplayedInCurrentTurn();
 
         const winner = getWinner(G.playersCardPlayedInCurrentTurn, G.currentSayTake.trumpMode, G.playersCardPlayedInCurrentTurn[G.firstPlayerInCurrentTurn]!.color);
         const winnerTeam = getPlayerTeam(winner);

@@ -18,6 +18,9 @@ export default (
     throw new Error(`Player can't choose to say belot`);
   }
 
+  if (sayIt) {
+    G.playersAnnouncesDisplayedInCurrentTurn[ctx.currentPlayer].push({ id: 'Belot' });
+  }
   G.belotAnnounce = {
     ...G.belotAnnounce,
     ownerHasChosen: true,

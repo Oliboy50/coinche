@@ -75,6 +75,7 @@ describe(`move/sayBelotOrNot`, () => {
       ownerHasChosen: true,
       isSaid: false,
     });
+    expect(G.playersAnnouncesDisplayedInCurrentTurn[PlayerID.North]).toEqual([]);
   });
 
   it(`sets belotAnnounce.ownerHasChosen to true and belotAnnounce.isSaid to true when sayIt is true`, () => {
@@ -93,5 +94,6 @@ describe(`move/sayBelotOrNot`, () => {
       ownerHasChosen: true,
       isSaid: true,
     });
+    expect(G.playersAnnouncesDisplayedInCurrentTurn[PlayerID.North]).toEqual([{ id: 'Belot' }]);
   });
 });

@@ -1,8 +1,7 @@
 import React, {useContext} from 'react';
 import {I18nContext} from '../context/i18n';
 import {
-  Announce,
-  BelotAnnounce,
+  AnnounceID,
   ExpectedPoints,
   PlayerID,
   SayCoincheLevel,
@@ -10,14 +9,14 @@ import {
 } from '../../shared/coinche';
 
 type ComponentProps = {
-  sayCoincheLevel?: SayCoincheLevel;
   partnerTeamPoints: number;
   opponentTeamPoints: number;
   howManyPointsATeamMustReachToEndTheGame: number;
   attackingPlayerName?: string;
   trumpMode?: TrumpMode;
   expectedPoints?: ExpectedPoints;
-  displayablePlayersAnnounces: Record<PlayerID, { playerName: string; announces: (Announce | BelotAnnounce)[] }>;
+  sayCoincheLevel?: SayCoincheLevel;
+  displayablePlayersAnnounces: Record<PlayerID, { playerName: string; announces: { id: AnnounceID | 'Belot' }[] }>;
 };
 export const InfoComponent: React.FunctionComponent<ComponentProps> = ({
   sayCoincheLevel,
@@ -45,7 +44,7 @@ export const InfoComponent: React.FunctionComponent<ComponentProps> = ({
         <React.Fragment>
           <div className="attackingPlayer">
             <span className="label">{i18n.Info.attackingPlayer}</span>
-            <span className="data">{`${attackingPlayerName}`}</span>
+            <span className="data">{attackingPlayerName}</span>
           </div>
           <div className="goal">
             <span className="label">{i18n.Info.goal}</span>
@@ -56,10 +55,10 @@ export const InfoComponent: React.FunctionComponent<ComponentProps> = ({
       {Object.entries(displayablePlayersAnnounces)
         .filter(([_, { announces }]) => announces.length > 0)
         .map(([playerID, { playerName, announces }]) => (
-          <div key={playerID}>
+          <div key={playerID} className="playerAnnounces">
             <span>{i18n.Info.announcesOf(playerName)}</span>
             {announces.map(a => (
-              <div key={a.id}>{`- ${i18n.announce.id[a.id]}`}</div>
+              <div key={a.id} className="announce">{`- ${i18n.announce.id[a.id]}`}</div>
             ))}
           </div>
         ))
