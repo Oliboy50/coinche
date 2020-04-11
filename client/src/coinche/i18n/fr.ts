@@ -93,8 +93,8 @@ export const fr: I18n = {
     doNotDisplayPreviousCardsPlayed: 'Ne plus voir les cartes jouées au tour précédent',
   },
   Info: {
-    partnerTeam: 'Notre équipe\u00A0:\u00A0',
-    opponentTeam: 'Leur équipe\u00A0:\u00A0',
+    partnerTeam: 'Nos points\u00A0:\u00A0',
+    opponentTeam: 'Leur points\u00A0:\u00A0',
     attackingPlayer: 'Attaquant\u00A0:\u00A0',
     goal: 'Objectif\u00A0:\u00A0',
     coinched: 'coinché',

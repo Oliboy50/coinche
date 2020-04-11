@@ -106,7 +106,7 @@
   position: relative;
 }
 .myPlayer.currentPlayer .currentPlayerIndicator::before {
-  content: '\1f447';
+  content: '👇';
   font-size: 40px;
   position: absolute;
   top: 10px;
@@ -114,7 +114,7 @@
   transform: rotate(-125deg);
 }
 .myPlayer.currentPlayer .currentPlayerIndicator::after {
-  content: '\1f447';
+  content: '👇';
   font-size: 40px;
   position: absolute;
   top: 50px;
@@ -238,11 +238,11 @@
   z-index: 1;
   transform: rotate(36deg);
 }
-.otherPlayer.currentPlayer .otherPlayerCards::before {
-  content: '\1f449';
+.otherPlayer.currentPlayer .cardWrapper:nth-child(1)::before {
+  content: '👉';
   position: absolute;
-  top: 50%;
-  left: 55px;
+  top: 35%;
+  left: -45px;
   font-size: 40px;
   z-index: 10;
 }
@@ -258,29 +258,80 @@
   background: white;
   z-index: 1;
 }
+.hiddenAdditionalCards .cardWrapper:nth-child(1) {
+  z-index: 12;
+}
+.hiddenAdditionalCards .cardWrapper:nth-child(2) {
+  z-index: 11;
+}
 .hiddenAdditionalCards .cardWrapper:nth-child(3) {
-  z-index: 3;
-  transform: rotate(36deg);
+  z-index: 10;
 }
 .hiddenAdditionalCards .cardWrapper:nth-child(4) {
-  z-index: 4;
-  transform: rotate(-36deg);
+  z-index: 9;
+}
+.hiddenAdditionalCards .cardWrapper:nth-child(5) {
+  z-index: 8;
+}
+.hiddenAdditionalCards .cardWrapper:nth-child(6) {
+  z-index: 7;
 }
 .hiddenAdditionalCards .cardWrapper:nth-child(7) {
-  z-index: 7;
-  transform: rotate(24deg);
+  z-index: 6;
 }
 .hiddenAdditionalCards .cardWrapper:nth-child(8) {
-  z-index: 8;
-  transform: rotate(-24deg);
+  z-index: 5;
+}
+.hiddenAdditionalCards .cardWrapper:nth-child(9) {
+  z-index: 4;
+}
+.hiddenAdditionalCards .cardWrapper:nth-child(10) {
+  z-index: 3;
 }
 .hiddenAdditionalCards .cardWrapper:nth-child(11) {
-  z-index: 11;
-  transform: rotate(12deg);
+  z-index: 2;
 }
 .hiddenAdditionalCards .cardWrapper:nth-child(12) {
-  z-index: 12;
-  transform: rotate(-12deg);
+  z-index: 1;
+}
+.hiddenAdditionalCards .cardWrapper .card {
+  color: transparent;
+}
+.hiddenAdditionalCards .cardWrapper:nth-child(1) .card {
+  text-shadow: 5px 6px rgba(0,0,0,.8);
+}
+.hiddenAdditionalCards .cardWrapper:nth-child(2) .card {
+  text-shadow: 6px 7px rgba(0,0,0,.8);
+}
+.hiddenAdditionalCards .cardWrapper:nth-child(3) .card {
+  text-shadow: 7px 8px rgba(0,0,0,.8);
+}
+.hiddenAdditionalCards .cardWrapper:nth-child(4) .card {
+  text-shadow: 8px 9px rgba(0,0,0,.8);
+}
+.hiddenAdditionalCards .cardWrapper:nth-child(5) .card {
+  text-shadow: 9px 10px rgba(0,0,0,.8);
+}
+.hiddenAdditionalCards .cardWrapper:nth-child(6) .card {
+  text-shadow: 10px 11px rgba(0,0,0,.8);
+}
+.hiddenAdditionalCards .cardWrapper:nth-child(7) .card {
+  text-shadow: 11px 12px rgba(0,0,0,.8);
+}
+.hiddenAdditionalCards .cardWrapper:nth-child(8) .card {
+  text-shadow: 12px 13px rgba(0,0,0,.8);
+}
+.hiddenAdditionalCards .cardWrapper:nth-child(9) .card {
+  text-shadow: 13px 14px rgba(0,0,0,.8);
+}
+.hiddenAdditionalCards .cardWrapper:nth-child(10) .card {
+  text-shadow: 14px 15px rgba(0,0,0,.8);
+}
+.hiddenAdditionalCards .cardWrapper:nth-child(11) .card {
+  text-shadow: 15px 16px rgba(0,0,0,.8);
+}
+.hiddenAdditionalCards .cardWrapper:nth-child(12) .card {
+  text-shadow: 16px 17px rgba(0,0,0,.8);
 }
 
 /**
