@@ -44,7 +44,7 @@ export const SayAnnounceMenuComponent: React.FunctionComponent<ComponentProps> =
           )
         }
       </select>
-      <button disabled={!selectedAnnounce} onClick={selectedAnnounce ? () => saySelectedAnnounce(selectedAnnounce) : undefined}>{i18n.SayAnnounceMenu.sayAnnounceButton}</button>
+      <button type="button" disabled={!selectedAnnounce} onClick={selectedAnnounce ? () => saySelectedAnnounce(selectedAnnounce) : undefined}>{i18n.SayAnnounceMenu.sayAnnounceButton}</button>
     </div>
   );
 };

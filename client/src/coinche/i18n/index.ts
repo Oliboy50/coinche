@@ -1,7 +1,9 @@
-import {AnnounceGroup, AnnounceID, TrumpMode} from '../../shared/coinche';
+import {AnnounceGroup, AnnounceID, Card, SayCoincheLevel, TrumpMode} from '../../shared/coinche';
 
 export type I18n = {
   trumpMode: Record<TrumpMode, string>;
+  sayCoincheLevel: Record<SayCoincheLevel, string>;
+  card: (card: Card) => string;
   announce: {
     id: Record<AnnounceID | 'Belot', string>;
     group: Record<AnnounceGroup, string>;
@@ -11,8 +13,6 @@ export type I18n = {
     opponentTeam: string;
     attackingPlayer: string;
     goal: string;
-    coinched: string;
-    surcoinched: string;
     announcesOf: (playerName: string) => string;
   },
   TalkMenu: {

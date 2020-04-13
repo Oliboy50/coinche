@@ -35,8 +35,8 @@ export const getPointsForCard = (card: Card, trumpMode: TrumpMode): number => {
   }
 };
 
-export const getPointsForAnnounce = (announce: Announce, trumpMode: TrumpMode): number => {
-  switch (announce.id) {
+export const getPointsForAnnounce = (announceID: AnnounceID | 'Belot', trumpMode: TrumpMode): number => {
+  switch (announceID) {
     case AnnounceID.SquareAce:
       return trumpMode === TrumpMode.NoTrump ? 200 : 100;
     case AnnounceID.SquareNine:
@@ -73,6 +73,7 @@ export const getPointsForAnnounce = (announce: Announce, trumpMode: TrumpMode): 
     case AnnounceID.TierceNineDiamond:
     case AnnounceID.TierceNineHeart:
     case AnnounceID.TierceNineClub:
+    case 'Belot':
       return 20;
     case AnnounceID.QuarteAceSpade:
     case AnnounceID.QuarteAceDiamond:
@@ -115,7 +116,7 @@ export const getPointsForAnnounce = (announce: Announce, trumpMode: TrumpMode): 
   }
 };
 
-export const getNewAttackingAndDefensingTeamsPointsAfterRoundEnd = (
+export const getWinningTeamAndNewAttackingTeamPointsAndDefensingTeamPointsAfterEndOfRound = (
   currentAttackingTeamPoints: number,
   attackingTeam: TeamID,
   attackingTeamWonCards: Card[],
@@ -123,29 +124,29 @@ export const getNewAttackingAndDefensingTeamsPointsAfterRoundEnd = (
   defensingTeam: TeamID,
   defensingTeamWonCards: Card[],
   roundSayTake: SayTake,
-  roundWinnerTeam: TeamID,
+  lastTurnWinnerTeam: TeamID,
   northSouthTeamCountableAnnounces: Announce[],
   eastWestTeamCountableAnnounces: Announce[],
   belotAnnounce: BelotAnnounce | undefined,
-): [number, number] => {
+): [TeamID, number, number] => {
   // compute Talk phase points
   const talkPhasePoints = getPointsForExpectedPoints(roundSayTake);
 
   // compute capot (100) or last turn (10) extra points
-  const attackingTeamExtraPoints = attackingTeam === roundWinnerTeam ? (!defensingTeamWonCards.length ? 100 : 10) : 0;
-  const defensingTeamExtraPoints = defensingTeam === roundWinnerTeam ? (!attackingTeamWonCards.length ? 100 : 10) : 0;
+  const attackingTeamExtraPoints = attackingTeam === lastTurnWinnerTeam ? (!defensingTeamWonCards.length ? 100 : 10) : 0;
+  const defensingTeamExtraPoints = defensingTeam === lastTurnWinnerTeam ? (!attackingTeamWonCards.length ? 100 : 10) : 0;
 
   // compute cards points
   const attackingTeamCardsPoints = attackingTeamWonCards.reduce((acc, card) => acc + getPointsForCard(card, roundSayTake.trumpMode), 0);
   const defensingTeamCardsPoints = defensingTeamWonCards.reduce((acc, card) => acc + getPointsForCard(card, roundSayTake.trumpMode), 0);
 
   // compute belot announce points
-  const attackingTeamBelotAnnouncePoints = (belotAnnounce && belotAnnounce.isSaid && getPlayerTeam(belotAnnounce.owner) === attackingTeam) ? 20 : 0;
-  const defensingTeamBelotAnnouncePoints = (belotAnnounce && belotAnnounce.isSaid && getPlayerTeam(belotAnnounce.owner) === defensingTeam) ? 20 : 0;
+  const attackingTeamBelotAnnouncePoints = (belotAnnounce && belotAnnounce.isSaid && getPlayerTeam(belotAnnounce.owner) === attackingTeam) ? getPointsForAnnounce(belotAnnounce.id, roundSayTake.trumpMode) : 0;
+  const defensingTeamBelotAnnouncePoints = (belotAnnounce && belotAnnounce.isSaid && getPlayerTeam(belotAnnounce.owner) === defensingTeam) ? getPointsForAnnounce(belotAnnounce.id, roundSayTake.trumpMode) : 0;
 
   // compute announces points
-  const northSouthTeamAnnouncesPoints = northSouthTeamCountableAnnounces.reduce((acc, a) => acc + getPointsForAnnounce(a, roundSayTake.trumpMode), 0);
-  const eastWestTeamAnnouncesPoints = eastWestTeamCountableAnnounces.reduce((acc, a) => acc + getPointsForAnnounce(a, roundSayTake.trumpMode), 0);
+  const northSouthTeamAnnouncesPoints = northSouthTeamCountableAnnounces.reduce((acc, a) => acc + getPointsForAnnounce(a.id, roundSayTake.trumpMode), 0);
+  const eastWestTeamAnnouncesPoints = eastWestTeamCountableAnnounces.reduce((acc, a) => acc + getPointsForAnnounce(a.id, roundSayTake.trumpMode), 0);
   const attackingTeamAnnouncesPoints = attackingTeam === TeamID.NorthSouth ? northSouthTeamAnnouncesPoints : eastWestTeamAnnouncesPoints;
   const defensingTeamAnnouncesPoints = defensingTeam === TeamID.NorthSouth ? northSouthTeamAnnouncesPoints : eastWestTeamAnnouncesPoints;
 
@@ -154,12 +155,14 @@ export const getNewAttackingAndDefensingTeamsPointsAfterRoundEnd = (
   const defensingTeamTotalPoints = (defensingTeamExtraPoints + defensingTeamCardsPoints + defensingTeamBelotAnnouncePoints + defensingTeamAnnouncesPoints);
   if (attackingTeamTotalPoints >= roundSayTake.expectedPoints && attackingTeamTotalPoints >= defensingTeamTotalPoints) {
     return [
+      attackingTeam,
       currentAttackingTeamPoints + (attackingTeamTotalPoints + talkPhasePoints),
       currentDefensingTeamPoints + defensingTeamTotalPoints,
     ];
   }
 
   return [
+    defensingTeam,
     currentAttackingTeamPoints,
     currentDefensingTeamPoints + (attackingTeamTotalPoints + defensingTeamTotalPoints + talkPhasePoints),
   ];

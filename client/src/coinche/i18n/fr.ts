@@ -1,5 +1,5 @@
 import {I18n} from './index';
-import {AnnounceGroup, AnnounceID, TrumpMode} from '../../shared/coinche';
+import {AnnounceGroup, AnnounceID, CardColor, CardName, TrumpMode} from '../../shared/coinche';
 
 const translatedTrumpMode = {
   [TrumpMode.TrumpSpade]: 'Pique',
@@ -11,6 +11,44 @@ const translatedTrumpMode = {
 
 export const fr: I18n = {
   trumpMode: translatedTrumpMode,
+  sayCoincheLevel: {
+    coinche: 'coinché',
+    surcoinche: 'surcoinché',
+  },
+  card: (card) => {
+    const colorName = (() => {
+      switch (card.color) {
+        case CardColor.Spade:
+          return 'pique';
+        case CardColor.Diamond:
+          return 'carreau';
+        case CardColor.Club:
+          return 'trèfle';
+        case CardColor.Heart:
+          return 'coeur';
+      }
+    })();
+
+    switch (card.name) {
+      case CardName.Ace:
+        return `As de ${colorName}`;
+      case CardName.Ten:
+        return `Dix de ${colorName}`;
+      case CardName.King:
+        return `Roi de ${colorName}`;
+      case CardName.Queen:
+        return `Dame de ${colorName}`;
+      case CardName.Jack:
+        return `Valet de ${colorName}`;
+      case CardName.Nine:
+        return `Neuf de ${colorName}`;
+      case CardName.Eight:
+        return `Huit de ${colorName}`;
+      case CardName.Seven:
+        return `Sept de ${colorName}`;
+    }
+
+  },
   announce: {
     id: {
       Belot: 'Belote',
@@ -89,16 +127,14 @@ export const fr: I18n = {
     },
   },
   PreviousCardsPlayedMenu: {
-    displayPreviousCardsPlayed: 'Voir les cartes jouées au tour précédent',
-    doNotDisplayPreviousCardsPlayed: 'Ne plus voir les cartes jouées au tour précédent',
+    displayPreviousCardsPlayed: 'Afficher les cartes jouées au tour précédent',
+    doNotDisplayPreviousCardsPlayed: 'Masquer les cartes jouées au tour précédent',
   },
   Info: {
     partnerTeam: 'Nos points\u00A0:\u00A0',
     opponentTeam: 'Leur points\u00A0:\u00A0',
     attackingPlayer: 'Attaquant\u00A0:\u00A0',
     goal: 'Objectif\u00A0:\u00A0',
-    coinched: 'coinché',
-    surcoinched: 'surcoinché',
     announcesOf: (playerName) => `Annonces de ${playerName}\u00A0:\u00A0`,
   },
   TalkMenu: {

@@ -130,8 +130,8 @@ export const UnicodeCardComponent: React.FunctionComponent<CardComponentProps> =
       }</span>
       {onSayBelotClick && onDontSayBelotClick && (
         <React.Fragment>
-          <span className="belotChooseButton say" onClick={onSayBelotClick} role="img" aria-label="say belot and play">🔈</span>
-          <span className="belotChooseButton dontSay" onClick={onDontSayBelotClick} role="img" aria-label="play">🔇</span>
+          <span className="belotChooseButton say" onClick={onSayBelotClick} role="img" aria-label="TODO">🔈</span>
+          <span className="belotChooseButton dontSay" onClick={onDontSayBelotClick} role="img" aria-label="TODO">🔇</span>
         </React.Fragment>
       )}
     </span>
