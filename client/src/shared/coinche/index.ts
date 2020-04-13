@@ -12,7 +12,8 @@ import sayAnnounce from './move/sayAnnounce';
 import saySkip from './move/saySkip';
 import sayTake from './move/sayTake';
 import sayCoinche from './move/sayCoinche';
-import {getNewAttackingAndDefensingTeamsPointsAfterRoundEnd} from './service/pointsCounter';
+import {getWinningTeamAndNewAttackingTeamPointsAndDefensingTeamPointsAfterEndOfRound} from './service/pointsCounter';
+import {getGameWinnerTeam, getTurnWinner, getWinningCard} from './service/winnerResolver';
 
 export enum CardColor {
   Spade = 'Spade',
@@ -175,6 +176,24 @@ export interface SayTake extends SayTakeLevel {
   playerID: PlayerID;
   sayCoincheLevel: SayCoincheLevel | undefined;
 }
+export interface GameHistory {
+  rounds: {
+    sayTake: SayTake;
+    turns: {
+      playedCards: Card[];
+      winningPlayer: PlayerID;
+      winningTeam: TeamID;
+    }[];
+    displayableAnnounces: {
+      id: AnnounceID | 'Belot';
+      cards: Card[];
+      owner: PlayerID;
+      ownerTeam: TeamID;
+    }[];
+    winningTeam?: TeamID;
+    teamPointsAtTheEndOfRound?: Record<TeamID, number>;
+  }[];
+}
 export interface GameState {
   // internal state
   __forcedNextPhase?: PhaseID;
@@ -186,6 +205,7 @@ export interface GameState {
   howManyCardsToDealToEachPlayerBeforeTalking: number;
   howManyCardsToDealToEachPlayerAfterTalking: number;
   teamsPoints: Record<TeamID, number>;
+  history: GameHistory;
 
   // round state
   availableCards: Card[];
@@ -2515,87 +2535,6 @@ export const isPlayableCard = (card: Card, playerCards: Card[], trumpMode: Trump
 
   return true;
 };
-export const getWinningCard = (cards: Card[], trumpMode: TrumpMode, firstCardColor: CardColor): Card => {
-  if (!cards.length) {
-    throw new Error();
-  }
-
-  return cards.reduce((currentWinningCard, card) => {
-    if (!currentWinningCard) {
-      return card;
-    }
-
-    if (isCardBeatingTheOtherCards(card, cards.filter(c => !isSameCard(c, card)), trumpMode, firstCardColor)) {
-      return card;
-    }
-
-    return currentWinningCard;
-  });
-};
-
-export const getWinner = (playersCardPlayedInCurrentTurn: Record<PlayerID, Card | undefined>, trumpMode: TrumpMode, firstCardColor: CardColor): PlayerID => {
-  const winningCard = getWinningCard(
-    Object.values(playersCardPlayedInCurrentTurn).filter(c => c !== undefined) as Card[],
-    trumpMode,
-    firstCardColor,
-  );
-
-  const winningPlayerCard = Object.entries(playersCardPlayedInCurrentTurn).find(([_, playerCard]) => isSameCard(winningCard, playerCard));
-  if (!winningPlayerCard) {
-    throw new Error(`Can't get winner`);
-  }
-
-  return winningPlayerCard[0] as PlayerID;
-};
-export const getGameWinnerTeam = (teamsPoints: Record<TeamID, number>, howManyPointsATeamMustReachToEndTheGame: number, wonTeamsCards: Record<TeamID, Card[]>): TeamID | null | undefined => {
-  const northSouthTeamHasReachTheRequiredNumberOfPoints = teamsPoints[TeamID.NorthSouth] >= howManyPointsATeamMustReachToEndTheGame;
-  const eastWestTeamHasReachTheRequiredNumberOfPoints = teamsPoints[TeamID.EastWest] >= howManyPointsATeamMustReachToEndTheGame;
-  const northSouthTeamWonAtLeastOneCard = wonTeamsCards[TeamID.NorthSouth].length > 0;
-  const eastWestTeamWonAtLeastOneCard = wonTeamsCards[TeamID.EastWest].length > 0;
-
-  // no team has reach the required number of points
-  if (!northSouthTeamHasReachTheRequiredNumberOfPoints && !eastWestTeamHasReachTheRequiredNumberOfPoints) {
-    return undefined;
-  }
-
-  // NorthSouth team only has reach the required number of points
-  if (northSouthTeamHasReachTheRequiredNumberOfPoints && !eastWestTeamHasReachTheRequiredNumberOfPoints) {
-    return northSouthTeamWonAtLeastOneCard ? TeamID.NorthSouth : undefined;
-  }
-
-  // EastWest team only has reach the required number of points
-  if (!northSouthTeamHasReachTheRequiredNumberOfPoints && eastWestTeamHasReachTheRequiredNumberOfPoints) {
-    return eastWestTeamWonAtLeastOneCard ? TeamID.EastWest : undefined;
-  }
-
-  // both team have reach the required number of points and NorthSouth team has more points
-  if (teamsPoints[TeamID.NorthSouth] > teamsPoints[TeamID.EastWest]) {
-    return northSouthTeamWonAtLeastOneCard ? TeamID.NorthSouth : TeamID.EastWest;
-  }
-
-  // both team have reach the required number of points and EastWest team has more points
-  if (teamsPoints[TeamID.EastWest] > teamsPoints[TeamID.NorthSouth]) {
-    return eastWestTeamWonAtLeastOneCard ? TeamID.EastWest : TeamID.NorthSouth;
-  }
-
-  // draw
-  return null;
-};
-
-export const getTurnOrder = (firstPlayerID: PlayerID): PlayerID[] => {
-  switch (firstPlayerID) {
-    case PlayerID.North:
-      return [PlayerID.North, PlayerID.West, PlayerID.South, PlayerID.East];
-    case PlayerID.East:
-      return [PlayerID.East, PlayerID.North, PlayerID.West, PlayerID.South];
-    case PlayerID.South:
-      return [PlayerID.South, PlayerID.East, PlayerID.North, PlayerID.West];
-    case PlayerID.West:
-      return [PlayerID.West, PlayerID.South, PlayerID.East, PlayerID.North];
-    default:
-      throw new Error(`Unsupported playerID [${firstPlayerID}]`);
-  }
-};
 
 const getDefaultPlayersCards = () => ({
   [PlayerID.North]: [],
@@ -2612,10 +2551,6 @@ const getDefaultPlayersAnnounces = () => ({
 const getDefaultWonTeamsCards = () => ({
   [TeamID.NorthSouth]: [],
   [TeamID.EastWest]: [],
-});
-const getDefaultTeamsPoints = () => ({
-  [TeamID.NorthSouth]: 0,
-  [TeamID.EastWest]: 0,
 });
 const getDefaultPlayersCardPlayedInCurrentTurn = () => ({
   [PlayerID.North]: undefined,
@@ -2653,28 +2588,46 @@ export const getSetupGameState = (_: Context<PlayerID, PhaseID>): GameState => {
   return {
     __isWaitingBeforeMovingToNextPhase: false,
     __canMoveToNextPhase: false,
+    howManyPointsATeamMustReachToEndTheGame: 2000,
+    howManyCardsToDealToEachPlayerBeforeTalking,
+    howManyCardsToDealToEachPlayerAfterTalking,
+    teamsPoints: {
+      [TeamID.NorthSouth]: 0,
+      [TeamID.EastWest]: 0,
+    },
+    history: { rounds: [] },
     availableCards,
     playersCards: getDefaultPlayersCards(),
     wonTeamsCards: getDefaultWonTeamsCards(),
-    teamsPoints: getDefaultTeamsPoints(),
     dealer,
     nextDealer,
-    firstPlayerInCurrentTurn: nextDealer,
     attackingTeam: TeamID.NorthSouth,
     defensingTeam: TeamID.EastWest,
-    howManyCardsToDealToEachPlayerBeforeTalking,
-    howManyCardsToDealToEachPlayerAfterTalking,
-    howManyPointsATeamMustReachToEndTheGame: 2000,
     playersSaid: getDefaultPlayersSaid(),
     lastPlayersTakeSaid: getDefaultLastPlayersTakeSaid(),
     numberOfSuccessiveSkipSaid: 0,
     currentSayTake: undefined,
     belotAnnounce: undefined,
     playersAnnounces: getDefaultPlayersAnnounces(),
+    firstPlayerInCurrentTurn: nextDealer,
     playersCardPlayedInCurrentTurn: getDefaultPlayersCardPlayedInCurrentTurn(),
     playersCardPlayedInPreviousTurn: getDefaultPlayersCardPlayedInPreviousTurn(),
     playersAnnouncesDisplayedInCurrentTurn: getDefaultPlayersAnnouncesDisplayedInCurrentTurn(),
   };
+};
+export const getTurnOrder = (firstPlayerID: PlayerID): PlayerID[] => {
+  switch (firstPlayerID) {
+    case PlayerID.North:
+      return [PlayerID.North, PlayerID.West, PlayerID.South, PlayerID.East];
+    case PlayerID.East:
+      return [PlayerID.East, PlayerID.North, PlayerID.West, PlayerID.South];
+    case PlayerID.South:
+      return [PlayerID.South, PlayerID.East, PlayerID.North, PlayerID.West];
+    case PlayerID.West:
+      return [PlayerID.West, PlayerID.South, PlayerID.East, PlayerID.North];
+    default:
+      throw new Error(`Unsupported playerID [${firstPlayerID}]`);
+  }
 };
 const mustMoveFromTalkPhaseToPlayCardsPhase = (currentSayTake: SayTake | undefined, numberOfSuccessiveSkipSaid: number): boolean => {
   return Boolean(
@@ -2831,6 +2784,13 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
           if (belotOwner) {
             G.belotAnnounce = {id: 'Belot', owner: belotOwner, ownerHasChosen: false, isSaid: false};
           }
+
+          // add round to history
+          G.history.rounds.push({
+            sayTake: G.currentSayTake!,
+            turns: [],
+            displayableAnnounces: [],
+          });
         }
       },
     },
@@ -2934,18 +2894,31 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
         // clear playersAnnouncesDisplayedInCurrentTurn
         G.playersAnnouncesDisplayedInCurrentTurn = getDefaultPlayersAnnouncesDisplayedInCurrentTurn();
 
-        const winner = getWinner(G.playersCardPlayedInCurrentTurn, G.currentSayTake.trumpMode, G.playersCardPlayedInCurrentTurn[G.firstPlayerInCurrentTurn]!.color);
-        const winnerTeam = getPlayerTeam(winner);
+        const playedCards = Object.values(G.playersCardPlayedInCurrentTurn).filter(c => c !== undefined) as Card[];
+        const winningCard = getWinningCard(
+          playedCards,
+          G.currentSayTake.trumpMode,
+          G.playersCardPlayedInCurrentTurn[G.firstPlayerInCurrentTurn]!.color,
+        );
+        const turnWinner = getTurnWinner(G.playersCardPlayedInCurrentTurn, winningCard);
+        const turnWinnerTeam = getPlayerTeam(turnWinner);
+
+        // add turn data to round history
+        G.history.rounds[G.history.rounds.length - 1].turns.push({
+          winningPlayer: turnWinner,
+          winningTeam: turnWinnerTeam,
+          playedCards,
+        });
 
         // fill cards played in previous turn
         G.playersCardPlayedInPreviousTurn = {...G.playersCardPlayedInCurrentTurn} as Record<PlayerID, Card>; // cast because G.playersCardPlayedInCurrentTurn can't contain "undefined" values at this point
 
-        // move played cards to winner team cards
-        (Object.values(G.playersCardPlayedInCurrentTurn).filter(c => c !== undefined) as Card[]).forEach(card => G.wonTeamsCards[winnerTeam].push(card));
+        // move played cards to turnWinner team cards
+        playedCards.forEach(card => G.wonTeamsCards[turnWinnerTeam].push(card));
         G.playersCardPlayedInCurrentTurn = getDefaultPlayersCardPlayedInCurrentTurn();
 
-        // winner becomes next first player
-        G.firstPlayerInCurrentTurn = winner;
+        // turnWinner becomes next first player
+        G.firstPlayerInCurrentTurn = turnWinner;
 
         // go to PlayCards phase if not all cards have been played
         if (Object.values(G.wonTeamsCards).reduce((acc, cards) => acc.concat(cards), []).length < howManyCards) {
@@ -2953,7 +2926,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
           return;
         }
 
-        const [newAttackingTeamPoints, newDefensingTeamPoints] = getNewAttackingAndDefensingTeamsPointsAfterRoundEnd(
+        const [roundWinningTeam, newAttackingTeamPoints, newDefensingTeamPoints] = getWinningTeamAndNewAttackingTeamPointsAndDefensingTeamPointsAfterEndOfRound(
           G.teamsPoints[G.attackingTeam],
           G.attackingTeam,
           G.wonTeamsCards[G.attackingTeam],
@@ -2961,13 +2934,37 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
           G.defensingTeam,
           G.wonTeamsCards[G.defensingTeam],
           G.currentSayTake,
-          winnerTeam,
+          turnWinnerTeam,
           [...G.playersAnnounces[PlayerID.North], ...G.playersAnnounces[PlayerID.South]].filter(a => a.isCardsDisplayable).map(a => a.announce),
           [...G.playersAnnounces[PlayerID.East], ...G.playersAnnounces[PlayerID.West]].filter(a => a.isCardsDisplayable).map(a => a.announce),
           G.belotAnnounce,
         );
         G.teamsPoints[G.attackingTeam] = newAttackingTeamPoints;
         G.teamsPoints[G.defensingTeam] = newDefensingTeamPoints;
+
+        // add end of round data to history
+        G.history.rounds[G.history.rounds.length - 1].winningTeam = roundWinningTeam;
+        G.history.rounds[G.history.rounds.length - 1].teamPointsAtTheEndOfRound = {
+          [TeamID.NorthSouth]: G.attackingTeam === TeamID.NorthSouth ? newAttackingTeamPoints : newDefensingTeamPoints,
+          [TeamID.EastWest]: G.attackingTeam === TeamID.EastWest ? newAttackingTeamPoints : newDefensingTeamPoints,
+        };
+        G.history.rounds[G.history.rounds.length - 1].displayableAnnounces = [
+          ...(Object.entries(G.playersAnnounces) as [PlayerID, PlayerAnnounce[]][]).reduce<GameHistory['rounds'][0]['displayableAnnounces']>((acc, [playerID, playerAnnounces]) => [
+            ...acc,
+            ...playerAnnounces.filter(a => a.isCardsDisplayable).map(a => ({
+              id: a.announce.id,
+              cards: a.announce.cards,
+              owner: playerID,
+              ownerTeam: getPlayerTeam(playerID),
+            })),
+          ], []),
+          ...(G.belotAnnounce ? [{
+            id: G.belotAnnounce.id,
+            cards: getBelotCards(G.currentSayTake.trumpMode),
+            owner: G.belotAnnounce.owner,
+            ownerTeam: getPlayerTeam(G.belotAnnounce.owner),
+          }] : []),
+        ];
 
         // go to Deal phase if the end of the game has not been reached
         const gameWinnerTeam = getGameWinnerTeam(G.teamsPoints, G.howManyPointsATeamMustReachToEndTheGame, G.wonTeamsCards);

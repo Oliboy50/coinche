@@ -18,7 +18,7 @@ type ComponentProps = {
   sayCoincheLevel?: SayCoincheLevel;
   displayablePlayersAnnounces: Record<PlayerID, { playerName: string; announces: { id: AnnounceID | 'Belot' }[] }>;
 };
-export const InfoComponent: React.FunctionComponent<ComponentProps> = ({
+export const CurrentInfoComponent: React.FunctionComponent<ComponentProps> = ({
   sayCoincheLevel,
   partnerTeamPoints,
   opponentTeamPoints,
@@ -48,7 +48,7 @@ export const InfoComponent: React.FunctionComponent<ComponentProps> = ({
           </div>
           <div className="goal">
             <span className="label">{i18n.Info.goal}</span>
-            <span className="data">{`${expectedPoints} ${i18n.trumpMode[trumpMode]}${sayCoincheLevel === 'coinche' ? ` (${i18n.Info.coinched})` : ''}${sayCoincheLevel === 'surcoinche' ? ` (${i18n.Info.surcoinched})` : ''}`}</span>
+            <span className="data">{`${expectedPoints} ${i18n.trumpMode[trumpMode]}${sayCoincheLevel === 'coinche' ? ` (${i18n.sayCoincheLevel.coinche})` : ''}${sayCoincheLevel === 'surcoinche' ? ` (${i18n.sayCoincheLevel.surcoinche})` : ''}`}</span>
           </div>
         </React.Fragment>
       )}

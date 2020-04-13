@@ -65,13 +65,13 @@ export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
               </option>
             ))}
           </select>
-          <button disabled={!selectedTrumpMode} onClick={(selectedExpectedPoint && selectedTrumpMode) ? () => sayTake(selectedExpectedPoint, selectedTrumpMode) : undefined} data-testid="button sayTake">{i18n.TalkMenu.takeButton}</button>
+          <button type="button" disabled={!selectedTrumpMode} onClick={(selectedExpectedPoint && selectedTrumpMode) ? () => sayTake(selectedExpectedPoint, selectedTrumpMode) : undefined} data-testid="button sayTake">{i18n.TalkMenu.takeButton}</button>
         </React.Fragment>
       )}
       {(canSayCoinche || canSaySurcoinche) && (
-        <button className="sayCoincheButton" onClick={() => sayCoinche()} data-testid="button sayCoinche">{canSaySurcoinche ? i18n.TalkMenu.surcoincheButton : i18n.TalkMenu.coincheButton}</button>
+        <button type="button" className="sayCoincheButton" onClick={() => sayCoinche()} data-testid="button sayCoinche">{canSaySurcoinche ? i18n.TalkMenu.surcoincheButton : i18n.TalkMenu.coincheButton}</button>
       )}
-      <button className="saySkipButton" onClick={() => saySkip()} data-testid="button saySkip">{i18n.TalkMenu.skipButton}</button>
+      <button type="button" className="saySkipButton" onClick={() => saySkip()} data-testid="button saySkip">{i18n.TalkMenu.skipButton}</button>
     </div>
   );
 };

@@ -36,6 +36,11 @@
   display: inline-block;
 }
 .card {
+  /**
+   * @TODO: remove extra space around cards to be able to use something else than a white background
+   *   see https://preethisam.com/2018/06/25/how-to-use-emojis-as-icons/ to use transparent color and text-shadow
+   *   see https://medium.com/eightshapes-llc/cropping-away-negative-impacts-of-line-height-84d744e016ce to remove height space
+   */
   font-size: 100px;
   display: inline-block;
 }
@@ -86,6 +91,7 @@
     "currentPlayerIndicator myCards       additionalCards";
   grid-template-columns: 50px 1fr 50px;
   grid-template-rows: 60px 30px 120px;
+  overflow-x: hidden;
 }
 .myPlayer > .playerTalks {
   grid-area: myPlayerTalks;
@@ -238,7 +244,7 @@
   z-index: 1;
   transform: rotate(36deg);
 }
-.otherPlayer.currentPlayer .cardWrapper:nth-child(1)::before {
+.otherPlayer.currentPlayer .otherPlayerCards .cardWrapper:nth-child(1)::before {
   content: '👉';
   position: absolute;
   top: 35%;
@@ -247,8 +253,7 @@
   z-index: 10;
 }
 .hiddenAdditionalCards {
-  /* @TODO: don't need it if constraint by parent size */
-  margin-left: -25px;
+  margin-left: -20px;
   transform: scale(.5);
 }
 .hiddenAdditionalCards .cardWrapper {
@@ -455,4 +460,109 @@
   display: flex;
   justify-content: space-between;
   max-width: 250px;
+}
+
+/**
+ */
+.modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  transform: translateY(calc(-100vh + 50px));
+  transition: all .5s ease-in-out;
+}
+.modal.opened {
+  transform: translateY(0);
+}
+.modal .content {
+  height: calc(100vh - 50px);
+  box-sizing: border-box;
+  padding: 20px;
+  overflow-y: auto;
+  background: rgba(0,0,0,.9);
+  color: white;
+}
+.modal .toggleButtons {
+  width: 50px;
+  border-color: black;
+  border-style: solid;
+  border-width: 0;
+  border-left-width: 3px;
+  margin: 0 0 0 auto;
+  color: white;
+}
+.modal .toggleButton {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  box-sizing: border-box;
+  border-color: black;
+  border-style: solid;
+  border-width: 0;
+  border-bottom-width: 3px;
+  border-right-width: 3px;
+  text-align: center;
+  cursor: pointer;
+}
+.modal .toggleButton.active {
+  background: black;
+}
+.modal .toggleButton span {
+  font-size: 40px;
+}
+
+/**
+ */
+.gameHistory {
+  font-size: 20px;
+}
+.gameHistory ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.gameHistory .round {
+  margin-bottom: 20px;
+}
+.gameHistory .round + .round {
+  padding-top: 15px;
+  border-top: 3px solid white;
+}
+.gameHistory .roundTitle {
+  margin-bottom: 10px;
+  font-weight: bold;
+  text-decoration: underline;
+  text-transform: uppercase;
+}
+.gameHistory .sectionTitle {
+  text-decoration: underline;
+}
+.gameHistory .teamPointsAtTheEndOfRound {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.gameHistory .teamPointsAtTheEndOfRound .sectionTitle {
+  font-weight: bold;
+}
+.gameHistory .roundDetailToggleButton button {
+  width: 100%;
+  line-height: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.gameHistory .roundDetail {
+  margin-top: 5px;
+  border: 1px solid white;
+  padding: 10px;
+}
+.gameHistory .goalPoints,
+.gameHistory .endOfRoundPoints,
+.gameHistory .turnsPoints,
+.gameHistory .announcesPoints,
+.gameHistory .turnsDetail,
+.gameHistory .announcesDetail {
+  margin-bottom: 10px;
 }

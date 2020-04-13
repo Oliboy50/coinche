@@ -13,7 +13,7 @@ export const PreviousCardsPlayedMenuComponent: React.FunctionComponent<Component
 
   return (
     <div className="toggleIsDisplayedPreviousCardsPlayed">
-      <button onClick={() => toggleIsDisplayedPreviousCardsPlayed()} data-testid="button toggleIsDisplayedPreviousCardsPlayed">{
+      <button type="button" onClick={() => toggleIsDisplayedPreviousCardsPlayed()} data-testid="button toggleIsDisplayedPreviousCardsPlayed">{
         isDisplayedPreviousCardsPlayed ? i18n.PreviousCardsPlayedMenu.doNotDisplayPreviousCardsPlayed : i18n.PreviousCardsPlayedMenu.displayPreviousCardsPlayed
       }</button>
     </div>
