@@ -90,7 +90,7 @@
     "menu                   menu          menu           "
     "currentPlayerIndicator myCards       additionalCards";
   grid-template-columns: 50px 1fr 50px;
-  grid-template-rows: 60px 30px 120px;
+  grid-template-rows: 70px 30px 120px;
   overflow-x: hidden;
 }
 .myPlayer > .playerTalks {
@@ -469,6 +469,7 @@
   top: 0;
   left: 0;
   right: 0;
+  overflow-x: hidden;
   z-index: 100;
   transform: translateY(calc(-100vh + 50px));
   transition: all .5s ease-in-out;
@@ -485,24 +486,18 @@
   color: white;
 }
 .modal .toggleButtons {
-  width: 50px;
-  border-color: black;
-  border-style: solid;
-  border-width: 0;
-  border-left-width: 3px;
+  width: 55px;
+  border-left: 3px solid black;
   margin: 0 0 0 auto;
   color: white;
 }
 .modal .toggleButton {
   display: inline-block;
-  width: 50px;
+  width: 55px;
   height: 50px;
   box-sizing: border-box;
-  border-color: black;
-  border-style: solid;
-  border-width: 0;
-  border-bottom-width: 3px;
-  border-right-width: 3px;
+  border-bottom: 3px solid black;
+  border-right: 3px solid black;
   text-align: center;
   cursor: pointer;
 }

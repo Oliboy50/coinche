@@ -1,6 +1,6 @@
 import React, {useContext, useState} from 'react';
 import {I18nContext} from '../context/i18n';
-import {GameHistory, PlayerID, TeamID} from '../../shared/coinche';
+import {GameHistory, PlayerID, TeamID, TrumpMode} from '../../shared/coinche';
 import {
   getPointsForAnnounce,
   getPointsForCard,
@@ -27,6 +27,8 @@ export const GameHistoryComponent: React.FunctionComponent<ComponentProps> = ({
         const previousNorthSouthTeamPointsAtTheEndOfRound = roundIndex > 0 ? gameHistory.rounds[roundIndex - 1].teamPointsAtTheEndOfRound![TeamID.NorthSouth] : 0;
         const previousEastWestTeamPointsAtTheEndOfRound = roundIndex > 0 ? gameHistory.rounds[roundIndex - 1].teamPointsAtTheEndOfRound![TeamID.EastWest] : 0;
 
+        const goalPointsDetail = `${getPointsForExpectedPoints(round.sayTake)} points (objectif${round.sayTake.trumpMode === TrumpMode.NoTrump ? ', sans atout' : ''}${round.sayTake.sayCoincheLevel === 'coinche' ? ', coinché' : ''}${round.sayTake.sayCoincheLevel === 'surcoinche' ? ', surcoinché' : ''})`;
+
         return <div key={roundIndex} className="round">
           <div className="roundTitle">{`Détail de la jetée n°${roundIndex + 1}`}</div>
           <div>{`Attaquant : ${getPlayerNameByID(round.sayTake.playerID)}`}</div>
@@ -51,15 +53,9 @@ export const GameHistoryComponent: React.FunctionComponent<ComponentProps> = ({
               {displayedRoundDetail === roundIndex && (
                 <div className="roundDetail">
                   <div className="goalPoints">
-                    <div className="sectionTitle">Points de l'objectif</div>
-                    <div>{`Equipe ${getTeamNameByID(TeamID.NorthSouth)} : ${round.winningTeam === TeamID.NorthSouth ? getPointsForExpectedPoints(round.sayTake) : 0} points`}</div>
-                    <div>{`Equipe ${getTeamNameByID(TeamID.EastWest)} : ${round.winningTeam === TeamID.EastWest ? getPointsForExpectedPoints(round.sayTake) : 0} points`}</div>
-                  </div>
-
-                  <div className="endOfRoundPoints">
-                    <div className="sectionTitle">Points de fin de jetée</div>
-                    <div>{`Equipe ${getTeamNameByID(TeamID.NorthSouth)} : ${round.turns.every(turn => turn.winningTeam === TeamID.NorthSouth) ? 100 : (round.turns[round.turns.length - 1].winningTeam === TeamID.NorthSouth ? 10 : 0)} points`}</div>
-                    <div>{`Equipe ${getTeamNameByID(TeamID.EastWest)} : ${round.turns.every(turn => turn.winningTeam === TeamID.EastWest) ? 100 : (round.turns[round.turns.length - 1].winningTeam === TeamID.EastWest ? 10 : 0)} points`}</div>
+                    <div className="sectionTitle">Points des enchères</div>
+                    <div>{`Equipe ${getTeamNameByID(TeamID.NorthSouth)} : ${round.winningTeam === TeamID.NorthSouth ? goalPointsDetail : '0 points'}`}</div>
+                    <div>{`Equipe ${getTeamNameByID(TeamID.EastWest)} : ${round.winningTeam === TeamID.EastWest ? goalPointsDetail : '0 points'}`}</div>
                   </div>
 
                   <div className="turnsPoints">
@@ -72,6 +68,12 @@ export const GameHistoryComponent: React.FunctionComponent<ComponentProps> = ({
                     <div className="sectionTitle">Points des annonces</div>
                     <div>{`Equipe ${getTeamNameByID(TeamID.NorthSouth)} : ${round.displayableAnnounces.reduce((acc, announce) => acc + ([PlayerID.North, PlayerID.South].includes(announce.owner) ? getPointsForAnnounce(announce.id, round.sayTake.trumpMode) : 0), 0)} points`}</div>
                     <div>{`Equipe ${getTeamNameByID(TeamID.EastWest)} : ${round.displayableAnnounces.reduce((acc, announce) => acc + ([PlayerID.East, PlayerID.West].includes(announce.owner) ? getPointsForAnnounce(announce.id, round.sayTake.trumpMode) : 0), 0)} points`}</div>
+                  </div>
+
+                  <div className="endOfRoundPoints">
+                    <div className="sectionTitle">Points de fin de jetée</div>
+                    <div>{`Equipe ${getTeamNameByID(TeamID.NorthSouth)} : ${round.turns.every(turn => turn.winningTeam === TeamID.NorthSouth) ? `100 points (capot)` : (round.turns[round.turns.length - 1].winningTeam === TeamID.NorthSouth ? `10 points (dernier pli)` : `0 points`)}`}</div>
+                    <div>{`Equipe ${getTeamNameByID(TeamID.EastWest)} : ${round.turns.every(turn => turn.winningTeam === TeamID.EastWest) ? `100 points (capot)` : (round.turns[round.turns.length - 1].winningTeam === TeamID.EastWest ? `10 points (dernier pli)` : `0 points`)}`}</div>
                   </div>
 
                   {round.turns.length > 0 && (
