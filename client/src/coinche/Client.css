@@ -90,7 +90,7 @@
     "menu                   menu          menu           "
     "currentPlayerIndicator myCards       additionalCards";
   grid-template-columns: 50px 1fr 50px;
-  grid-template-rows: 70px 30px 120px;
+  grid-template-rows: 65px 30px 125px;
   overflow-x: hidden;
 }
 .myPlayer > .playerTalks {
