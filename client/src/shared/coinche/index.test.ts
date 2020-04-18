@@ -8,7 +8,6 @@ import {
   getAnnounceByID,
   getAnnounces,
   getAnnouncesForCards,
-  getWinningAnnounceID,
   isAnnounceIDBeatingTheOtherAnnounceIDs,
   isCardBeatingTheOtherCards,
   validAnnounceIDs,
@@ -249,15 +248,13 @@ describe('getAnnouncesForCards', () => {
 
 describe('isAnnounceIDBeatingTheOtherAnnounceIDs', () => {
   const testCases: {
-    testCase: string;
     trumpMode: TrumpMode;
     announceID: AnnounceID;
     otherAnnounceIDs: AnnounceID[];
-    expectedResult: boolean;
+    expectedResult: boolean | null;
   }[] = [
     // Edge cases
     {
-      testCase: `returns true when no other announces`,
       trumpMode: TrumpMode.NoTrump,
       announceID: AnnounceID.TierceNineSpade,
       otherAnnounceIDs: [],
@@ -265,28 +262,24 @@ describe('isAnnounceIDBeatingTheOtherAnnounceIDs', () => {
     },
     // Squares
     {
-      testCase: `returns true when trumpMode is ${TrumpMode.TrumpSpade} and announce is ${AnnounceID.SquareJack}`,
       trumpMode: TrumpMode.TrumpSpade,
       announceID: AnnounceID.SquareJack,
       otherAnnounceIDs: getAnnounces().filter(a => a.id !== AnnounceID.SquareJack).map(a => a.id),
       expectedResult: true,
     },
     {
-      testCase: `returns true when trumpMode is ${TrumpMode.TrumpClub} and announce is ${AnnounceID.SquareNine} and other announces don't contain ${AnnounceID.SquareJack}`,
       trumpMode: TrumpMode.TrumpClub,
       announceID: AnnounceID.SquareNine,
       otherAnnounceIDs: getAnnounces().filter(a => ![AnnounceID.SquareJack, AnnounceID.SquareNine].includes(a.id)).map(a => a.id),
       expectedResult: true,
     },
     {
-      testCase: `returns true when trumpMode is ${TrumpMode.NoTrump} and announce is ${AnnounceID.SquareAce}`,
       trumpMode: TrumpMode.NoTrump,
       announceID: AnnounceID.SquareAce,
       otherAnnounceIDs: getAnnounces().filter(a => a.id !== AnnounceID.SquareAce).map(a => a.id),
       expectedResult: true,
     },
     {
-      testCase: `returns true when trumpMode is ${TrumpMode.NoTrump} and announce is ${AnnounceID.SquareTen} and other announces don't contain ${AnnounceID.SquareAce}`,
       trumpMode: TrumpMode.NoTrump,
       announceID: AnnounceID.SquareTen,
       otherAnnounceIDs: getAnnounces().filter(a => ![AnnounceID.SquareAce, AnnounceID.SquareTen].includes(a.id)).map(a => a.id),
@@ -294,75 +287,58 @@ describe('isAnnounceIDBeatingTheOtherAnnounceIDs', () => {
     },
     // Suites
     {
-      testCase: `returns true when trumpMode is ${TrumpMode.TrumpDiamond} and announce is ${AnnounceID.QuinteKingDiamond} and other announces contain ${AnnounceID.QuinteKingHeart}`,
       trumpMode: TrumpMode.TrumpDiamond,
       announceID: AnnounceID.QuinteKingDiamond,
       otherAnnounceIDs: [AnnounceID.QuinteKingHeart],
       expectedResult: true,
     },
     {
-      testCase: `returns false when trumpMode is ${TrumpMode.TrumpDiamond} and announce is ${AnnounceID.QuinteKingSpade} and other announces contain ${AnnounceID.QuinteKingClub}`,
       trumpMode: TrumpMode.TrumpDiamond,
       announceID: AnnounceID.QuinteKingSpade,
       otherAnnounceIDs: [AnnounceID.QuinteKingClub],
-      expectedResult: false,
+      expectedResult: null,
     },
     {
-      testCase: `returns false when announce is ${AnnounceID.QuarteAceSpade} and other announces contain ${AnnounceID.QuinteAceSpade}`,
       trumpMode: TrumpMode.NoTrump,
       announceID: AnnounceID.QuarteAceSpade,
       otherAnnounceIDs: [AnnounceID.QuinteAceSpade],
       expectedResult: false,
     },
     {
-      testCase: `returns false when announce is ${AnnounceID.TierceTenHeart} and other announces contain ${AnnounceID.TierceJackSpade}`,
       trumpMode: TrumpMode.NoTrump,
       announceID: AnnounceID.TierceTenHeart,
       otherAnnounceIDs: [AnnounceID.TierceJackSpade],
       expectedResult: false,
     },
     {
-      testCase: `returns true when announce is ${AnnounceID.TierceTenHeart} and other announces contain ${AnnounceID.TierceNineSpade}`,
       trumpMode: TrumpMode.NoTrump,
       announceID: AnnounceID.TierceTenHeart,
       otherAnnounceIDs: [AnnounceID.TierceNineSpade],
       expectedResult: true,
     },
     {
-      testCase: `returns false when trumpMode is ${TrumpMode.NoTrump} and announce is ${AnnounceID.TierceAceHeart} and other announces contain ${AnnounceID.TierceAceSpade}`,
+      trumpMode: TrumpMode.TrumpHeart,
+      announceID: AnnounceID.TierceNineHeart,
+      otherAnnounceIDs: [AnnounceID.TierceNineSpade, AnnounceID.TierceNineClub, AnnounceID.TierceNineDiamond],
+      expectedResult: true,
+    },
+    {
       trumpMode: TrumpMode.NoTrump,
-      announceID: AnnounceID.TierceAceHeart,
-      otherAnnounceIDs: [AnnounceID.TierceTenClub, AnnounceID.TierceNineHeart, AnnounceID.TierceAceSpade],
+      announceID: AnnounceID.TierceNineHeart,
+      otherAnnounceIDs: [AnnounceID.TierceNineSpade, AnnounceID.TierceNineClub],
+      expectedResult: null,
+    },
+    {
+      trumpMode: TrumpMode.NoTrump,
+      announceID: AnnounceID.TierceNineHeart,
+      otherAnnounceIDs: [AnnounceID.TierceNineSpade, AnnounceID.TierceTenClub],
       expectedResult: false,
     },
   ];
 
-  testCases.forEach(({testCase, trumpMode, announceID, otherAnnounceIDs, expectedResult}) => {
-    it(testCase, () => {
+  testCases.forEach(({trumpMode, announceID, otherAnnounceIDs, expectedResult}) => {
+    it(`returns ${expectedResult === null ? 'null' : (expectedResult ? 'true' : 'false')} when trumpMode is ${trumpMode} and announce is ${announceID} and other announces are [${otherAnnounceIDs.join(',')}]`, () => {
       expect(isAnnounceIDBeatingTheOtherAnnounceIDs(announceID, otherAnnounceIDs, trumpMode)).toEqual(expectedResult);
-    });
-  });
-});
-
-describe('getWinningAnnounceID', () => {
-  const testCases: {
-    trumpMode: TrumpMode;
-    announceIDs: AnnounceID[];
-    expectedResult: AnnounceID | undefined;
-  }[] = [
-    {
-      trumpMode: TrumpMode.NoTrump,
-      announceIDs: [
-        AnnounceID.TierceAceHeart,
-        AnnounceID.TierceAceSpade,
-      ],
-      expectedResult: undefined,
-    },
-  ];
-
-  testCases.forEach(({trumpMode, announceIDs, expectedResult}) => {
-    it(`returns ${expectedResult ? expectedResult : 'undefined'} when announceIDs ${announceIDs.join(', ')} and trumpMode ${trumpMode}`, () => {
-      expect(getWinningAnnounceID(announceIDs, trumpMode)).toEqual(expectedResult);
     });
   });
 });

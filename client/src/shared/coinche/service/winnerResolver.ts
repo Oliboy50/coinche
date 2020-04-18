@@ -1,9 +1,11 @@
 import {
   Card,
   CardColor,
+  PlayerAnnounce,
   PlayerID,
   TeamID,
   TrumpMode,
+  isAnnounceIDBeatingTheOtherAnnounceIDs,
   isCardBeatingTheOtherCards,
   isSameCard,
 } from '../index';
@@ -28,6 +30,26 @@ export const getWinningCard = (
 
     return currentWinningCard;
   });
+};
+
+export const getWinningAnnounces = (playerAnnounces: PlayerAnnounce[], trumpMode: TrumpMode): PlayerAnnounce[] => {
+  // 0 or 1 announce
+  if (playerAnnounces.length <= 1) {
+    return playerAnnounces;
+  }
+
+  // if true winning announces, return only them
+  const winningAnnounces = playerAnnounces.filter(playerAnnounce =>
+    true === isAnnounceIDBeatingTheOtherAnnounceIDs(playerAnnounce.announce.id, playerAnnounces.filter(a => a.announce.id !== playerAnnounce.announce.id).map(a => a.announce.id), trumpMode),
+  );
+  if (winningAnnounces.length) {
+    return winningAnnounces;
+  }
+
+  // return null announces (equality)
+  return playerAnnounces.filter(playerAnnounce =>
+    null === isAnnounceIDBeatingTheOtherAnnounceIDs(playerAnnounce.announce.id, playerAnnounces.filter(a => a.announce.id !== playerAnnounce.announce.id).map(a => a.announce.id), trumpMode),
+  );
 };
 
 export const getTurnWinner = (
