@@ -312,16 +312,20 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
         </div>
       </div>
 
-      <div className={`modal ${isDisplayedPointsDetail ? 'opened': ''}`}>
-        <div className="content">
-          <GameHistoryComponent gameHistory={G.history} getPlayerNameByID={getPlayerNameByID} />
-        </div>
-        <div className="toggleButtons">
-          <div className={`toggleButton ${isDisplayedPointsDetail ? 'active': ''}`} onClick={() => setIsDisplayedPointsDetail(!isDisplayedPointsDetail)}>
-            <span role="img" aria-label="TODO">📝</span>
+      {G.history.rounds.length > 0 && (
+        <div className={`modal ${isDisplayedPointsDetail ? 'opened': ''}`}>
+          <div className="content">
+            {isDisplayedPointsDetail && (
+              <GameHistoryComponent gameHistory={G.history} getPlayerNameByID={getPlayerNameByID} />
+            )}
+          </div>
+          <div className="toggleButtons">
+            <div className={`toggleButton ${isDisplayedPointsDetail ? 'active': ''}`} onClick={() => setIsDisplayedPointsDetail(!isDisplayedPointsDetail)}>
+              <span role="img" aria-label="TODO">📝</span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </React.Fragment>
   );
 };

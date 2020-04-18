@@ -16,21 +16,23 @@ export const GameHistoryComponent: React.FunctionComponent<ComponentProps> = ({
   gameHistory,
   getPlayerNameByID,
 }) => {
+  const reversedRounds = [...gameHistory.rounds].reverse();
+
   const i18n = useContext(I18nContext);
-  const [displayedRoundDetail, setDisplayedRoundDetail] = useState(gameHistory.rounds.length > 0 ? gameHistory.rounds.length - 1 : undefined);
+  const [displayedRoundDetail, setDisplayedRoundDetail] = useState<number | undefined>(undefined);
 
   const getTeamNameByID = (teamID: TeamID): string => teamID === TeamID.NorthSouth ? `[${getPlayerNameByID(PlayerID.North)}|${getPlayerNameByID(PlayerID.South)}]` : `[${getPlayerNameByID(PlayerID.East)}|${getPlayerNameByID(PlayerID.West)}]`;
 
   return (
     <div className="gameHistory">
-      {gameHistory.rounds.map((round, roundIndex) => {
-        const previousNorthSouthTeamPointsAtTheEndOfRound = roundIndex > 0 ? gameHistory.rounds[roundIndex - 1].teamPointsAtTheEndOfRound![TeamID.NorthSouth] : 0;
-        const previousEastWestTeamPointsAtTheEndOfRound = roundIndex > 0 ? gameHistory.rounds[roundIndex - 1].teamPointsAtTheEndOfRound![TeamID.EastWest] : 0;
+      {reversedRounds.map((round, roundIndex) => {
+        const previousNorthSouthTeamPointsAtTheEndOfRound = roundIndex < (reversedRounds.length - 1) ? reversedRounds[roundIndex + 1].teamPointsAtTheEndOfRound![TeamID.NorthSouth] : 0;
+        const previousEastWestTeamPointsAtTheEndOfRound = roundIndex < (reversedRounds.length - 1) ? reversedRounds[roundIndex + 1].teamPointsAtTheEndOfRound![TeamID.EastWest] : 0;
 
         const goalPointsDetail = `${getPointsForExpectedPoints(round.sayTake)} points (objectif${round.sayTake.trumpMode === TrumpMode.NoTrump ? ', sans atout' : ''}${round.sayTake.sayCoincheLevel === 'coinche' ? ', coinché' : ''}${round.sayTake.sayCoincheLevel === 'surcoinche' ? ', surcoinché' : ''})`;
 
         return <div key={roundIndex} className="round">
-          <div className="roundTitle">{`Détail de la jetée n°${roundIndex + 1}`}</div>
+          <div className="roundTitle">{`Détail de la jetée n°${reversedRounds.length - roundIndex}`}</div>
           <div>{`Attaquant : ${getPlayerNameByID(round.sayTake.playerID)}`}</div>
           <div>{`Objectif : ${round.sayTake.expectedPoints} ${i18n.trumpMode[round.sayTake.trumpMode]}${round.sayTake.sayCoincheLevel === 'coinche' ? ` (${i18n.sayCoincheLevel.coinche})` : ''}${round.sayTake.sayCoincheLevel === 'surcoinche' ? ` (${i18n.sayCoincheLevel.surcoinche})` : ''}`}</div>
 
