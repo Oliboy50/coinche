@@ -19,22 +19,22 @@ describe(`move/sayAnnounce`, () => {
     const announceTierceAceClub = getAnnounceByID(AnnounceID.TierceAceClub);
     const announceSquareAce = getAnnounceByID(AnnounceID.SquareAce);
     G.playersAnnounces[PlayerID.North] = [
-      { announce: announceTierceAceClub, announceGroup: getAnnounceGroupByAnnounceID(announceTierceAceClub.id), isCardsDisplayable: false, isSaid: false },
-      { announce: announceSquareAce, announceGroup: getAnnounceGroupByAnnounceID(announceSquareAce.id), isCardsDisplayable: false, isSaid: false },
+      { player: PlayerID.North, announce: announceTierceAceClub, announceGroup: getAnnounceGroupByAnnounceID(announceTierceAceClub.id), isCardsDisplayable: false, isSaid: false },
+      { player: PlayerID.North, announce: announceSquareAce, announceGroup: getAnnounceGroupByAnnounceID(announceSquareAce.id), isCardsDisplayable: false, isSaid: false },
     ];
 
     sayAnnounce(G, ctx, getAnnounceByID(AnnounceID.SquareAce));
 
     expect(G.playersAnnounces[PlayerID.North]).toEqual([
-      { announce: announceTierceAceClub, announceGroup: getAnnounceGroupByAnnounceID(announceTierceAceClub.id), isCardsDisplayable: false, isSaid: false },
-      { announce: announceSquareAce, announceGroup: getAnnounceGroupByAnnounceID(announceSquareAce.id), isCardsDisplayable: false, isSaid: true },
+      { player: PlayerID.North, announce: announceTierceAceClub, announceGroup: getAnnounceGroupByAnnounceID(announceTierceAceClub.id), isCardsDisplayable: false, isSaid: false },
+      { player: PlayerID.North, announce: announceSquareAce, announceGroup: getAnnounceGroupByAnnounceID(announceSquareAce.id), isCardsDisplayable: false, isSaid: true },
     ]);
   });
 
   it(`throws if playersAnnounces[currentPlayer] does not contain given announce`, () => {
     const announceTierceAceClub = getAnnounceByID(AnnounceID.TierceAceClub);
     G.playersAnnounces[PlayerID.North] = [
-      { announce: announceTierceAceClub, announceGroup: getAnnounceGroupByAnnounceID(announceTierceAceClub.id), isCardsDisplayable: false, isSaid: false },
+      { player: PlayerID.North, announce: announceTierceAceClub, announceGroup: getAnnounceGroupByAnnounceID(announceTierceAceClub.id), isCardsDisplayable: false, isSaid: false },
     ];
 
     expect(() => {

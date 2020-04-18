@@ -13,7 +13,7 @@ import saySkip from './move/saySkip';
 import sayTake from './move/sayTake';
 import sayCoinche from './move/sayCoinche';
 import {getWinningTeamAndNewAttackingTeamPointsAndDefensingTeamPointsAfterEndOfRound} from './service/pointsCounter';
-import {getGameWinnerTeam, getTurnWinner, getWinningCard} from './service/winnerResolver';
+import {getGameWinnerTeam, getTurnWinner, getWinningAnnounces, getWinningCard} from './service/winnerResolver';
 
 export enum CardColor {
   Spade = 'Spade',
@@ -155,6 +155,7 @@ export interface Announce {
   cards: Card[];
 }
 export interface PlayerAnnounce {
+  player: PlayerID;
   announce: Announce;
   announceGroup: AnnounceGroup;
   isSaid: boolean;
@@ -1450,7 +1451,7 @@ export const getAnnouncesForCards = (cards: Card[], _: TrumpMode): Announce[] =>
 
   return filterSelfExcludingAnnounces(availableAnnounces);
 };
-export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, otherAnnounceIDs: AnnounceID[], trumpMode: TrumpMode): boolean => {
+export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, otherAnnounceIDs: AnnounceID[], trumpMode: TrumpMode): boolean | null => {
   if (!otherAnnounceIDs.length) {
     return true;
   }
@@ -1511,62 +1512,66 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
           if (trumpMode === TrumpMode.TrumpSpade) {
             return true;
           }
-          return otherAnnounceIDs.every(a => ![AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceClub, AnnounceID.QuinteAceHeart].includes(a));
+
+          return otherAnnounceIDs.some(a => [AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceClub, AnnounceID.QuinteAceHeart].includes(a)) ? null : true;
         case AnnounceID.QuinteAceDiamond:
           if (trumpMode === TrumpMode.TrumpDiamond) {
             return true;
           }
-          return otherAnnounceIDs.every(a => ![AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceClub, AnnounceID.QuinteAceHeart].includes(a));
+
+          return otherAnnounceIDs.some(a => [AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceClub, AnnounceID.QuinteAceHeart].includes(a)) ? null : true;
         case AnnounceID.QuinteAceClub:
           if (trumpMode === TrumpMode.TrumpClub) {
             return true;
           }
-          return otherAnnounceIDs.every(a => ![AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceHeart].includes(a));
+
+          return otherAnnounceIDs.some(a => [AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceHeart].includes(a)) ? null : true;
         case AnnounceID.QuinteAceHeart:
           if (trumpMode === TrumpMode.TrumpHeart) {
             return true;
           }
-          return otherAnnounceIDs.every(a => ![AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceClub].includes(a));
+
+          return otherAnnounceIDs.some(a => [AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceClub].includes(a)) ? null : true;
         case AnnounceID.QuinteKingSpade:
           if (trumpMode === TrumpMode.TrumpSpade) {
             return otherAnnounceIDs.every(a => ![
               AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceClub, AnnounceID.QuinteAceHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceClub, AnnounceID.QuinteAceHeart,
-            AnnounceID.QuinteKingDiamond, AnnounceID.QuinteKingClub, AnnounceID.QuinteKingHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuinteKingDiamond, AnnounceID.QuinteKingClub, AnnounceID.QuinteKingHeart].includes(a)) ? null : true);
         case AnnounceID.QuinteKingDiamond:
           if (trumpMode === TrumpMode.TrumpDiamond) {
             return otherAnnounceIDs.every(a => ![
               AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceClub, AnnounceID.QuinteAceHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceClub, AnnounceID.QuinteAceHeart,
-            AnnounceID.QuinteKingSpade, AnnounceID.QuinteKingClub, AnnounceID.QuinteKingHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuinteKingSpade, AnnounceID.QuinteKingClub, AnnounceID.QuinteKingHeart].includes(a)) ? null : true);
         case AnnounceID.QuinteKingClub:
           if (trumpMode === TrumpMode.TrumpClub) {
             return otherAnnounceIDs.every(a => ![
               AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceClub, AnnounceID.QuinteAceHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceClub, AnnounceID.QuinteAceHeart,
-            AnnounceID.QuinteKingSpade, AnnounceID.QuinteKingDiamond, AnnounceID.QuinteKingHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuinteKingSpade, AnnounceID.QuinteKingDiamond, AnnounceID.QuinteKingHeart].includes(a)) ? null : true);
         case AnnounceID.QuinteKingHeart:
           if (trumpMode === TrumpMode.TrumpHeart) {
             return otherAnnounceIDs.every(a => ![
               AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceClub, AnnounceID.QuinteAceHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceClub, AnnounceID.QuinteAceHeart,
-            AnnounceID.QuinteKingSpade, AnnounceID.QuinteKingDiamond, AnnounceID.QuinteKingClub,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuinteKingSpade, AnnounceID.QuinteKingDiamond, AnnounceID.QuinteKingClub].includes(a)) ? null : true);
         case AnnounceID.QuinteQueenSpade:
           if (trumpMode === TrumpMode.TrumpSpade) {
             return otherAnnounceIDs.every(a => ![
@@ -1574,11 +1579,11 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.QuinteKingSpade, AnnounceID.QuinteKingDiamond, AnnounceID.QuinteKingClub, AnnounceID.QuinteKingHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceClub, AnnounceID.QuinteAceHeart,
             AnnounceID.QuinteKingSpade, AnnounceID.QuinteKingDiamond, AnnounceID.QuinteKingClub, AnnounceID.QuinteKingHeart,
-            AnnounceID.QuinteQueenDiamond, AnnounceID.QuinteQueenClub, AnnounceID.QuinteQueenHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuinteQueenDiamond, AnnounceID.QuinteQueenClub, AnnounceID.QuinteQueenHeart].includes(a)) ? null : true);
         case AnnounceID.QuinteQueenDiamond:
           if (trumpMode === TrumpMode.TrumpDiamond) {
             return otherAnnounceIDs.every(a => ![
@@ -1586,11 +1591,11 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.QuinteKingSpade, AnnounceID.QuinteKingDiamond, AnnounceID.QuinteKingClub, AnnounceID.QuinteKingHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceClub, AnnounceID.QuinteAceHeart,
             AnnounceID.QuinteKingSpade, AnnounceID.QuinteKingDiamond, AnnounceID.QuinteKingClub, AnnounceID.QuinteKingHeart,
-            AnnounceID.QuinteQueenSpade, AnnounceID.QuinteQueenClub, AnnounceID.QuinteQueenHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuinteQueenSpade, AnnounceID.QuinteQueenClub, AnnounceID.QuinteQueenHeart].includes(a)) ? null : true);
         case AnnounceID.QuinteQueenClub:
           if (trumpMode === TrumpMode.TrumpClub) {
             return otherAnnounceIDs.every(a => ![
@@ -1598,11 +1603,11 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.QuinteKingSpade, AnnounceID.QuinteKingDiamond, AnnounceID.QuinteKingClub, AnnounceID.QuinteKingHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceClub, AnnounceID.QuinteAceHeart,
             AnnounceID.QuinteKingSpade, AnnounceID.QuinteKingDiamond, AnnounceID.QuinteKingClub, AnnounceID.QuinteKingHeart,
-            AnnounceID.QuinteQueenSpade, AnnounceID.QuinteQueenDiamond, AnnounceID.QuinteQueenHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuinteQueenSpade, AnnounceID.QuinteQueenDiamond, AnnounceID.QuinteQueenHeart].includes(a)) ? null : true);
         case AnnounceID.QuinteQueenHeart:
           if (trumpMode === TrumpMode.TrumpHeart) {
             return otherAnnounceIDs.every(a => ![
@@ -1610,11 +1615,11 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.QuinteKingSpade, AnnounceID.QuinteKingDiamond, AnnounceID.QuinteKingClub, AnnounceID.QuinteKingHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceClub, AnnounceID.QuinteAceHeart,
             AnnounceID.QuinteKingSpade, AnnounceID.QuinteKingDiamond, AnnounceID.QuinteKingClub, AnnounceID.QuinteKingHeart,
-            AnnounceID.QuinteQueenSpade, AnnounceID.QuinteQueenDiamond, AnnounceID.QuinteQueenClub,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuinteQueenSpade, AnnounceID.QuinteQueenDiamond, AnnounceID.QuinteQueenClub].includes(a)) ? null : true);
         case AnnounceID.QuinteJackSpade:
           if (trumpMode === TrumpMode.TrumpSpade) {
             return otherAnnounceIDs.every(a => ![
@@ -1623,12 +1628,12 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.QuinteQueenSpade, AnnounceID.QuinteQueenDiamond, AnnounceID.QuinteQueenClub, AnnounceID.QuinteQueenHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceClub, AnnounceID.QuinteAceHeart,
             AnnounceID.QuinteKingSpade, AnnounceID.QuinteKingDiamond, AnnounceID.QuinteKingClub, AnnounceID.QuinteKingHeart,
             AnnounceID.QuinteQueenSpade, AnnounceID.QuinteQueenDiamond, AnnounceID.QuinteQueenClub, AnnounceID.QuinteQueenHeart,
-            AnnounceID.QuinteJackDiamond, AnnounceID.QuinteJackClub, AnnounceID.QuinteJackHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuinteJackDiamond, AnnounceID.QuinteJackClub, AnnounceID.QuinteJackHeart].includes(a)) ? null : true);
         case AnnounceID.QuinteJackDiamond:
           if (trumpMode === TrumpMode.TrumpDiamond) {
             return otherAnnounceIDs.every(a => ![
@@ -1637,12 +1642,12 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.QuinteQueenSpade, AnnounceID.QuinteQueenDiamond, AnnounceID.QuinteQueenClub, AnnounceID.QuinteQueenHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceClub, AnnounceID.QuinteAceHeart,
             AnnounceID.QuinteKingSpade, AnnounceID.QuinteKingDiamond, AnnounceID.QuinteKingClub, AnnounceID.QuinteKingHeart,
             AnnounceID.QuinteQueenSpade, AnnounceID.QuinteQueenDiamond, AnnounceID.QuinteQueenClub, AnnounceID.QuinteQueenHeart,
-            AnnounceID.QuinteJackSpade, AnnounceID.QuinteJackClub, AnnounceID.QuinteJackHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuinteJackSpade, AnnounceID.QuinteJackClub, AnnounceID.QuinteJackHeart].includes(a)) ? null : true);
         case AnnounceID.QuinteJackClub:
           if (trumpMode === TrumpMode.TrumpClub) {
             return otherAnnounceIDs.every(a => ![
@@ -1651,12 +1656,12 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.QuinteQueenSpade, AnnounceID.QuinteQueenDiamond, AnnounceID.QuinteQueenClub, AnnounceID.QuinteQueenHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceClub, AnnounceID.QuinteAceHeart,
             AnnounceID.QuinteKingSpade, AnnounceID.QuinteKingDiamond, AnnounceID.QuinteKingClub, AnnounceID.QuinteKingHeart,
             AnnounceID.QuinteQueenSpade, AnnounceID.QuinteQueenDiamond, AnnounceID.QuinteQueenClub, AnnounceID.QuinteQueenHeart,
-            AnnounceID.QuinteJackSpade, AnnounceID.QuinteJackDiamond, AnnounceID.QuinteJackHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuinteJackSpade, AnnounceID.QuinteJackDiamond, AnnounceID.QuinteJackHeart].includes(a)) ? null : true);
         case AnnounceID.QuinteJackHeart:
           if (trumpMode === TrumpMode.TrumpHeart) {
             return otherAnnounceIDs.every(a => ![
@@ -1665,12 +1670,12 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.QuinteQueenSpade, AnnounceID.QuinteQueenDiamond, AnnounceID.QuinteQueenClub, AnnounceID.QuinteQueenHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuinteAceSpade, AnnounceID.QuinteAceDiamond, AnnounceID.QuinteAceClub, AnnounceID.QuinteAceHeart,
             AnnounceID.QuinteKingSpade, AnnounceID.QuinteKingDiamond, AnnounceID.QuinteKingClub, AnnounceID.QuinteKingHeart,
             AnnounceID.QuinteQueenSpade, AnnounceID.QuinteQueenDiamond, AnnounceID.QuinteQueenClub, AnnounceID.QuinteQueenHeart,
-            AnnounceID.QuinteJackSpade, AnnounceID.QuinteJackDiamond, AnnounceID.QuinteJackClub,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuinteJackSpade, AnnounceID.QuinteJackDiamond, AnnounceID.QuinteJackClub].includes(a)) ? null : true);
       }
       // throw if a case has been forgotten
       throw new Error('a case has been forgotten');
@@ -1689,62 +1694,66 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
           if (trumpMode === TrumpMode.TrumpSpade) {
             return true;
           }
-          return otherAnnounceIDs.every(a => ![AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart].includes(a));
+
+          return otherAnnounceIDs.some(a => [AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart].includes(a)) ? null : true;
         case AnnounceID.QuarteAceDiamond:
           if (trumpMode === TrumpMode.TrumpDiamond) {
             return true;
           }
-          return otherAnnounceIDs.every(a => ![AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart].includes(a));
+
+          return otherAnnounceIDs.some(a => [AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart].includes(a)) ? null : true;
         case AnnounceID.QuarteAceClub:
           if (trumpMode === TrumpMode.TrumpClub) {
             return true;
           }
-          return otherAnnounceIDs.every(a => ![AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceHeart].includes(a));
+
+          return otherAnnounceIDs.some(a => [AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceHeart].includes(a)) ? null : true;
         case AnnounceID.QuarteAceHeart:
           if (trumpMode === TrumpMode.TrumpHeart) {
             return true;
           }
-          return otherAnnounceIDs.every(a => ![AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub].includes(a));
+
+          return otherAnnounceIDs.some(a => [AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub].includes(a)) ? null : true;
         case AnnounceID.QuarteKingSpade:
           if (trumpMode === TrumpMode.TrumpSpade) {
             return otherAnnounceIDs.every(a => ![
               AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart,
-            AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingClub, AnnounceID.QuarteKingHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingClub, AnnounceID.QuarteKingHeart].includes(a)) ? null : true);
         case AnnounceID.QuarteKingDiamond:
           if (trumpMode === TrumpMode.TrumpDiamond) {
             return otherAnnounceIDs.every(a => ![
               AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart,
-            AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingClub, AnnounceID.QuarteKingHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingClub, AnnounceID.QuarteKingHeart].includes(a)) ? null : true);
         case AnnounceID.QuarteKingClub:
           if (trumpMode === TrumpMode.TrumpClub) {
             return otherAnnounceIDs.every(a => ![
               AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart,
-            AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingHeart].includes(a)) ? null : true);
         case AnnounceID.QuarteKingHeart:
           if (trumpMode === TrumpMode.TrumpHeart) {
             return otherAnnounceIDs.every(a => ![
               AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart,
-            AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingClub,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingClub].includes(a)) ? null : true);
         case AnnounceID.QuarteQueenSpade:
           if (trumpMode === TrumpMode.TrumpSpade) {
             return otherAnnounceIDs.every(a => ![
@@ -1752,11 +1761,11 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingClub, AnnounceID.QuarteKingHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart,
             AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingClub, AnnounceID.QuarteKingHeart,
-            AnnounceID.QuarteQueenDiamond, AnnounceID.QuarteQueenClub, AnnounceID.QuarteQueenHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuarteQueenDiamond, AnnounceID.QuarteQueenClub, AnnounceID.QuarteQueenHeart].includes(a)) ? null : true);
         case AnnounceID.QuarteQueenDiamond:
           if (trumpMode === TrumpMode.TrumpDiamond) {
             return otherAnnounceIDs.every(a => ![
@@ -1764,11 +1773,11 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingClub, AnnounceID.QuarteKingHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart,
             AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingClub, AnnounceID.QuarteKingHeart,
-            AnnounceID.QuarteQueenSpade, AnnounceID.QuarteQueenClub, AnnounceID.QuarteQueenHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuarteQueenSpade, AnnounceID.QuarteQueenClub, AnnounceID.QuarteQueenHeart].includes(a)) ? null : true);
         case AnnounceID.QuarteQueenClub:
           if (trumpMode === TrumpMode.TrumpClub) {
             return otherAnnounceIDs.every(a => ![
@@ -1776,11 +1785,11 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingClub, AnnounceID.QuarteKingHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart,
             AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingClub, AnnounceID.QuarteKingHeart,
-            AnnounceID.QuarteQueenSpade, AnnounceID.QuarteQueenDiamond, AnnounceID.QuarteQueenHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuarteQueenSpade, AnnounceID.QuarteQueenDiamond, AnnounceID.QuarteQueenHeart].includes(a)) ? null : true);
         case AnnounceID.QuarteQueenHeart:
           if (trumpMode === TrumpMode.TrumpHeart) {
             return otherAnnounceIDs.every(a => ![
@@ -1788,11 +1797,11 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingClub, AnnounceID.QuarteKingHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart,
             AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingClub, AnnounceID.QuarteKingHeart,
-            AnnounceID.QuarteQueenSpade, AnnounceID.QuarteQueenDiamond, AnnounceID.QuarteQueenClub,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuarteQueenSpade, AnnounceID.QuarteQueenDiamond, AnnounceID.QuarteQueenClub].includes(a)) ? null : true);
         case AnnounceID.QuarteJackSpade:
           if (trumpMode === TrumpMode.TrumpSpade) {
             return otherAnnounceIDs.every(a => ![
@@ -1801,12 +1810,12 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.QuarteQueenSpade, AnnounceID.QuarteQueenDiamond, AnnounceID.QuarteQueenClub, AnnounceID.QuarteQueenHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart,
             AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingClub, AnnounceID.QuarteKingHeart,
             AnnounceID.QuarteQueenSpade, AnnounceID.QuarteQueenDiamond, AnnounceID.QuarteQueenClub, AnnounceID.QuarteQueenHeart,
-            AnnounceID.QuarteJackDiamond, AnnounceID.QuarteJackClub, AnnounceID.QuarteJackHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuarteJackDiamond, AnnounceID.QuarteJackClub, AnnounceID.QuarteJackHeart].includes(a)) ? null : true);
         case AnnounceID.QuarteJackDiamond:
           if (trumpMode === TrumpMode.TrumpDiamond) {
             return otherAnnounceIDs.every(a => ![
@@ -1815,12 +1824,12 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.QuarteQueenSpade, AnnounceID.QuarteQueenDiamond, AnnounceID.QuarteQueenClub, AnnounceID.QuarteQueenHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart,
             AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingClub, AnnounceID.QuarteKingHeart,
             AnnounceID.QuarteQueenSpade, AnnounceID.QuarteQueenDiamond, AnnounceID.QuarteQueenClub, AnnounceID.QuarteQueenHeart,
-            AnnounceID.QuarteJackSpade, AnnounceID.QuarteJackClub, AnnounceID.QuarteJackHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuarteJackSpade, AnnounceID.QuarteJackClub, AnnounceID.QuarteJackHeart].includes(a)) ? null : true);
         case AnnounceID.QuarteJackClub:
           if (trumpMode === TrumpMode.TrumpClub) {
             return otherAnnounceIDs.every(a => ![
@@ -1829,12 +1838,12 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.QuarteQueenSpade, AnnounceID.QuarteQueenDiamond, AnnounceID.QuarteQueenClub, AnnounceID.QuarteQueenHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart,
             AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingClub, AnnounceID.QuarteKingHeart,
             AnnounceID.QuarteQueenSpade, AnnounceID.QuarteQueenDiamond, AnnounceID.QuarteQueenClub, AnnounceID.QuarteQueenHeart,
-            AnnounceID.QuarteJackSpade, AnnounceID.QuarteJackDiamond, AnnounceID.QuarteJackHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuarteJackSpade, AnnounceID.QuarteJackDiamond, AnnounceID.QuarteJackHeart].includes(a)) ? null : true);
         case AnnounceID.QuarteJackHeart:
           if (trumpMode === TrumpMode.TrumpHeart) {
             return otherAnnounceIDs.every(a => ![
@@ -1843,12 +1852,12 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.QuarteQueenSpade, AnnounceID.QuarteQueenDiamond, AnnounceID.QuarteQueenClub, AnnounceID.QuarteQueenHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart,
             AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingClub, AnnounceID.QuarteKingHeart,
             AnnounceID.QuarteQueenSpade, AnnounceID.QuarteQueenDiamond, AnnounceID.QuarteQueenClub, AnnounceID.QuarteQueenHeart,
-            AnnounceID.QuarteJackSpade, AnnounceID.QuarteJackDiamond, AnnounceID.QuarteJackClub,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuarteJackSpade, AnnounceID.QuarteJackDiamond, AnnounceID.QuarteJackClub].includes(a)) ? null : true);
         case AnnounceID.QuarteTenSpade:
           if (trumpMode === TrumpMode.TrumpSpade) {
             return otherAnnounceIDs.every(a => ![
@@ -1858,13 +1867,13 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.QuarteJackSpade, AnnounceID.QuarteJackDiamond, AnnounceID.QuarteJackClub, AnnounceID.QuarteJackHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart,
             AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingClub, AnnounceID.QuarteKingHeart,
             AnnounceID.QuarteQueenSpade, AnnounceID.QuarteQueenDiamond, AnnounceID.QuarteQueenClub, AnnounceID.QuarteQueenHeart,
             AnnounceID.QuarteJackSpade, AnnounceID.QuarteJackDiamond, AnnounceID.QuarteJackClub, AnnounceID.QuarteJackHeart,
-            AnnounceID.QuarteTenDiamond, AnnounceID.QuarteTenClub, AnnounceID.QuarteTenHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuarteTenDiamond, AnnounceID.QuarteTenClub, AnnounceID.QuarteTenHeart].includes(a)) ? null : true);
         case AnnounceID.QuarteTenDiamond:
           if (trumpMode === TrumpMode.TrumpDiamond) {
             return otherAnnounceIDs.every(a => ![
@@ -1874,13 +1883,13 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.QuarteJackSpade, AnnounceID.QuarteJackDiamond, AnnounceID.QuarteJackClub, AnnounceID.QuarteJackHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart,
             AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingClub, AnnounceID.QuarteKingHeart,
             AnnounceID.QuarteQueenSpade, AnnounceID.QuarteQueenDiamond, AnnounceID.QuarteQueenClub, AnnounceID.QuarteQueenHeart,
             AnnounceID.QuarteJackSpade, AnnounceID.QuarteJackDiamond, AnnounceID.QuarteJackClub, AnnounceID.QuarteJackHeart,
-            AnnounceID.QuarteTenSpade, AnnounceID.QuarteTenClub, AnnounceID.QuarteTenHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuarteTenSpade, AnnounceID.QuarteTenClub, AnnounceID.QuarteTenHeart].includes(a)) ? null : true);
         case AnnounceID.QuarteTenClub:
           if (trumpMode === TrumpMode.TrumpClub) {
             return otherAnnounceIDs.every(a => ![
@@ -1890,13 +1899,13 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.QuarteJackSpade, AnnounceID.QuarteJackDiamond, AnnounceID.QuarteJackClub, AnnounceID.QuarteJackHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart,
             AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingClub, AnnounceID.QuarteKingHeart,
             AnnounceID.QuarteQueenSpade, AnnounceID.QuarteQueenDiamond, AnnounceID.QuarteQueenClub, AnnounceID.QuarteQueenHeart,
             AnnounceID.QuarteJackSpade, AnnounceID.QuarteJackDiamond, AnnounceID.QuarteJackClub, AnnounceID.QuarteJackHeart,
-            AnnounceID.QuarteTenSpade, AnnounceID.QuarteTenDiamond, AnnounceID.QuarteTenHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuarteTenSpade, AnnounceID.QuarteTenDiamond, AnnounceID.QuarteTenHeart].includes(a)) ? null : true);
         case AnnounceID.QuarteTenHeart:
           if (trumpMode === TrumpMode.TrumpHeart) {
             return otherAnnounceIDs.every(a => ![
@@ -1906,13 +1915,13 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.QuarteJackSpade, AnnounceID.QuarteJackDiamond, AnnounceID.QuarteJackClub, AnnounceID.QuarteJackHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.QuarteAceSpade, AnnounceID.QuarteAceDiamond, AnnounceID.QuarteAceClub, AnnounceID.QuarteAceHeart,
             AnnounceID.QuarteKingSpade, AnnounceID.QuarteKingDiamond, AnnounceID.QuarteKingClub, AnnounceID.QuarteKingHeart,
             AnnounceID.QuarteQueenSpade, AnnounceID.QuarteQueenDiamond, AnnounceID.QuarteQueenClub, AnnounceID.QuarteQueenHeart,
             AnnounceID.QuarteJackSpade, AnnounceID.QuarteJackDiamond, AnnounceID.QuarteJackClub, AnnounceID.QuarteJackHeart,
-            AnnounceID.QuarteTenSpade, AnnounceID.QuarteTenDiamond, AnnounceID.QuarteTenClub,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.QuarteTenSpade, AnnounceID.QuarteTenDiamond, AnnounceID.QuarteTenClub].includes(a)) ? null : true);
       }
       // throw if a case has been forgotten
       throw new Error('a case has been forgotten');
@@ -1927,62 +1936,66 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
           if (trumpMode === TrumpMode.TrumpSpade) {
             return true;
           }
-          return otherAnnounceIDs.every(a => ![AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart].includes(a));
+
+          return otherAnnounceIDs.some(a => [AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart].includes(a)) ? null : true;
         case AnnounceID.TierceAceDiamond:
           if (trumpMode === TrumpMode.TrumpDiamond) {
             return true;
           }
-          return otherAnnounceIDs.every(a => ![AnnounceID.TierceAceSpade, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart].includes(a));
+
+          return otherAnnounceIDs.some(a => [AnnounceID.TierceAceSpade, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart].includes(a)) ? null : true;
         case AnnounceID.TierceAceClub:
           if (trumpMode === TrumpMode.TrumpClub) {
             return true;
           }
-          return otherAnnounceIDs.every(a => ![AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceHeart].includes(a));
+
+          return otherAnnounceIDs.some(a => [AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceHeart].includes(a)) ? null : true;
         case AnnounceID.TierceAceHeart:
           if (trumpMode === TrumpMode.TrumpHeart) {
             return true;
           }
-          return otherAnnounceIDs.every(a => ![AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub].includes(a));
+
+          return otherAnnounceIDs.some(a => [AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub].includes(a)) ? null : true;
         case AnnounceID.TierceKingSpade:
           if (trumpMode === TrumpMode.TrumpSpade) {
             return otherAnnounceIDs.every(a => ![
               AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
-            AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart].includes(a)) ? null : true);
         case AnnounceID.TierceKingDiamond:
           if (trumpMode === TrumpMode.TrumpDiamond) {
             return otherAnnounceIDs.every(a => ![
               AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
-            AnnounceID.TierceKingSpade, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.TierceKingSpade, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart].includes(a)) ? null : true);
         case AnnounceID.TierceKingClub:
           if (trumpMode === TrumpMode.TrumpClub) {
             return otherAnnounceIDs.every(a => ![
               AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
-            AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingHeart].includes(a)) ? null : true);
         case AnnounceID.TierceKingHeart:
           if (trumpMode === TrumpMode.TrumpHeart) {
             return otherAnnounceIDs.every(a => ![
               AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
-            AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub].includes(a)) ? null : true);
         case AnnounceID.TierceQueenSpade:
           if (trumpMode === TrumpMode.TrumpSpade) {
             return otherAnnounceIDs.every(a => ![
@@ -1990,11 +2003,11 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
             AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
-            AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenClub, AnnounceID.TierceQueenHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenClub, AnnounceID.TierceQueenHeart].includes(a)) ? null : true);
         case AnnounceID.TierceQueenDiamond:
           if (trumpMode === TrumpMode.TrumpDiamond) {
             return otherAnnounceIDs.every(a => ![
@@ -2002,11 +2015,11 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
             AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
-            AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenClub, AnnounceID.TierceQueenHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenClub, AnnounceID.TierceQueenHeart].includes(a)) ? null : true);
         case AnnounceID.TierceQueenClub:
           if (trumpMode === TrumpMode.TrumpClub) {
             return otherAnnounceIDs.every(a => ![
@@ -2014,11 +2027,11 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
             AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
-            AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenHeart].includes(a)) ? null : true);
         case AnnounceID.TierceQueenHeart:
           if (trumpMode === TrumpMode.TrumpHeart) {
             return otherAnnounceIDs.every(a => ![
@@ -2026,11 +2039,11 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
             AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
-            AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenClub,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenClub].includes(a)) ? null : true);
         case AnnounceID.TierceJackSpade:
           if (trumpMode === TrumpMode.TrumpSpade) {
             return otherAnnounceIDs.every(a => ![
@@ -2039,12 +2052,12 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenClub, AnnounceID.TierceQueenHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
             AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
             AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenClub, AnnounceID.TierceQueenHeart,
-            AnnounceID.TierceJackDiamond, AnnounceID.TierceJackClub, AnnounceID.TierceJackHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.TierceJackDiamond, AnnounceID.TierceJackClub, AnnounceID.TierceJackHeart].includes(a)) ? null : true);
         case AnnounceID.TierceJackDiamond:
           if (trumpMode === TrumpMode.TrumpDiamond) {
             return otherAnnounceIDs.every(a => ![
@@ -2053,12 +2066,12 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenClub, AnnounceID.TierceQueenHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
             AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
             AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenClub, AnnounceID.TierceQueenHeart,
-            AnnounceID.TierceJackSpade, AnnounceID.TierceJackClub, AnnounceID.TierceJackHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.TierceJackSpade, AnnounceID.TierceJackClub, AnnounceID.TierceJackHeart].includes(a)) ? null : true);
         case AnnounceID.TierceJackClub:
           if (trumpMode === TrumpMode.TrumpClub) {
             return otherAnnounceIDs.every(a => ![
@@ -2067,12 +2080,12 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenClub, AnnounceID.TierceQueenHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
             AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
             AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenClub, AnnounceID.TierceQueenHeart,
-            AnnounceID.TierceJackSpade, AnnounceID.TierceJackDiamond, AnnounceID.TierceJackHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.TierceJackSpade, AnnounceID.TierceJackDiamond, AnnounceID.TierceJackHeart].includes(a)) ? null : true);
         case AnnounceID.TierceJackHeart:
           if (trumpMode === TrumpMode.TrumpHeart) {
             return otherAnnounceIDs.every(a => ![
@@ -2081,12 +2094,12 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenClub, AnnounceID.TierceQueenHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
             AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
             AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenClub, AnnounceID.TierceQueenHeart,
-            AnnounceID.TierceJackSpade, AnnounceID.TierceJackDiamond, AnnounceID.TierceJackClub,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.TierceJackSpade, AnnounceID.TierceJackDiamond, AnnounceID.TierceJackClub].includes(a)) ? null : true);
         case AnnounceID.TierceTenSpade:
           if (trumpMode === TrumpMode.TrumpSpade) {
             return otherAnnounceIDs.every(a => ![
@@ -2096,13 +2109,13 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.TierceJackSpade, AnnounceID.TierceJackDiamond, AnnounceID.TierceJackClub, AnnounceID.TierceJackHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
             AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
             AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenClub, AnnounceID.TierceQueenHeart,
             AnnounceID.TierceJackSpade, AnnounceID.TierceJackDiamond, AnnounceID.TierceJackClub, AnnounceID.TierceJackHeart,
-            AnnounceID.TierceTenDiamond, AnnounceID.TierceTenClub, AnnounceID.TierceTenHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.TierceTenDiamond, AnnounceID.TierceTenClub, AnnounceID.TierceTenHeart].includes(a)) ? null : true);
         case AnnounceID.TierceTenDiamond:
           if (trumpMode === TrumpMode.TrumpDiamond) {
             return otherAnnounceIDs.every(a => ![
@@ -2112,13 +2125,13 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.TierceJackSpade, AnnounceID.TierceJackDiamond, AnnounceID.TierceJackClub, AnnounceID.TierceJackHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
             AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
             AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenClub, AnnounceID.TierceQueenHeart,
             AnnounceID.TierceJackSpade, AnnounceID.TierceJackDiamond, AnnounceID.TierceJackClub, AnnounceID.TierceJackHeart,
-            AnnounceID.TierceTenSpade, AnnounceID.TierceTenClub, AnnounceID.TierceTenHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.TierceTenSpade, AnnounceID.TierceTenClub, AnnounceID.TierceTenHeart].includes(a)) ? null : true);
         case AnnounceID.TierceTenClub:
           if (trumpMode === TrumpMode.TrumpClub) {
             return otherAnnounceIDs.every(a => ![
@@ -2128,13 +2141,13 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.TierceJackSpade, AnnounceID.TierceJackDiamond, AnnounceID.TierceJackClub, AnnounceID.TierceJackHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
             AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
             AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenClub, AnnounceID.TierceQueenHeart,
             AnnounceID.TierceJackSpade, AnnounceID.TierceJackDiamond, AnnounceID.TierceJackClub, AnnounceID.TierceJackHeart,
-            AnnounceID.TierceTenSpade, AnnounceID.TierceTenDiamond, AnnounceID.TierceTenHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.TierceTenSpade, AnnounceID.TierceTenDiamond, AnnounceID.TierceTenHeart].includes(a)) ? null : true);
         case AnnounceID.TierceTenHeart:
           if (trumpMode === TrumpMode.TrumpHeart) {
             return otherAnnounceIDs.every(a => ![
@@ -2144,13 +2157,13 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.TierceJackSpade, AnnounceID.TierceJackDiamond, AnnounceID.TierceJackClub, AnnounceID.TierceJackHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
             AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
             AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenClub, AnnounceID.TierceQueenHeart,
             AnnounceID.TierceJackSpade, AnnounceID.TierceJackDiamond, AnnounceID.TierceJackClub, AnnounceID.TierceJackHeart,
-            AnnounceID.TierceTenSpade, AnnounceID.TierceTenDiamond, AnnounceID.TierceTenClub,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.TierceTenSpade, AnnounceID.TierceTenDiamond, AnnounceID.TierceTenClub].includes(a)) ? null : true);
         case AnnounceID.TierceNineSpade:
           if (trumpMode === TrumpMode.TrumpSpade) {
             return otherAnnounceIDs.every(a => ![
@@ -2161,14 +2174,14 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.TierceTenSpade, AnnounceID.TierceTenDiamond, AnnounceID.TierceTenClub, AnnounceID.TierceTenHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
             AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
             AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenClub, AnnounceID.TierceQueenHeart,
             AnnounceID.TierceJackSpade, AnnounceID.TierceJackDiamond, AnnounceID.TierceJackClub, AnnounceID.TierceJackHeart,
             AnnounceID.TierceTenSpade, AnnounceID.TierceTenDiamond, AnnounceID.TierceTenClub, AnnounceID.TierceTenHeart,
-            AnnounceID.TierceNineDiamond, AnnounceID.TierceNineClub, AnnounceID.TierceNineHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.TierceNineDiamond, AnnounceID.TierceNineClub, AnnounceID.TierceNineHeart].includes(a)) ? null : true);
         case AnnounceID.TierceNineDiamond:
           if (trumpMode === TrumpMode.TrumpDiamond) {
             return otherAnnounceIDs.every(a => ![
@@ -2178,14 +2191,14 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.TierceJackSpade, AnnounceID.TierceJackDiamond, AnnounceID.TierceJackClub, AnnounceID.TierceJackHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
             AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
             AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenClub, AnnounceID.TierceQueenHeart,
             AnnounceID.TierceJackSpade, AnnounceID.TierceJackDiamond, AnnounceID.TierceJackClub, AnnounceID.TierceJackHeart,
             AnnounceID.TierceTenSpade, AnnounceID.TierceTenDiamond, AnnounceID.TierceTenClub, AnnounceID.TierceTenHeart,
-            AnnounceID.TierceNineSpade, AnnounceID.TierceNineClub, AnnounceID.TierceNineHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.TierceNineSpade, AnnounceID.TierceNineClub, AnnounceID.TierceNineHeart].includes(a)) ? null : true);
         case AnnounceID.TierceNineClub:
           if (trumpMode === TrumpMode.TrumpClub) {
             return otherAnnounceIDs.every(a => ![
@@ -2196,14 +2209,14 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.TierceTenSpade, AnnounceID.TierceTenDiamond, AnnounceID.TierceTenClub, AnnounceID.TierceTenHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
             AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
             AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenClub, AnnounceID.TierceQueenHeart,
             AnnounceID.TierceJackSpade, AnnounceID.TierceJackDiamond, AnnounceID.TierceJackClub, AnnounceID.TierceJackHeart,
             AnnounceID.TierceTenSpade, AnnounceID.TierceTenDiamond, AnnounceID.TierceTenClub, AnnounceID.TierceTenHeart,
-            AnnounceID.TierceNineSpade, AnnounceID.TierceNineDiamond, AnnounceID.TierceNineHeart,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.TierceNineSpade, AnnounceID.TierceNineDiamond, AnnounceID.TierceNineHeart].includes(a)) ? null : true);
         case AnnounceID.TierceNineHeart:
           if (trumpMode === TrumpMode.TrumpHeart) {
             return otherAnnounceIDs.every(a => ![
@@ -2214,37 +2227,18 @@ export const isAnnounceIDBeatingTheOtherAnnounceIDs = (announceID: AnnounceID, o
               AnnounceID.TierceTenSpade, AnnounceID.TierceTenDiamond, AnnounceID.TierceTenClub, AnnounceID.TierceTenHeart,
             ].includes(a));
           }
-          return otherAnnounceIDs.every(a => ![
+
+          return otherAnnounceIDs.some(a => [
             AnnounceID.TierceAceSpade, AnnounceID.TierceAceDiamond, AnnounceID.TierceAceClub, AnnounceID.TierceAceHeart,
             AnnounceID.TierceKingSpade, AnnounceID.TierceKingDiamond, AnnounceID.TierceKingClub, AnnounceID.TierceKingHeart,
             AnnounceID.TierceQueenSpade, AnnounceID.TierceQueenDiamond, AnnounceID.TierceQueenClub, AnnounceID.TierceQueenHeart,
             AnnounceID.TierceJackSpade, AnnounceID.TierceJackDiamond, AnnounceID.TierceJackClub, AnnounceID.TierceJackHeart,
             AnnounceID.TierceTenSpade, AnnounceID.TierceTenDiamond, AnnounceID.TierceTenClub, AnnounceID.TierceTenHeart,
-            AnnounceID.TierceNineSpade, AnnounceID.TierceNineDiamond, AnnounceID.TierceNineClub,
-          ].includes(a));
+          ].includes(a)) ? false : (otherAnnounceIDs.some(a => [AnnounceID.TierceNineSpade, AnnounceID.TierceNineDiamond, AnnounceID.TierceNineClub].includes(a)) ? null : true);
       }
       // throw if a case has been forgotten
       throw new Error('a case has been forgotten');
   }
-};
-export const getWinningAnnounceID = (announceIDs: AnnounceID[], trumpMode: TrumpMode): AnnounceID | undefined => {
-  if (!announceIDs.length) {
-    throw new Error();
-  }
-  if (announceIDs.length === 1) {
-    return announceIDs[0];
-  }
-  if (announceIDs.every(announceID => !isAnnounceIDBeatingTheOtherAnnounceIDs(announceID, announceIDs.filter(a => a !== announceID), trumpMode))) {
-    return undefined;
-  }
-
-  return announceIDs.reduce((currentWinningAnnounceID, announceID) => {
-    if (isAnnounceIDBeatingTheOtherAnnounceIDs(announceID, announceIDs.filter(a => a !== announceID), trumpMode)) {
-      return announceID;
-    }
-
-    return currentWinningAnnounceID;
-  });
 };
 const transformPlayerAnnounceToSecretPlayerAnnounce = (playerAnnounce: PlayerAnnounce): SecretPlayerAnnounce => ({
   announce: playerAnnounce.isCardsDisplayable ? playerAnnounce.announce : undefined,
@@ -2776,7 +2770,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
               G.playersCards[playerID].push(card!);
             }
             // list available announces
-            G.playersAnnounces[playerID] = getAnnouncesForCards(G.playersCards[playerID], G.currentSayTake!.trumpMode).map(announce => ({ announce, announceGroup: getAnnounceGroupByAnnounceID(announce.id), isCardsDisplayable: false, isSaid: false }));
+            G.playersAnnounces[playerID] = getAnnouncesForCards(G.playersCards[playerID], G.currentSayTake!.trumpMode).map(announce => ({ player: playerID, announce, announceGroup: getAnnounceGroupByAnnounceID(announce.id), isCardsDisplayable: false, isSaid: false }));
           });
 
           // set belot announce if available
@@ -2831,21 +2825,23 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
         },
         onEnd: (G) => {
           // set said announces displayability
-          const northSouthTeamSaidPlayerAnnounces = [...G.playersAnnounces[PlayerID.North], ...G.playersAnnounces[PlayerID.South]].filter(a => a.isSaid);
-          const eastWestTeamSaidPlayerAnnounces = [...G.playersAnnounces[PlayerID.East], ...G.playersAnnounces[PlayerID.West]].filter(a => a.isSaid);
-          const allSaidPlayerAnnounces = [...northSouthTeamSaidPlayerAnnounces, ...eastWestTeamSaidPlayerAnnounces];
+          const allSaidPlayerAnnounces = [...G.playersAnnounces[PlayerID.North], ...G.playersAnnounces[PlayerID.East], ...G.playersAnnounces[PlayerID.South], ...G.playersAnnounces[PlayerID.West]].filter(a => a.isSaid);
           if (
             allSaidPlayerAnnounces.length
             && allSaidPlayerAnnounces.every(a => !a.isCardsDisplayable)
             && G.playersCards[G.firstPlayerInCurrentTurn].length <= (G.currentSayTake!.trumpMode === TrumpMode.NoTrump ? 5 : 6)
           ) {
-            const bestAnnounceID = getWinningAnnounceID(allSaidPlayerAnnounces.map(a => a.announce.id), G.currentSayTake!.trumpMode);
-            if (bestAnnounceID) {
-              const bestAnnounceBelongsToNorthSouthTeam = northSouthTeamSaidPlayerAnnounces.map(a => a.announce.id).includes(bestAnnounceID);
+            const winningAnnounces = getWinningAnnounces(allSaidPlayerAnnounces, G.currentSayTake!.trumpMode);
+            const bestAnnounceBelongsToNorthSouthTeam = winningAnnounces.some(a => [PlayerID.North, PlayerID.South].includes(a.player));
+            const bestAnnounceBelongsToEastWestTeam = winningAnnounces.some(a => [PlayerID.East, PlayerID.West].includes(a.player));
+            if (
+              (bestAnnounceBelongsToNorthSouthTeam && !bestAnnounceBelongsToEastWestTeam)
+              || (!bestAnnounceBelongsToNorthSouthTeam && bestAnnounceBelongsToEastWestTeam)
+            ) {
               const northPlayerAnnounces = G.playersAnnounces[PlayerID.North].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && bestAnnounceBelongsToNorthSouthTeam }));
-              const eastPlayerAnnounces = G.playersAnnounces[PlayerID.East].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && !bestAnnounceBelongsToNorthSouthTeam }));
+              const eastPlayerAnnounces = G.playersAnnounces[PlayerID.East].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && bestAnnounceBelongsToEastWestTeam }));
               const southPlayerAnnounces = G.playersAnnounces[PlayerID.South].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && bestAnnounceBelongsToNorthSouthTeam }));
-              const westPlayerAnnounces = G.playersAnnounces[PlayerID.West].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && !bestAnnounceBelongsToNorthSouthTeam }));
+              const westPlayerAnnounces = G.playersAnnounces[PlayerID.West].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && bestAnnounceBelongsToEastWestTeam }));
               G.playersAnnounces = {
                 [PlayerID.North]: northPlayerAnnounces,
                 [PlayerID.East]: eastPlayerAnnounces,
