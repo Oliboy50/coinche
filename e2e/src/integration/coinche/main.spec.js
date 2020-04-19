@@ -22,7 +22,7 @@ describe('coinche', () => {
     cy.wait(500);
 
     // connect player 2 and join
-    cy.showHiddenElements();
+    cy.showLobbyHiddenElements();
     cy.get(`input[value=${currentPlayer}]`).clear().type(currentPlayer = '2');
     cy.contains('button', 'Enter').click();
     cy.contains('button', 'Join').click();
