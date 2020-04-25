@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "ts-node-dev src/index.ts",
+    "dev": "SERVER_ENV=dev ts-node-dev src/index.ts",
     "build": "tsc -p tsconfig.build.json",
     "test": "run-p test:e2e",
     "test:e2e": "jest --config ./jest.e2e-config.js --verbose",

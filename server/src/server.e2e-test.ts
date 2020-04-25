@@ -1,27 +1,34 @@
-import { AppServer, ApiServer } from 'boardgame.io/server';
+import {RunningServer} from 'boardgame.io/server';
 import * as request from 'supertest';
-import { server } from './server';
+import { start, stop } from './server';
 
 describe('server endpoints', () => {
-  let appServer: AppServer;
-  let apiServer: ApiServer | undefined;
+  let appServer: RunningServer;
+  let apiServer: RunningServer | undefined;
 
   beforeAll(async () => {
-    const servers = await server.run(9999);
-    appServer = servers.appServer;
-    apiServer = servers.apiServer;
+    const runningServers = await start();
+    appServer = runningServers.appServer;
+    apiServer = runningServers.apiServer;
 
     expect(appServer).toBeTruthy();
     expect(apiServer).toBeUndefined();
   });
 
   afterAll(async () => {
-    await appServer.close();
+    await stop();
   });
 
   describe(`GET /`, () => {
     it(`returns 404`, async () => {
       const response = await request(appServer).get('/');
+      expect(response.status).toBe(404);
+    });
+  });
+
+  describe(`GET /restart-with-clean-data`, () => {
+    it(`returns 404 (because it's only available in dev env)`, async () => {
+      const response = await request(appServer).get('/restart-with-clean-data');
       expect(response.status).toBe(404);
     });
   });

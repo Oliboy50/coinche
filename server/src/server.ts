@@ -1,9 +1,34 @@
-import { Server } from 'boardgame.io/server';
-import { get } from 'koa-route';
+import {RunningServers, Server} from 'boardgame.io/server';
+import { get as getRoute } from 'koa-route';
 import { game as coincheGame } from '../../client/src/shared/coinche';
 
-export const server = Server({ games: [coincheGame] });
+let runningServers: RunningServers | undefined;
 
-server.app.use(get('/healthz', ({ res }) => {
+const server = Server({ games: [coincheGame] });
+
+export const start = async (): Promise<RunningServers> => {
+  return runningServers = await server.run(process.env.PORT ? process.env.PORT : 8000);
+};
+export const stop = async (): Promise<void> => {
+  if (!runningServers) {
+    return;
+  }
+
+  server.kill(runningServers);
+};
+
+server.app.use(getRoute('/healthz', ({ res }) => {
   res.statusCode = 200;
 }));
+
+// dev routing
+if (process.env.SERVER_ENV === 'dev') {
+  server.app.use(getRoute('/restart-with-clean-data', async ({ res }) => {
+    await stop();
+    server.db.listGames().forEach(gameID => {
+      server.db.wipe(gameID);
+    });
+    await start();
+    res.statusCode = 200;
+  }));
+}

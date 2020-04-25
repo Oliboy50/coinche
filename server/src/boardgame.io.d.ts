@@ -2,25 +2,27 @@
 
 declare module 'boardgame.io/server' {
   import Application = require('koa');
+  import {InMemory} from 'boardgame.io/dist/types/src/server/db';
 
-  export interface AppServer {
+  export interface RunningServer {
     close(): void;
   }
 
-  export interface ApiServer {
-    close(): void;
+  export interface RunningServers {
+    appServer: RunningServer;
+    apiServer?: RunningServer;
+  }
+
+  export interface ServerReturn {
+    app: Application;
+    db: InMemory;
+    run(portOrConfig: any): Promise<RunningServers>;
+    kill(servers: RunningServers): void;
   }
 
   export interface ServerConfig {
     games: any[];
-    db?: { connect(): Promise<void> };
-    transport?: { init(app: any, games: any[]): void };
   }
 
-  export function Server(server: ServerConfig): {
-    app: Application;
-    db: any;
-    run(portOrConfig: any, callback?: () => any): Promise<{ appServer: AppServer; apiServer?: ApiServer }>;
-    kill(servers: { appServer: AppServer; apiServer?: ApiServer }): void;
-  };
+  export function Server(config: ServerConfig): ServerReturn;
 }
