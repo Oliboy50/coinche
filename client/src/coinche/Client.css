@@ -533,9 +533,8 @@
 .gameHistory .sectionTitle {
   text-decoration: underline;
 }
-.gameHistory .teamPointsAtTheEndOfRound {
+.gameHistory .roundSummary {
   margin-top: 10px;
-  margin-bottom: 10px;
 }
 .gameHistory .teamPointsAtTheEndOfRound .sectionTitle {
   font-weight: bold;
@@ -553,6 +552,8 @@
   border: 1px solid white;
   padding: 10px;
 }
+.gameHistory .roundPointsSummary,
+.gameHistory .teamPointsAtTheEndOfRound,
 .gameHistory .goalPoints,
 .gameHistory .endOfRoundPoints,
 .gameHistory .turnsPoints,
