@@ -32,7 +32,7 @@ export const SayAnnounceMenuComponent: React.FunctionComponent<ComponentProps> =
 
   return (
     <div className="sayAnnounce">
-      <select disabled={!availableAnnounces.length} value={selectedAnnounce && selectedAnnounce.id} onChange={onChangeAnnounce}>
+      <select disabled={!availableAnnounces.length} value={selectedAnnounce && selectedAnnounce.id} onChange={onChangeAnnounce} data-testid="select sayAnnounce">
         {availableAnnounces.length
           ? availableAnnounces.map(announce => (
             <option value={announce.id} key={`sayAnnounce_${announce.id}`}>
@@ -44,7 +44,7 @@ export const SayAnnounceMenuComponent: React.FunctionComponent<ComponentProps> =
           )
         }
       </select>
-      <button type="button" disabled={!selectedAnnounce} onClick={selectedAnnounce ? () => saySelectedAnnounce(selectedAnnounce) : undefined}>{i18n.SayAnnounceMenu.sayAnnounceButton}</button>
+      <button type="button" disabled={!selectedAnnounce} onClick={selectedAnnounce ? () => saySelectedAnnounce(selectedAnnounce) : undefined} data-testid="button sayAnnounce">{i18n.SayAnnounceMenu.sayAnnounceButton}</button>
     </div>
   );
 };

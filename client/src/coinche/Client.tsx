@@ -89,7 +89,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
 
   const isNotFirstPlayCardTurn = G.playersCardPlayedInPreviousTurn !== undefined;
 
-  const [isDisplayedPointsDetail, setIsDisplayedPointsDetail] = useState(false);
+  const [isDisplayedGameHistory, setIsDisplayedGameHistory] = useState(false);
 
   const [isDisplayedPreviousCardsPlayed, setIsDisplayedPreviousCardsPlayed] = useState(false);
   const playedCards = isDisplayedPreviousCardsPlayed ? G.playersCardPlayedInPreviousTurn : G.playersCardPlayedInCurrentTurn;
@@ -313,15 +313,15 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
       </div>
 
       {G.history.rounds.length > 0 && (
-        <div className={`modal ${isDisplayedPointsDetail ? 'opened': ''}`}>
+        <div className={`modal ${isDisplayedGameHistory ? 'opened': ''}`}>
           <div className="content">
-            {isDisplayedPointsDetail && (
+            {isDisplayedGameHistory && (
               <GameHistoryComponent gameHistory={G.history} getPlayerNameByID={getPlayerNameByID} />
             )}
           </div>
           <div className="toggleButtons">
-            <div className={`toggleButton ${isDisplayedPointsDetail ? 'active': ''}`} onClick={() => setIsDisplayedPointsDetail(!isDisplayedPointsDetail)}>
-              <span role="img" aria-label="TODO">📝</span>
+            <div className={`toggleButton ${isDisplayedGameHistory ? 'active': ''}`} onClick={() => setIsDisplayedGameHistory(!isDisplayedGameHistory)}>
+              <span role="img" aria-label="TODO" data-testid="button toggleGameHistory">📝</span>
             </div>
           </div>
         </div>
