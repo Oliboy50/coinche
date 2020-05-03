@@ -1,8 +1,4 @@
-import {
-  Context,
-  GameConfig,
-  TurnConfig,
-} from 'boardgame.io/core';
+import {Context, GameConfig, TurnConfig} from 'boardgame.io/core';
 import endTurn from './move/endTurn';
 import waitBeforeMovingToNextPhase from './move/waitBeforeMovingToNextPhase';
 import moveToNextPhase from './move/moveToNextPhase';
@@ -200,6 +196,7 @@ export interface GameState {
   __forcedNextPhase?: PhaseID;
   __isWaitingBeforeMovingToNextPhase: boolean;
   __canMoveToNextPhase: boolean;
+  __shuffleCards: (cards:Card[]) => Card[];
 
   // global state
   howManyPointsATeamMustReachToEndTheGame: number;
@@ -2572,7 +2569,23 @@ const getDefaultLastPlayersTakeSaid = () => ({
   [PlayerID.West]: undefined,
 });
 
-export const getSetupGameState = (_: Context<PlayerID, PhaseID>): GameState => {
+const resolve_shuffleCards = (ctx: Context<PlayerID, PhaseID>): GameState['__shuffleCards'] => {
+  if (process.env.APP_shuffleCards === 'returnSame') {
+    return (cards) => cards;
+  }
+
+  return ctx.random.Shuffle;
+};
+const resolve_howManyPointsATeamMustReachToEndTheGame = (ctx: Context<PlayerID, PhaseID>): GameState['howManyPointsATeamMustReachToEndTheGame'] => {
+  const fromEnv = Number(process.env.APP_howManyPointsATeamMustReachToEndTheGame);
+  if (fromEnv > 0) {
+    return fromEnv;
+  }
+
+  return 2000;
+};
+
+export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>): GameState => {
   const dealer = PlayerID.North;
   const nextDealer = dealer;
   const availableCards = getCards();
@@ -2582,13 +2595,11 @@ export const getSetupGameState = (_: Context<PlayerID, PhaseID>): GameState => {
   return {
     __isWaitingBeforeMovingToNextPhase: false,
     __canMoveToNextPhase: false,
-    howManyPointsATeamMustReachToEndTheGame: 2000,
+    __shuffleCards: resolve_shuffleCards(ctx),
+    howManyPointsATeamMustReachToEndTheGame: resolve_howManyPointsATeamMustReachToEndTheGame(ctx),
     howManyCardsToDealToEachPlayerBeforeTalking,
     howManyCardsToDealToEachPlayerAfterTalking,
-    teamsPoints: {
-      [TeamID.NorthSouth]: 0,
-      [TeamID.EastWest]: 0,
-    },
+    teamsPoints: { [TeamID.NorthSouth]: 0, [TeamID.EastWest]: 0 },
     history: { rounds: [] },
     availableCards,
     playersCards: getDefaultPlayersCards(),
@@ -2699,7 +2710,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
   phases: {
     [PhaseID.Deal]: {
       start: true,
-      onBegin: (G, ctx) => {
+      onBegin: (G) => {
         // set new dealer
         const dealer = G.nextDealer;
         const nextDealer = getTurnOrder(dealer)[1];
@@ -2717,7 +2728,7 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
         G.nextDealer = nextDealer;
         G.firstPlayerInCurrentTurn = nextDealer;
         G.playersCardPlayedInPreviousTurn = getDefaultPlayersCardPlayedInPreviousTurn();
-        G.availableCards = ctx.random.Shuffle(getCards());
+        G.availableCards = G.__shuffleCards(getCards());
 
         // deal cards before talking
         getTurnOrder(nextDealer).forEach(playerID => {

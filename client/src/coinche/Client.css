@@ -42,6 +42,8 @@
    *   see https://medium.com/eightshapes-llc/cropping-away-negative-impacts-of-line-height-84d744e016ce to remove height space
    */
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   font-size: 100px;
   display: inline-block;
 }
