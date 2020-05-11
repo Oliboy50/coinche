@@ -1,10 +1,10 @@
 import React from 'react';
-import {Lobby} from 'boardgame.io/react';
 import {
   BrowserRouter as Router,
   Switch,
   Route,
 } from 'react-router-dom';
+import {LobbyComponent} from './lobby/Lobby';
 import {game as coincheGame} from './shared/coinche';
 import {BoardComponent as coincheBoard} from './coinche/Client';
 
@@ -17,7 +17,7 @@ const App: React.FunctionComponent = () => {
     <Router>
       <Switch>
         <Route path="/">
-          <Lobby
+          <LobbyComponent
             gameServer={process.env.REACT_APP_API_BASE_URL}
             lobbyServer={process.env.REACT_APP_API_BASE_URL}
             gameComponents={[

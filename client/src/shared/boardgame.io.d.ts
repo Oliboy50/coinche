@@ -96,7 +96,3 @@ declare module 'boardgame.io/core' {
     playerView?: (G: GameState | GameStatePlayerView, ctx: Context<PlayerID, PhaseID>, playerID?: PlayerID) => GameStatePlayerView;
   }
 }
-
-declare module 'boardgame.io/multiplayer' {
-  export function Local(): () => void;
-}

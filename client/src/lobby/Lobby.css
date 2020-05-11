@@ -1,0 +1,15 @@
+/**
+ */
+.lobby {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-areas:
+    "info         playerTop       .           "
+    "playerLeft   playedCardsArea playerRight "
+    "playerBottom playerBottom    playerBottom";
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 210px 240px auto;
+}
+.lobby > .ok {
+  grid-area: playerTop;
+}

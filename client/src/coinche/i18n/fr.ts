@@ -47,7 +47,6 @@ export const fr: I18n = {
       case CardName.Seven:
         return `Sept de ${colorName}`;
     }
-
   },
   announce: {
     id: {
