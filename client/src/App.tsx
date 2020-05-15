@@ -4,9 +4,7 @@ import {
   Switch,
   Route,
 } from 'react-router-dom';
-import {LobbyComponent} from './lobby/Lobby';
-import {game as coincheGame} from './shared/coinche';
-import {BoardComponent as coincheBoard} from './coinche/Client';
+import {LobbyComponent} from './client/lobby/Lobby';
 
 const App: React.FunctionComponent = () => {
   if (!process.env.REACT_APP_API_BASE_URL) {
@@ -18,11 +16,7 @@ const App: React.FunctionComponent = () => {
       <Switch>
         <Route path="/">
           <LobbyComponent
-            gameServer={process.env.REACT_APP_API_BASE_URL}
-            lobbyServer={process.env.REACT_APP_API_BASE_URL}
-            gameComponents={[
-              { game: coincheGame, board: coincheBoard },
-            ]}
+            apiBaseUrl={process.env.REACT_APP_API_BASE_URL.endsWith('/') ? process.env.REACT_APP_API_BASE_URL.slice(0, -1) : process.env.REACT_APP_API_BASE_URL}
           />
         </Route>
       </Switch>

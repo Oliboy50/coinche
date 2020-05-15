@@ -1,4 +1,5 @@
 import {Context, GameConfig, TurnConfig} from 'boardgame.io/core';
+import {GameName} from '../index';
 import endTurn from './move/endTurn';
 import waitBeforeMovingToNextPhase from './move/waitBeforeMovingToNextPhase';
 import moveToNextPhase from './move/moveToNextPhase';
@@ -2688,7 +2689,7 @@ const defaultTurnConfig: TurnConfig<GameState, PlayerID, PhaseID> = {
   },
 };
 export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, PhaseID> = {
-  name: 'coinche',
+  name: GameName.Coinche,
   minPlayers: howManyPlayers,
   maxPlayers: howManyPlayers,
 
