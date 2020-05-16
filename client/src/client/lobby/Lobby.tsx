@@ -1,13 +1,10 @@
 import './Lobby.css';
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import axios from 'axios';
 import useSWR, {mutate as refetchSWR} from 'swr';
 import {GameName} from '../../shared';
 import {PlayerID} from '../../shared/coinche';
 import {I18nContext} from './context/i18n';
-
-let playerName = 'oliver';
-let playerCredentials: string | undefined;
 
 interface GetRoomsResponse {
   data: {
@@ -35,12 +32,31 @@ interface JoinRoomResponse {
 
 type ComponentProps = {
   apiBaseUrl: string;
+  playerName: string;
+  defaultPlayerKeysByRoomID: { [roomID: string]: string | undefined };
 };
 // @TODO refacto to support other types of game
 export const LobbyComponent: React.FunctionComponent<ComponentProps> = ({
   apiBaseUrl,
+  playerName,
+  defaultPlayerKeysByRoomID,
 }) => {
   const i18n = useContext(I18nContext);
+
+  const [playerKeysByRoomID, setPlayerKeysByRoomID] = useState(defaultPlayerKeysByRoomID);
+  const updatePlayerKey = (roomID: string, playerKey: string | undefined) => {
+    let newPlayerKeysByRoomID;
+    if (!playerKey) {
+      const {[roomID]: _, ...playerKeysByRoomIDWithoutThisOne} = playerKeysByRoomID;
+      newPlayerKeysByRoomID = playerKeysByRoomIDWithoutThisOne;
+    } else {
+      newPlayerKeysByRoomID = { ...playerKeysByRoomID, [roomID]: playerKey };
+    }
+
+    setPlayerKeysByRoomID(newPlayerKeysByRoomID);
+    localStorage.setItem('playerKeysByRoomID', JSON.stringify(newPlayerKeysByRoomID));
+  };
+
   const { data: getCoincheRoomsResponse } = useSWR<GetRoomsResponse>(`${apiBaseUrl}/games/${GameName.Coinche}`, (url) => axios.get(url));
 
   const createRoom = async (gameName: GameName) => {
@@ -61,7 +77,7 @@ export const LobbyComponent: React.FunctionComponent<ComponentProps> = ({
       playerName,
     });
 
-    playerCredentials = response.data.playerCredentials;
+    updatePlayerKey(roomID, response.data.playerCredentials);
 
     await refetchSWR(`${apiBaseUrl}/games/${gameName}`);
   };
@@ -69,10 +85,10 @@ export const LobbyComponent: React.FunctionComponent<ComponentProps> = ({
   const leaveRoom = async (gameName: GameName, roomID: string, playerID: PlayerID) => {
     await axios.post(`${apiBaseUrl}/games/${gameName}/${roomID}/leave`, {
       playerID,
-      credentials: playerCredentials,
+      credentials: playerKeysByRoomID[roomID],
     });
 
-    playerCredentials = undefined;
+    updatePlayerKey(roomID, undefined);
 
     await refetchSWR(`${apiBaseUrl}/games/${gameName}`);
   };
@@ -82,8 +98,10 @@ export const LobbyComponent: React.FunctionComponent<ComponentProps> = ({
   return (
     <div className="lobby">
       <button type="button" onClick={() => createRoom(GameName.Coinche)}>{i18n.createRoom}</button>
-      {getCoincheRoomsResponse?.data.rooms.map(room => (
-        <div className="room" key={room.gameID}>
+      {getCoincheRoomsResponse?.data.rooms.map(room => {
+        const playerHasAlreadyJoined = room.players.some(p => p.name === playerName);
+
+        return <div className="room" key={room.gameID}>
           {room.players.map(player => {
             const seatKey = `${room.gameID}_${player.id}`;
 
@@ -95,14 +113,10 @@ export const LobbyComponent: React.FunctionComponent<ComponentProps> = ({
               return <span className="otherPlayerSeat" key={seatKey}>{player.name}</span>;
             }
 
-            if (room.players.find(p => p.name === playerName)) {
-              return <span className="emptySeat" key={seatKey}>{i18n.waitingForPlayer}</span>;
-            }
-
-            return <button className="joinRoomButton" key={seatKey} type="button" onClick={() => joinRoom(GameName.Coinche, room.gameID, player.id)}>{i18n.joinRoom}</button>;
+            return <button className="joinRoomButton" key={seatKey} type="button" disabled={playerHasAlreadyJoined} onClick={playerHasAlreadyJoined ? undefined : () => joinRoom(GameName.Coinche, room.gameID, player.id)}>{i18n.joinRoom}</button>;
           })}
-        </div>
-      ))}
+        </div>;
+      })}
       {/*<CoincheComponent gameID="123" playerID={PlayerID.North} />*/}
     </div>
   );
