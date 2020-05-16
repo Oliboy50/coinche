@@ -1,10 +1,11 @@
 import './Lobby.css';
-import React, {useContext, useState} from 'react';
+import React, {useContext} from 'react';
 import axios from 'axios';
 import useSWR, {mutate as refetchSWR} from 'swr';
 import {GameName} from '../../shared';
 import {PlayerID} from '../../shared/coinche';
 import {I18nContext} from './context/i18n';
+import {persistPlayerKeys, PlayerKeysByRoomID} from './repository/playerKeyRepository';
 
 interface GetRoomsResponse {
   data: {
@@ -33,17 +34,17 @@ interface JoinRoomResponse {
 type ComponentProps = {
   apiBaseUrl: string;
   playerName: string;
-  defaultPlayerKeysByRoomID: { [roomID: string]: string | undefined };
+  playerKeysByRoomID: PlayerKeysByRoomID;
+  setPlayerKeysByRoomID: (playerKeysByRoomID: PlayerKeysByRoomID) => void;
 };
-// @TODO refacto to support other types of game
 export const LobbyComponent: React.FunctionComponent<ComponentProps> = ({
   apiBaseUrl,
   playerName,
-  defaultPlayerKeysByRoomID,
+  playerKeysByRoomID,
+  setPlayerKeysByRoomID,
 }) => {
   const i18n = useContext(I18nContext);
 
-  const [playerKeysByRoomID, setPlayerKeysByRoomID] = useState(defaultPlayerKeysByRoomID);
   const updatePlayerKey = (roomID: string, playerKey: string | undefined) => {
     let newPlayerKeysByRoomID;
     if (!playerKey) {
@@ -54,7 +55,7 @@ export const LobbyComponent: React.FunctionComponent<ComponentProps> = ({
     }
 
     setPlayerKeysByRoomID(newPlayerKeysByRoomID);
-    localStorage.setItem('playerKeysByRoomID', JSON.stringify(newPlayerKeysByRoomID));
+    persistPlayerKeys(newPlayerKeysByRoomID);
   };
 
   const { data: getCoincheRoomsResponse } = useSWR<GetRoomsResponse>(`${apiBaseUrl}/games/${GameName.Coinche}`, (url) => axios.get(url));
