@@ -1,6 +1,6 @@
 import React from 'react';
 import {I18n, fr} from '../i18n';
-import {LanguageCode} from '../../../shared';
+import {LanguageCode} from '../../../../shared';
 
 export const i18n: Record<LanguageCode, I18n> = {
   fr,

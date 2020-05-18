@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {Card, SecretCard} from '../../../../shared/coinche';
+import {Card, SecretCard} from '../../../../../shared/coinche';
 import {ThemeContext} from '../../context/theme';
 import {UnicodeCardComponent} from './UnicodeCard';
 

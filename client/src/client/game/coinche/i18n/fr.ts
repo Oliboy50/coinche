@@ -1,5 +1,5 @@
 import {I18n} from './index';
-import {AnnounceGroup, AnnounceID, CardColor, CardName, TrumpMode} from '../../../shared/coinche';
+import {AnnounceGroup, AnnounceID, CardColor, CardName, TrumpMode} from '../../../../shared/coinche';
 
 const translatedTrumpMode = {
   [TrumpMode.TrumpSpade]: 'Pique',

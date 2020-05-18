@@ -5,7 +5,7 @@ import {
   Moves,
   PhaseID,
   PlayerID,
-} from '../../../shared/coinche';
+} from '../../../../shared/coinche';
 import {I18nContext} from '../context/i18n';
 
 type ComponentProps = {

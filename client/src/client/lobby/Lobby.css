@@ -1,4 +1,83 @@
 /**
  */
 .lobby {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-areas:
+    "title           "
+    "rooms           "
+    "createRoomButton";
+}
+.lobby > .title {
+  grid-area: title;
+}
+.lobby > .rooms {
+  grid-area: rooms;
+}
+.lobby > .addRoomButton {
+  grid-area: addRoomButton;
+}
+
+/**
+ */
+.lobby .title {
+  font-size: 40px;
+  margin: 30px 0;
+  text-align: center;
+}
+.lobby .red {
+  color: rgb(170, 0, 0);
+}
+
+/**
+ */
+.lobby .room {
+  display: grid;
+  grid-gap: 30px;
+  grid-template-areas:
+    "topLeftSeat    .      topRightSeat   "
+    "withLeft       versus withRight      "
+    "bottomLeftSeat .      bottomRightSeat";
+  grid-template-columns: 1fr 200px 1fr;
+}
+.lobby .room > .topLeftSeat {
+  grid-area: topLeftSeat;
+}
+.lobby .room > .topRightSeat {
+  grid-area: topRightSeat;
+}
+.lobby .room > .bottomLeftSeat {
+  grid-area: bottomLeftSeat;
+}
+.lobby .room > .bottomRightSeat {
+  grid-area: bottomRightSeat;
+}
+.lobby .room > .versus {
+  grid-area: versus;
+}
+.lobby .room > .withLeft {
+  grid-area: withLeft;
+}
+.lobby .room > .withRight {
+  grid-area: withRight;
+}
+
+/**
+ */
+.lobby .room {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.lobby .versus {
+  font-size: 40px;
+}
+.lobby .createRoomButton {
+  font-size: 20px;
+}
+
+/**
+ */
+.lobby .noRoom {
+  text-align: center;
+  margin-bottom: 30px;
 }

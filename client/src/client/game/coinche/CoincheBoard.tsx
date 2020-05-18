@@ -1,4 +1,4 @@
-import './Client.css';
+import './CoincheBoard.css';
 import React, {useState} from 'react';
 import {BoardProps} from 'boardgame.io/react';
 import {
@@ -19,7 +19,7 @@ import {
   isSayableExpectedPoints,
   howManyPlayers,
   validExpectedPoints,
-} from '../../shared/coinche';
+} from '../../../shared/coinche';
 import {PlayerScreenPosition, getPlayerIDForPosition} from './service/getPlayerIDForPosition';
 import {constructorForGetPlayerNameByID} from './service/getPlayerNameByID';
 import {TalkMenuComponent} from './component/TalkMenu';
@@ -56,7 +56,7 @@ const getTurnIndicatorClassForPosition = (
   return '';
 };
 
-export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>> = ({
+export const CoincheBoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>> = ({
   G,
   ctx,
   moves,
@@ -168,7 +168,7 @@ export const BoardComponent: React.FunctionComponent<BoardProps<GameStatePlayerV
 
   return (
     <React.Fragment>
-      <div className="board">
+      <div className="coincheBoard">
         <div className="info">
           <CurrentInfoComponent
             sayCoincheLevel={G.currentSayTake?.sayCoincheLevel}

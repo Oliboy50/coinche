@@ -1,4 +1,4 @@
-import {AnnounceGroup, AnnounceID, Card, SayCoincheLevel, TrumpMode} from '../../../shared/coinche';
+import {AnnounceGroup, AnnounceID, Card, SayCoincheLevel, TrumpMode} from '../../../../shared/coinche';
 
 export type I18n = {
   trumpMode: Record<TrumpMode, string>;

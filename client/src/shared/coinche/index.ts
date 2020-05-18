@@ -50,7 +50,8 @@ export enum PlayerID {
   South = '2',
   West = '3',
 }
-export const howManyPlayers = Object.keys(PlayerID).length;
+export const validPlayerIDs: PlayerID[] = Object.values(PlayerID);
+export const howManyPlayers = validPlayerIDs.length;
 
 export enum PhaseID {
   Deal = 'Deal',
@@ -2550,7 +2551,6 @@ const getDefaultPlayersCardPlayedInCurrentTurn = () => ({
   [PlayerID.South]: undefined,
   [PlayerID.West]: undefined,
 });
-const getDefaultPlayersCardPlayedInPreviousTurn = () => undefined;
 const getDefaultPlayersAnnouncesDisplayedInCurrentTurn = () => ({
   [PlayerID.North]: [],
   [PlayerID.East]: [],
@@ -2577,7 +2577,7 @@ const resolve_shuffleCards = (ctx: Context<PlayerID, PhaseID>): GameState['__shu
 
   return ctx.random.Shuffle;
 };
-const resolve_howManyPointsATeamMustReachToEndTheGame = (ctx: Context<PlayerID, PhaseID>): GameState['howManyPointsATeamMustReachToEndTheGame'] => {
+const resolve_howManyPointsATeamMustReachToEndTheGame = (_: Context<PlayerID, PhaseID>): GameState['howManyPointsATeamMustReachToEndTheGame'] => {
   const fromEnv = Number(process.env.APP_howManyPointsATeamMustReachToEndTheGame);
   if (fromEnv > 0) {
     return fromEnv;
@@ -2597,11 +2597,13 @@ export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>): GameState =>
     __isWaitingBeforeMovingToNextPhase: false,
     __canMoveToNextPhase: false,
     __shuffleCards: resolve_shuffleCards(ctx),
+
     howManyPointsATeamMustReachToEndTheGame: resolve_howManyPointsATeamMustReachToEndTheGame(ctx),
     howManyCardsToDealToEachPlayerBeforeTalking,
     howManyCardsToDealToEachPlayerAfterTalking,
     teamsPoints: { [TeamID.NorthSouth]: 0, [TeamID.EastWest]: 0 },
     history: { rounds: [] },
+
     availableCards,
     playersCards: getDefaultPlayersCards(),
     wonTeamsCards: getDefaultWonTeamsCards(),
@@ -2615,9 +2617,10 @@ export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>): GameState =>
     currentSayTake: undefined,
     belotAnnounce: undefined,
     playersAnnounces: getDefaultPlayersAnnounces(),
+
     firstPlayerInCurrentTurn: nextDealer,
     playersCardPlayedInCurrentTurn: getDefaultPlayersCardPlayedInCurrentTurn(),
-    playersCardPlayedInPreviousTurn: getDefaultPlayersCardPlayedInPreviousTurn(),
+    playersCardPlayedInPreviousTurn: undefined,
     playersAnnouncesDisplayedInCurrentTurn: getDefaultPlayersAnnouncesDisplayedInCurrentTurn(),
   };
 };
@@ -2688,7 +2691,7 @@ const defaultTurnConfig: TurnConfig<GameState, PlayerID, PhaseID> = {
     },
   },
 };
-export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, PhaseID> = {
+export const coincheGame: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, PhaseID> = {
   name: GameName.Coinche,
   minPlayers: howManyPlayers,
   maxPlayers: howManyPlayers,
@@ -2717,19 +2720,19 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
         const nextDealer = getTurnOrder(dealer)[1];
 
         // reset round state
+        G.availableCards = G.__shuffleCards(getCards());
         G.playersCards = getDefaultPlayersCards();
         G.wonTeamsCards = getDefaultWonTeamsCards();
-        G.playersSaid = getDefaultPlayersSaid();
-        G.lastPlayersTakeSaid = getDefaultLastPlayersTakeSaid();
-        G.belotAnnounce = undefined;
-        G.playersAnnounces = getDefaultPlayersAnnounces();
-        G.numberOfSuccessiveSkipSaid = 0;
-        G.currentSayTake = undefined;
         G.dealer = dealer;
         G.nextDealer = nextDealer;
+        G.playersSaid = getDefaultPlayersSaid();
+        G.lastPlayersTakeSaid = getDefaultLastPlayersTakeSaid();
+        G.numberOfSuccessiveSkipSaid = 0;
+        G.currentSayTake = undefined;
+        G.belotAnnounce = undefined;
+        G.playersAnnounces = getDefaultPlayersAnnounces();
         G.firstPlayerInCurrentTurn = nextDealer;
-        G.playersCardPlayedInPreviousTurn = getDefaultPlayersCardPlayedInPreviousTurn();
-        G.availableCards = G.__shuffleCards(getCards());
+        G.playersCardPlayedInPreviousTurn = undefined;
 
         // deal cards before talking
         getTurnOrder(nextDealer).forEach(playerID => {

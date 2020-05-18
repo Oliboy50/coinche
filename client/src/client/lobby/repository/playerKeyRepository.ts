@@ -4,12 +4,22 @@ export interface PlayerKeysByRoomID {
 
 const LOCAL_STORAGE_KEY = 'coinche-pk';
 
-export const findPlayerKeys = (): PlayerKeysByRoomID => {
-  const jsonEncodedPlayerKeys = localStorage.getItem(LOCAL_STORAGE_KEY) || '{}';
-
-  return JSON.parse(jsonEncodedPlayerKeys) || {};
+const getPlayersKeysByPlayerName = (): {[playerName: string]: PlayerKeysByRoomID} => {
+  const jsonEncodedPlayersKeysByPlayerName = localStorage.getItem(LOCAL_STORAGE_KEY) || '{}';
+  return JSON.parse(jsonEncodedPlayersKeysByPlayerName) || {};
 };
 
-export const persistPlayerKeys = (playerKeys: PlayerKeysByRoomID): void => {
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(playerKeys));
+export const findPlayerKeys = (playerName: string): PlayerKeysByRoomID => {
+  const playersKeysByPlayerName = getPlayersKeysByPlayerName();
+
+  return playersKeysByPlayerName[playerName] || {};
+};
+
+export const persistPlayerKeys = (playerName: string, playerKeys: PlayerKeysByRoomID): void => {
+  const playersKeysByPlayerName = getPlayersKeysByPlayerName();
+
+  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
+    ...playersKeysByPlayerName,
+    [playerName]: playerKeys,
+  }));
 };

@@ -1,6 +1,6 @@
 import {RunningServers, Server} from 'boardgame.io/server';
 import { get as getRoute } from 'koa-route';
-import { game as coincheGame } from '../../client/src/shared/coinche';
+import { coincheGame } from '../../client/src/shared/coinche';
 
 let runningServers: RunningServers | undefined;
 

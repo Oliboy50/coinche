@@ -1,4 +1,4 @@
-import {getTurnOrder, PlayerID} from '../../../shared/coinche';
+import {getTurnOrder, PlayerID} from '../../../../shared/coinche';
 
 export type PlayerScreenPosition = 'top' | 'left' | 'right' | 'bottom';
 

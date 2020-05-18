@@ -1,5 +1,5 @@
 import {sortCards} from './sortCards';
-import {Card, CardColor, CardName} from '../../../shared/coinche';
+import {Card, CardColor, CardName} from '../../../../shared/coinche';
 
 describe('sortCards', () => {
   const testCases: {

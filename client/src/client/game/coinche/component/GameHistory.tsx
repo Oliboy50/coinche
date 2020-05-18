@@ -5,12 +5,12 @@ import {
   PlayerID,
   TeamID,
   getPlayerTeam,
-} from '../../../shared/coinche';
+} from '../../../../shared/coinche';
 import {
   getPointsForAnnounce,
   getPointsForCard,
   getPointsForExpectedPoints,
-} from '../../../shared/coinche/service/pointsCounter';
+} from '../../../../shared/coinche/service/pointsCounter';
 
 type ComponentProps = {
   gameHistory: GameHistory;

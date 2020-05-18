@@ -29,8 +29,8 @@ declare module 'boardgame.io/react' {
     PhaseID = DefaultPhaseID,
   > {
     game: object;
-    numPlayers?: number;
     board: ComponentType<BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>>;
+    numPlayers?: number;
     multiplayer?: false | (() => void);
     debug?: boolean;
   }
@@ -41,6 +41,7 @@ declare module 'boardgame.io/react' {
     gameID?: string;
     playerID?: PlayerID;
     debug?: boolean;
+    credentials?: string;
   }
 
   export function Client<

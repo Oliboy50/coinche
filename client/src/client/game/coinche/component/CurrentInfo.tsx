@@ -6,7 +6,7 @@ import {
   PlayerID,
   SayCoincheLevel,
   TrumpMode,
-} from '../../../shared/coinche';
+} from '../../../../shared/coinche';
 
 type ComponentProps = {
   partnerTeamPoints: number;

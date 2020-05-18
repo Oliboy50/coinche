@@ -1,6 +1,6 @@
 /**
  */
-.board {
+.coincheBoard {
   display: grid;
   grid-gap: 10px;
   grid-template-areas:
@@ -10,32 +10,32 @@
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 210px 240px auto;
 }
-.board > .player.top {
+.coincheBoard > .player.top {
   grid-area: playerTop;
 }
-.board > .player.left {
+.coincheBoard > .player.left {
   grid-area: playerLeft;
 }
-.board > .player.right {
+.coincheBoard > .player.right {
   grid-area: playerRight;
 }
-.board > .player.bottom {
+.coincheBoard > .player.bottom {
   grid-area: playerBottom;
 }
-.board > .playedCardsArea {
+.coincheBoard > .playedCardsArea {
   grid-area: playedCardsArea;
 }
-.board > .info {
+.coincheBoard > .info {
   grid-area: info;
 }
 
 /**
  */
-.cardWrapper {
+.coincheBoard .cardWrapper {
   position: relative;
   display: inline-block;
 }
-.card {
+.coincheBoard .card {
   /**
    * @TODO: remove extra space around cards to be able to use something else than a white background
    *   see https://preethisam.com/2018/06/25/how-to-use-emojis-as-icons/ to use transparent color and text-shadow
@@ -47,45 +47,45 @@
   font-size: 100px;
   display: inline-block;
 }
-.card.black {
+.coincheBoard .card.black {
   color: black;
 }
-.card.red {
+.coincheBoard .card.red {
   color: rgb(170, 0, 0);
 }
-.belotChooseButton {
+.coincheBoard .belotChooseButton {
   position: absolute;
   display: none;
   font-size: 30px;
   cursor: pointer;
 }
-.belotChooseButton.say {
+.coincheBoard .belotChooseButton.say {
   top: -10px;
   left: 0;
 }
-.belotChooseButton.dontSay {
+.coincheBoard .belotChooseButton.dontSay {
   top: -10px;
   right: 0;
 }
-.cardWrapper.forbidden {
+.coincheBoard .cardWrapper.forbidden {
   cursor: not-allowed;
   opacity: .4;
 }
-.cardWrapper.playable {
+.coincheBoard .cardWrapper.playable {
   cursor: pointer;
 }
-.cardWrapper.playable:hover {
+.coincheBoard .cardWrapper.playable:hover {
   transform: translateY(-5%);
 }
-.cardWrapper.playable:hover .belotChooseButton,
-.cardWrapper.playable:focus .belotChooseButton,
-.cardWrapper.playable:active .belotChooseButton {
+.coincheBoard .cardWrapper.playable:hover .belotChooseButton,
+.coincheBoard .cardWrapper.playable:focus .belotChooseButton,
+.coincheBoard .cardWrapper.playable:active .belotChooseButton {
   display: inline-block;
 }
 
 /**
  */
-.myPlayer {
+.coincheBoard .myPlayer {
   display: grid;
   grid-gap: 10px;
   grid-template-areas:
@@ -96,25 +96,25 @@
   grid-template-rows: 65px 30px 125px;
   overflow-x: hidden;
 }
-.myPlayer > .playerTalks {
+.coincheBoard .myPlayer > .playerTalks {
   grid-area: myPlayerTalks;
 }
-.myPlayer > .menu {
+.coincheBoard .myPlayer > .menu {
   grid-area: menu;
 }
-.myPlayer > .currentPlayerIndicator {
+.coincheBoard .myPlayer > .currentPlayerIndicator {
   grid-area: currentPlayerIndicator;
 }
-.myPlayer > .myCards {
+.coincheBoard .myPlayer > .myCards {
   grid-area: myCards;
 }
-.myPlayer > .additionalCards {
+.coincheBoard .myPlayer > .additionalCards {
   grid-area: additionalCards;
 }
-.currentPlayerIndicator {
+.coincheBoard .currentPlayerIndicator {
   position: relative;
 }
-.myPlayer.currentPlayer .currentPlayerIndicator::before {
+.coincheBoard .myPlayer.currentPlayer .currentPlayerIndicator::before {
   content: '👇';
   font-size: 40px;
   position: absolute;
@@ -122,7 +122,7 @@
   left: 10px;
   transform: rotate(-125deg);
 }
-.myPlayer.currentPlayer .currentPlayerIndicator::after {
+.coincheBoard .myPlayer.currentPlayer .currentPlayerIndicator::after {
   content: '👇';
   font-size: 40px;
   position: absolute;
@@ -130,16 +130,16 @@
   left: 10px;
   transform: rotate(-90deg);
 }
-.myCards {
+.coincheBoard .myCards {
   text-align: center;
 }
 
 /**
  */
-.playerTalks {
+.coincheBoard .playerTalks {
   margin: 0 auto;
 }
-.playerTalks > * {
+.coincheBoard .playerTalks > * {
   position: relative;
   border-radius: 50%;
   font-size: 20px;
@@ -148,11 +148,11 @@
   background: rgba(230, 230, 230, 1);
   z-index: 20;
 }
-.playerTalks > *::after {
+.coincheBoard .playerTalks > *::after {
   content: '';
   position: absolute;
 }
-.myPlayer .playerTalks > *::after {
+.coincheBoard .myPlayer .playerTalks > *::after {
   bottom: 10px;
   left: 50%;
   width: 0;
@@ -163,7 +163,7 @@
   margin-bottom: -20px;
   margin-left: -20px;
 }
-.otherPlayer .playerTalks > *::after {
+.coincheBoard .otherPlayer .playerTalks > *::after {
   top: 10px;
   left: 50%;
   width: 0;
@@ -177,7 +177,7 @@
 
 /**
  */
-.otherPlayer {
+.coincheBoard .otherPlayer {
   display: grid;
   grid-gap: 10px;
   grid-template-areas:
@@ -189,65 +189,65 @@
   overflow-x: hidden;
   overflow-y: auto;
 }
-.otherPlayer > .otherPlayerCards {
+.coincheBoard .otherPlayer > .otherPlayerCards {
   grid-area: otherPlayerCards;
 }
-.otherPlayer > .additionalCards {
+.coincheBoard .otherPlayer > .additionalCards {
   grid-area: additionalCards;
 }
-.otherPlayer > .playerName {
+.coincheBoard .otherPlayer > .playerName {
   grid-area: playerName;
 }
-.otherPlayer > .playerTalks {
+.coincheBoard .otherPlayer > .playerTalks {
   grid-area: otherPlayerTalks;
 }
-.otherPlayerCards {
+.coincheBoard .otherPlayerCards {
   position: relative;
   margin-top: -10px;
   margin-left: -30px;
   text-align: center;
 }
-.otherPlayerCards .card {
+.coincheBoard .otherPlayerCards .card {
   font-size: 90px;
 }
-.otherPlayerCards .cardWrapper {
+.coincheBoard .otherPlayerCards .cardWrapper {
   position: absolute;
   background: white;
   transform-origin: bottom center;
 }
-.otherPlayerCards .cardWrapper:nth-child(1) {
+.coincheBoard .otherPlayerCards .cardWrapper:nth-child(1) {
   z-index: 8;
   transform: rotate(-27deg);
 }
-.otherPlayerCards .cardWrapper:nth-child(2) {
+.coincheBoard .otherPlayerCards .cardWrapper:nth-child(2) {
   z-index: 7;
   transform: rotate(-18deg);
 }
-.otherPlayerCards .cardWrapper:nth-child(3) {
+.coincheBoard .otherPlayerCards .cardWrapper:nth-child(3) {
   z-index: 6;
   transform: rotate(-9deg);
 }
-.otherPlayerCards .cardWrapper:nth-child(4) {
+.coincheBoard .otherPlayerCards .cardWrapper:nth-child(4) {
   z-index: 5;
   transform: rotate(0deg);
 }
-.otherPlayerCards .cardWrapper:nth-child(5) {
+.coincheBoard .otherPlayerCards .cardWrapper:nth-child(5) {
   z-index: 4;
   transform: rotate(9deg);
 }
-.otherPlayerCards .cardWrapper:nth-child(6) {
+.coincheBoard .otherPlayerCards .cardWrapper:nth-child(6) {
   z-index: 3;
   transform: rotate(18deg);
 }
-.otherPlayerCards .cardWrapper:nth-child(7) {
+.coincheBoard .otherPlayerCards .cardWrapper:nth-child(7) {
   z-index: 2;
   transform: rotate(27deg);
 }
-.otherPlayerCards .cardWrapper:nth-child(8) {
+.coincheBoard .otherPlayerCards .cardWrapper:nth-child(8) {
   z-index: 1;
   transform: rotate(36deg);
 }
-.otherPlayer.currentPlayer .otherPlayerCards .cardWrapper:nth-child(1)::before {
+.coincheBoard .otherPlayer.currentPlayer .otherPlayerCards .cardWrapper:nth-child(1)::before {
   content: '👉';
   position: absolute;
   top: 35%;
@@ -255,136 +255,136 @@
   font-size: 40px;
   z-index: 10;
 }
-.hiddenAdditionalCards {
+.coincheBoard .hiddenAdditionalCards {
   margin-left: -20px;
   transform: scale(.5);
 }
-.hiddenAdditionalCards .cardWrapper {
+.coincheBoard .hiddenAdditionalCards .cardWrapper {
   position: absolute;
   top: 0;
   left: 0;
   background: white;
   z-index: 1;
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(1) {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(1) {
   z-index: 12;
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(2) {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(2) {
   z-index: 11;
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(3) {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(3) {
   z-index: 10;
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(4) {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(4) {
   z-index: 9;
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(5) {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(5) {
   z-index: 8;
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(6) {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(6) {
   z-index: 7;
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(7) {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(7) {
   z-index: 6;
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(8) {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(8) {
   z-index: 5;
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(9) {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(9) {
   z-index: 4;
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(10) {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(10) {
   z-index: 3;
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(11) {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(11) {
   z-index: 2;
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(12) {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(12) {
   z-index: 1;
 }
-.hiddenAdditionalCards .cardWrapper .card {
+.coincheBoard .hiddenAdditionalCards .cardWrapper .card {
   color: transparent;
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(1) .card {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(1) .card {
   text-shadow: 5px 6px rgba(0,0,0,.8);
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(2) .card {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(2) .card {
   text-shadow: 6px 7px rgba(0,0,0,.8);
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(3) .card {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(3) .card {
   text-shadow: 7px 8px rgba(0,0,0,.8);
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(4) .card {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(4) .card {
   text-shadow: 8px 9px rgba(0,0,0,.8);
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(5) .card {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(5) .card {
   text-shadow: 9px 10px rgba(0,0,0,.8);
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(6) .card {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(6) .card {
   text-shadow: 10px 11px rgba(0,0,0,.8);
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(7) .card {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(7) .card {
   text-shadow: 11px 12px rgba(0,0,0,.8);
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(8) .card {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(8) .card {
   text-shadow: 12px 13px rgba(0,0,0,.8);
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(9) .card {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(9) .card {
   text-shadow: 13px 14px rgba(0,0,0,.8);
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(10) .card {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(10) .card {
   text-shadow: 14px 15px rgba(0,0,0,.8);
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(11) .card {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(11) .card {
   text-shadow: 15px 16px rgba(0,0,0,.8);
 }
-.hiddenAdditionalCards .cardWrapper:nth-child(12) .card {
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(12) .card {
   text-shadow: 16px 17px rgba(0,0,0,.8);
 }
 
 /**
  */
-.menu {
+.coincheBoard .menu {
   display: grid;
 }
-.sayAnnounce {
+.coincheBoard .sayAnnounce {
   display: grid;
   grid-template-columns: 75% 25%;
 }
-.sayAnnounce > * {
+.coincheBoard .sayAnnounce > * {
   font-size: 20px;
   background-color: rgba(110,220,250, .5);
   color: black;
   font-weight: bold;
 }
-.talk {
+.coincheBoard .talk {
   display: flex;
   flex-wrap: wrap;
 }
-.talk > * {
+.coincheBoard .talk > * {
   flex: 1 1 auto;
   font-size: 20px;
   font-weight: bold;
   color: black;
 }
-.talk > select {
+.coincheBoard .talk > select {
   background-color: rgba(100, 100, 100, .1);
 }
-.talk > .sayCoincheButton {
+.coincheBoard .talk > .sayCoincheButton {
   background-color: rgba(178,34,34, .8);
   color: white;
 }
-.talk > .saySkipButton {
+.coincheBoard .talk > .saySkipButton {
   background-color: rgba(110,220,250, .5);
 }
-.talk button:disabled {
+.coincheBoard .talk button:disabled {
   cursor: not-allowed;
   opacity: .4;
 }
-.toggleIsDisplayedPreviousCardsPlayed {
+.coincheBoard .toggleIsDisplayedPreviousCardsPlayed {
   display: grid;
 }
-.toggleIsDisplayedPreviousCardsPlayed > * {
+.coincheBoard .toggleIsDisplayedPreviousCardsPlayed > * {
   font-size: 20px;
   width: 50%;
   margin: 0 auto;
@@ -394,7 +394,7 @@
 
 /**
  */
-.playerName {
+.coincheBoard .playerName {
   z-index: 10;
   font-size: 20px;
   text-align: center;
@@ -402,10 +402,10 @@
 
 /**
  */
-.playedCardsArea {
+.coincheBoard .playedCardsArea {
   margin: 0 auto;
 }
-.playedCards {
+.coincheBoard .playedCards {
   display: grid;
   grid-gap: 7px;
   grid-template-areas:
@@ -415,51 +415,51 @@
   grid-template-columns: 60px 60px 60px;
   grid-template-rows: 60px 60px 60px;
 }
-.playedCards > .playedCard.top {
+.coincheBoard .playedCards > .playedCard.top {
   grid-area: playedCardTop;
 }
-.playedCards > .playedCard.left {
+.coincheBoard .playedCards > .playedCard.left {
   grid-area: playedCardLeft;
 }
-.playedCards > .playedCard.right {
+.coincheBoard .playedCards > .playedCard.right {
   grid-area: playedCardRight;
 }
-.playedCards > .playedCard.bottom {
+.coincheBoard .playedCards > .playedCard.bottom {
   grid-area: playedCardBottom;
 }
-.playedCard.left .cardWrapper {
+.coincheBoard .playedCard.left .cardWrapper {
   transform: rotate(90deg);
 }
-.playedCard.top .cardWrapper {
+.coincheBoard .playedCard.top .cardWrapper {
   transform: rotate(180deg);
 }
-.playedCard.right .cardWrapper {
+.coincheBoard .playedCard.right .cardWrapper {
   transform: rotate(270deg);
 }
 
 /**
  */
-.info {
+.coincheBoard .info {
   font-size: 18px;
   overflow: auto;
 }
-.info .label {
+.coincheBoard .info .label {
   text-align: left;
 }
-.info .data {
+.coincheBoard .info .data {
   text-align: right;
 }
-.info .teamPoints {
+.coincheBoard .info .teamPoints {
   display: flex;
   justify-content: space-between;
   max-width: 250px;
 }
-.info .attackingPlayer {
+.coincheBoard .info .attackingPlayer {
   display: flex;
   justify-content: space-between;
   max-width: 250px;
 }
-.info .goal {
+.coincheBoard .info .goal {
   display: flex;
   justify-content: space-between;
   max-width: 250px;
@@ -467,7 +467,7 @@
 
 /**
  */
-.modal {
+.coincheBoard .modal {
   position: absolute;
   top: 0;
   left: 0;
@@ -477,10 +477,10 @@
   transform: translateY(calc(-100vh + 50px));
   transition: all .5s ease-in-out;
 }
-.modal.opened {
+.coincheBoard .modal.opened {
   transform: translateY(0);
 }
-.modal .content {
+.coincheBoard .modal .content {
   height: calc(100vh - 50px);
   box-sizing: border-box;
   padding: 20px;
@@ -488,13 +488,13 @@
   background: rgba(0,0,0,.9);
   color: white;
 }
-.modal .toggleButtons {
+.coincheBoard .modal .toggleButtons {
   width: 55px;
   border-left: 3px solid black;
   margin: 0 0 0 auto;
   color: white;
 }
-.modal .toggleButton {
+.coincheBoard .modal .toggleButton {
   display: inline-block;
   width: 55px;
   height: 50px;
@@ -504,45 +504,45 @@
   text-align: center;
   cursor: pointer;
 }
-.modal .toggleButton.active {
+.coincheBoard .modal .toggleButton.active {
   background: black;
 }
-.modal .toggleButton span {
+.coincheBoard .modal .toggleButton span {
   font-size: 40px;
 }
 
 /**
  */
-.gameHistory {
+.coincheBoard .gameHistory {
   font-size: 20px;
 }
-.gameHistory ul {
+.coincheBoard .gameHistory ul {
   margin-top: 0;
   margin-bottom: 0;
 }
-.gameHistory .round {
+.coincheBoard .gameHistory .round {
   margin-bottom: 20px;
 }
-.gameHistory .round + .round {
+.coincheBoard .gameHistory .round + .round {
   padding-top: 15px;
   border-top: 3px solid white;
 }
-.gameHistory .roundTitle {
+.coincheBoard .gameHistory .roundTitle {
   margin-bottom: 10px;
   font-weight: bold;
   text-decoration: underline;
   text-transform: uppercase;
 }
-.gameHistory .sectionTitle {
+.coincheBoard .gameHistory .sectionTitle {
   text-decoration: underline;
 }
-.gameHistory .roundSummary {
+.coincheBoard .gameHistory .roundSummary {
   margin-top: 10px;
 }
-.gameHistory .teamPointsAtTheEndOfRound .sectionTitle {
+.coincheBoard .gameHistory .teamPointsAtTheEndOfRound .sectionTitle {
   font-weight: bold;
 }
-.gameHistory .roundDetailToggleButton button {
+.coincheBoard .gameHistory .roundDetailToggleButton button {
   width: 100%;
   line-height: 20px;
   font-size: 16px;
@@ -550,18 +550,18 @@
   text-transform: uppercase;
   cursor: pointer;
 }
-.gameHistory .roundDetail {
+.coincheBoard .gameHistory .roundDetail {
   margin-top: 5px;
   border: 1px solid white;
   padding: 10px;
 }
-.gameHistory .roundPointsSummary,
-.gameHistory .teamPointsAtTheEndOfRound,
-.gameHistory .goalPoints,
-.gameHistory .endOfRoundPoints,
-.gameHistory .turnsPoints,
-.gameHistory .announcesPoints,
-.gameHistory .turnsDetail,
-.gameHistory .announcesDetail {
+.coincheBoard .gameHistory .roundPointsSummary,
+.coincheBoard .gameHistory .teamPointsAtTheEndOfRound,
+.coincheBoard .gameHistory .goalPoints,
+.coincheBoard .gameHistory .endOfRoundPoints,
+.coincheBoard .gameHistory .turnsPoints,
+.coincheBoard .gameHistory .announcesPoints,
+.coincheBoard .gameHistory .turnsDetail,
+.coincheBoard .gameHistory .announcesDetail {
   margin-bottom: 10px;
 }

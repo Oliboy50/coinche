@@ -7,7 +7,7 @@ import {
   Moves,
   PlayerID,
   TrumpMode,
-} from '../../../shared/coinche';
+} from '../../../../shared/coinche';
 import {sortCards} from '../service/sortCards';
 import {CardComponent} from './Card';
 

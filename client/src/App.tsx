@@ -1,17 +1,10 @@
 import React, {useState} from 'react';
-import {
-  BrowserRouter as Router,
-  Switch,
-  Redirect,
-  Route,
-  RouteProps,
-} from 'react-router-dom';
+import {BrowserRouter as Router, Switch, Redirect, Route, RouteProps} from 'react-router-dom';
+import {GameBuilderComponent} from './client/game/GameBuilder';
 import {LobbyComponent} from './client/lobby/Lobby';
-import {findPlayerKeys} from './client/lobby/repository/playerKeyRepository';
+import {findPlayerKeys, persistPlayerKeys} from './client/lobby/repository/playerKeyRepository';
 import {LoginComponent} from './client/login/Login';
-import {findPlayerName} from './client/login/repository/playerNameRepository';
-
-const ROUTE_PATH_LOGIN = '/login';
+import {findPlayerName, persistPlayerName} from './client/login/repository/playerNameRepository';
 
 const App: React.FunctionComponent = () => {
   if (!process.env.REACT_APP_API_BASE_URL) {
@@ -20,43 +13,53 @@ const App: React.FunctionComponent = () => {
   const apiBaseUrl = process.env.REACT_APP_API_BASE_URL.endsWith('/') ? process.env.REACT_APP_API_BASE_URL.slice(0, -1) : process.env.REACT_APP_API_BASE_URL;
 
   const [playerName, setPlayerName] = useState(findPlayerName());
-  const [playerKeysByRoomID, setPlayerKeysByRoomID] = useState(findPlayerKeys());
+  const updatePlayerName = (playerName: string) => {
+    setPlayerName(playerName);
+    persistPlayerName(playerName);
+  };
+
+  const [playerKeysByRoomID, setPlayerKeysByRoomID] = useState(findPlayerKeys(playerName));
+  const updatePlayerKey = (roomID: string, playerKey: string | undefined) => {
+    let newPlayerKeysByRoomID;
+    if (!playerKey) {
+      const {[roomID]: _, ...playerKeysByRoomIDWithoutThisOne} = playerKeysByRoomID;
+      newPlayerKeysByRoomID = playerKeysByRoomIDWithoutThisOne;
+    } else {
+      newPlayerKeysByRoomID = { ...playerKeysByRoomID, [roomID]: playerKey };
+    }
+
+    setPlayerKeysByRoomID(newPlayerKeysByRoomID);
+    persistPlayerKeys(playerName, newPlayerKeysByRoomID);
+  };
 
   const AuthenticatedRoute: React.FunctionComponent<RouteProps> = ({ children, ...rest }) => (
     <Route
       {...rest}
-      render={({ location }) =>
-        !playerName ? (
-          <Redirect
-            to={{
-              pathname: ROUTE_PATH_LOGIN,
-              state: { referer: location },
-            }}
-          />
-        ) : (
-          children
-        )
-      }
+      render={({ location }) => !playerName ? <Redirect to={{ pathname: '/login', state: { referer: location } }} /> : children}
     />
   );
 
   return (
     <Router>
       <Switch>
-        <Route path={ROUTE_PATH_LOGIN}>
-          <LoginComponent
-            playerName={playerName}
-            setPlayerName={setPlayerName}
-          />
+        <Route path="/login" exact>
+          <LoginComponent playerName={playerName} updatePlayerName={updatePlayerName}/>
         </Route>
-        <AuthenticatedRoute path="/">
-          <LobbyComponent
-            apiBaseUrl={apiBaseUrl}
-            playerName={playerName}
-            playerKeysByRoomID={playerKeysByRoomID}
-            setPlayerKeysByRoomID={setPlayerKeysByRoomID}
-          />
+
+        <Route path="/logout" exact render={() => {
+          updatePlayerName('');
+          return <Redirect to="/login"/>;
+        }}/>
+
+        <AuthenticatedRoute path="/:gameName/:roomID/:playerID" exact>
+          <GameBuilderComponent apiBaseUrl={apiBaseUrl} playerKeysByRoomID={playerKeysByRoomID}/>
         </AuthenticatedRoute>
+
+        <AuthenticatedRoute path="/" exact>
+          <LobbyComponent apiBaseUrl={apiBaseUrl} playerName={playerName} playerKeysByRoomID={playerKeysByRoomID} updatePlayerKey={updatePlayerKey}/>
+        </AuthenticatedRoute>
+
+        <Route path="*" render={() => <Redirect to="/"/>}/>
       </Switch>
     </Router>
   );

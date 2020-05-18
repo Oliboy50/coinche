@@ -1,4 +1,4 @@
-import {Card, CardColor, CardName} from '../../../shared/coinche';
+import {Card, CardColor, CardName} from '../../../../shared/coinche';
 
 const sameColorCardsSorter = (a: Card, b: Card): number => {
   switch (a.name) {
