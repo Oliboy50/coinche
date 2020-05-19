@@ -8,7 +8,6 @@ const PLAYER_4 = 'totoro';
 
 describe('coinche', () => {
   beforeEach(() => {
-    // @TODO: add tests using different viewports
     cy.viewport(800, 765);
     cy.clearData();
   });
@@ -17,9 +16,9 @@ describe('coinche', () => {
     cy.visit('/');
 
     cy.connectPlayerAndCreateCoincheRoomAndJoin(PLAYER_1);
-    cy.connectPlayerAndJoin(PLAYER_2);
-    cy.connectPlayerAndJoin(PLAYER_3);
-    cy.connectPlayerAndJoin(PLAYER_4);
+    cy.connectPlayerAndJoin(PLAYER_2, 'topRightSeat');
+    cy.connectPlayerAndJoin(PLAYER_3, 'bottomLeftSeat');
+    cy.connectPlayerAndJoin(PLAYER_4, 'bottomRightSeat');
 
     cy.usingPlayer(PLAYER_4);
     cy.get('[data-testid="button toggleGameHistory"]').should('not.be.visible');
@@ -229,6 +228,5 @@ describe('coinche', () => {
     cy.get('.gameHistory .round:nth-child(1)').should('contain', `Annonce : Belote`);
     cy.get('.gameHistory .round:nth-child(1)').should('contain', `Valeur : 20 points pour ${PLAYER_4}`);
     cy.get('[data-testid="button toggleGameHistory"]').click();
-
   });
 });

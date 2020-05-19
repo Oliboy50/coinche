@@ -22,15 +22,15 @@
   grid-gap: 30px;
   grid-template-areas:
     "nameInput   "
-    "sumbitButton";
+    "submitButton";
   margin: 30px;
   text-align: center;
 }
 .login .loginForm > .nameInput {
   grid-area: nameInput;
 }
-.login .loginForm > .sumbitButton {
-  grid-area: sumbitButton;
+.login .loginForm > .submitButton {
+  grid-area: submitButton;
 }
 
 /**
@@ -43,7 +43,7 @@
 
 /**
  */
-.login .sumbitButton {
+.login .submitButton {
   margin: 0 auto;
   font-size: 16px;
   cursor: pointer;

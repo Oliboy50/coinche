@@ -36,8 +36,8 @@ export const LoginComponent: React.FunctionComponent<ComponentProps> = ({
       <PageHeaderComponent />
 
       <form className="loginForm" onSubmit={login}>
-        <input className="nameInput" type="text" name="name" placeholder={i18n.playerNamePlaceholder} defaultValue={playerName}/>
-        <button className="sumbitButton" type="submit">{i18n.submit}</button>
+        <input className="nameInput" type="text" name="name" placeholder={i18n.playerNamePlaceholder} defaultValue={playerName} data-testid="input name"/>
+        <button className="submitButton" type="submit" data-testid="button submit">{i18n.submit}</button>
       </form>
     </div>
   );

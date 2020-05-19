@@ -22,10 +22,10 @@ export const SeatComponent: React.FunctionComponent<ComponentProps> = ({
       <span className="playerName">{seatedPlayerName || '\u00A0'}</span>
       <div className="seatButton">
         {!seatedPlayerName && (
-          <button type="button" disabled={myPlayerIsSeatedInThisRoom} onClick={myPlayerIsSeatedInThisRoom ? undefined : joinRoom}>{i18n.joinRoom}</button>
+          <button type="button" disabled={myPlayerIsSeatedInThisRoom} onClick={myPlayerIsSeatedInThisRoom ? undefined : joinRoom} data-testid="button join">{i18n.joinRoom}</button>
         )}
         {seatedPlayerName === myPlayerName && (
-          <button type="button" onClick={leaveRoom}>{i18n.leaveRoom}</button>
+          <button type="button" onClick={leaveRoom} data-testid="button leave">{i18n.leaveRoom}</button>
         )}
       </div>
     </div>

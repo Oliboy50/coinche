@@ -117,7 +117,7 @@ export const LobbyComponent: React.FunctionComponent<ComponentProps> = ({
 
             {myPlayerSeat && room.players.every(player => Boolean(player.name)) ? (
               <div className="goButtonWrapper">
-                <span className="goButton" onClick={() => goToRoom(GameName.Coinche, room.gameID, myPlayerSeat.id)} title={i18n.goToRoom}>GO</span>
+                <span className="goButton" onClick={() => goToRoom(GameName.Coinche, room.gameID, myPlayerSeat.id)} title={i18n.goToRoom} data-testid="button go">GO</span>
               </div>
             ) : (
               <div className="versus">VS</div>
@@ -135,7 +135,7 @@ export const LobbyComponent: React.FunctionComponent<ComponentProps> = ({
         }
       </div>
 
-      <button className="createRoomButton" type="button" onClick={() => createRoom(GameName.Coinche)}>{i18n.createRoom}</button>
+      <button className="createRoomButton" type="button" onClick={() => createRoom(GameName.Coinche)} data-testid="button createRoom">{i18n.createRoom}</button>
     </div>
   );
 };
