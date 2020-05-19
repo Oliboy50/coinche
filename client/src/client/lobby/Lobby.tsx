@@ -1,46 +1,13 @@
 import './Lobby.css';
 import React, {useContext} from 'react';
 import {useHistory} from 'react-router-dom';
-import axios from 'axios';
 import useSWR, {mutate as refetchSWR} from 'swr';
 import {GameName} from '../../shared';
 import {PlayerID} from '../../shared/coinche';
+import {TitleComponent} from '../Title';
 import {I18nContext} from './context/i18n';
 import {PlayerKeysByRoomID} from './repository/playerKeyRepository';
 import {SeatComponent} from './component/SeatComponent';
-
-interface GetRoomsResponse {
-  data: {
-    rooms: {
-      gameID: string;
-      players: {
-        id: PlayerID;
-        name?: string;
-      }[];
-    }[];
-  };
-}
-interface GetRoomsResponseRawData {
-  rooms: {
-    gameID: string;
-    players: {
-      id: number;
-      name?: string;
-    }[];
-  }[];
-}
-
-interface CreateRoomResponse {
-  data: {
-    gameID: string;
-  };
-}
-
-interface JoinRoomResponse {
-  data: {
-    playerCredentials: string;
-  };
-}
 
 type ComponentProps = {
   apiBaseUrl: string;
@@ -57,48 +24,63 @@ export const LobbyComponent: React.FunctionComponent<ComponentProps> = ({
   const i18n = useContext(I18nContext);
   const history = useHistory();
 
-  const { data: getCoincheRoomsResponse } = useSWR(`${apiBaseUrl}/games/${GameName.Coinche}`, (url) => {
-    return axios.get<GetRoomsResponseRawData>(url).then(rawResponse => ({
-      ...rawResponse,
-      data: {
-        rooms: rawResponse.data.rooms.map(room => ({
+  const { data: getCoincheRoomsResponse } = useSWR(`${apiBaseUrl}/games/${GameName.Coinche}`, {
+    refreshInterval: 2000,
+    fetcher: (url) => fetch(url)
+      .then(res => res.json() as Promise<{ rooms: { gameID: string; players: { id: number; name?: string }[] }[] }>)
+      .then(rawData => ({
+        ...rawData,
+        rooms: rawData.rooms.map(room => ({
           ...room,
           players: room.players.map(player => ({
             ...player,
             id: player.id.toString(),
           })),
         })),
-      },
-    })) as Promise<GetRoomsResponse>;
+      })) as Promise<{ rooms: { gameID: string; players: { id: PlayerID; name?: string }[] }[] }>,
   });
 
   const createRoom = async (gameName: GameName) => {
-    const response: CreateRoomResponse = await axios.post(`${apiBaseUrl}/games/${gameName}/create`, {
-      // @TODO: factorize howManyCoinchePlayers value
-      numPlayers: 4,
+    const res = await fetch(`${apiBaseUrl}/games/${gameName}/create`, {
+      method: 'POST',
+      body: JSON.stringify({
+        // @TODO: factorize howManyCoinchePlayers value
+        numPlayers: 4,
+      }),
+      headers: { 'Content-Type': 'application/json' },
     });
+    const createRoomResponse: { gameID: string } = await res.json();
 
     // automatically join the created room
-    await joinRoom(gameName, response.data.gameID, PlayerID.North);
+    await joinRoom(gameName, createRoomResponse.gameID, PlayerID.North);
 
     await refetchSWR(`${apiBaseUrl}/games/${gameName}`);
   };
 
   const joinRoom = async (gameName: GameName, roomID: string, playerID: PlayerID) => {
-    const response: JoinRoomResponse = await axios.post(`${apiBaseUrl}/games/${gameName}/${roomID}/join`, {
-      playerID,
-      playerName,
+    const res = await fetch(`${apiBaseUrl}/games/${gameName}/${roomID}/join`, {
+      method: 'POST',
+      body: JSON.stringify({
+        playerID,
+        playerName,
+      }),
+      headers: { 'Content-Type': 'application/json' },
     });
+    const joinRoomResponse: { playerCredentials: string } = await res.json();
 
-    updatePlayerKey(roomID, response.data.playerCredentials);
+    updatePlayerKey(roomID, joinRoomResponse.playerCredentials);
 
     await refetchSWR(`${apiBaseUrl}/games/${gameName}`);
   };
 
   const leaveRoom = async (gameName: GameName, roomID: string, playerID: PlayerID) => {
-    await axios.post(`${apiBaseUrl}/games/${gameName}/${roomID}/leave`, {
-      playerID,
-      credentials: playerKeysByRoomID[roomID],
+    await fetch(`${apiBaseUrl}/games/${gameName}/${roomID}/leave`, {
+      method: 'POST',
+      body: JSON.stringify({
+        playerID,
+        credentials: playerKeysByRoomID[roomID],
+      }),
+      headers: { 'Content-Type': 'application/json' },
     });
 
     updatePlayerKey(roomID, undefined);
@@ -112,44 +94,46 @@ export const LobbyComponent: React.FunctionComponent<ComponentProps> = ({
 
   return (
     <div className="lobby">
-      <div className="title"><span role="img" aria-label="diamond">♠️</span> <span className="red" role="img" aria-label="diamond">♦️</span> Oliboy50/coinche <span className="red" role="img" aria-label="heart">♥️</span> <span role="img" aria-label="diamond">♣️</span></div>
+      <TitleComponent />
 
       <div className="rooms">
-        {getCoincheRoomsResponse && getCoincheRoomsResponse.data.rooms.length > 0
-          ? getCoincheRoomsResponse.data.rooms.map(room => {
-            const myPlayerInThisRoom = room.players.find(p => p.name === playerName);
+        {getCoincheRoomsResponse && getCoincheRoomsResponse.rooms.length > 0
+          ? getCoincheRoomsResponse.rooms.map(room => {
             const topLeftPlayer = room.players.find(p => p.id === PlayerID.North)!;
             const bottomLeftPlayer = room.players.find(p => p.id === PlayerID.South)!;
             const topRightPlayer = room.players.find(p => p.id === PlayerID.East)!;
             const bottomRightPlayer = room.players.find(p => p.id === PlayerID.West)!;
 
+            const myPlayerSeat = room.players.find(p => p.name === playerName);
+            const myPlayerIsSeatedInThisRoom = Boolean(myPlayerSeat);
+
             return <div className="room" key={room.gameID}>
               <div className="topLeftSeat">
-                <SeatComponent seatedPlayer={topLeftPlayer} roomID={room.gameID} myPlayerName={playerName} myPlayerInThisRoom={myPlayerInThisRoom} leaveRoom={leaveRoom} joinRoom={joinRoom}/>
+                <SeatComponent seatedPlayerName={topLeftPlayer.name} myPlayerName={playerName} myPlayerIsSeatedInThisRoom={myPlayerIsSeatedInThisRoom} leaveRoom={() => leaveRoom(GameName.Coinche, room.gameID, topLeftPlayer.id)} joinRoom={() => joinRoom(GameName.Coinche, room.gameID, topLeftPlayer.id)}/>
               </div>
-              <div className="withLeft">et</div>
+              <span className="teamWith left" role="img" aria-label="handshake">🤝</span>
               <div className="bottomLeftSeat">
-                <SeatComponent seatedPlayer={bottomLeftPlayer} roomID={room.gameID} myPlayerName={playerName} myPlayerInThisRoom={myPlayerInThisRoom} leaveRoom={leaveRoom} joinRoom={joinRoom}/>
+                <SeatComponent seatedPlayerName={bottomLeftPlayer.name} myPlayerName={playerName} myPlayerIsSeatedInThisRoom={myPlayerIsSeatedInThisRoom} leaveRoom={() => leaveRoom(GameName.Coinche, room.gameID, bottomLeftPlayer.id)} joinRoom={() => joinRoom(GameName.Coinche, room.gameID, bottomLeftPlayer.id)}/>
               </div>
 
-              <div className="versus">contre</div>
+              {myPlayerSeat && room.players.every(player => Boolean(player.name)) ? (
+                <div className="goButtonWrapper">
+                  <span className="goButton" onClick={() => goToRoom(GameName.Coinche, room.gameID, myPlayerSeat.id)} title={i18n.goToRoom}>GO</span>
+                </div>
+              ) : (
+                <div className="versus">VS</div>
+              )}
 
               <div className="topRightSeat">
-                <SeatComponent seatedPlayer={topRightPlayer} roomID={room.gameID} myPlayerName={playerName} myPlayerInThisRoom={myPlayerInThisRoom} leaveRoom={leaveRoom} joinRoom={joinRoom}/>
+                <SeatComponent seatedPlayerName={topRightPlayer.name} myPlayerName={playerName} myPlayerIsSeatedInThisRoom={myPlayerIsSeatedInThisRoom} leaveRoom={() => leaveRoom(GameName.Coinche, room.gameID, topRightPlayer.id)} joinRoom={() => joinRoom(GameName.Coinche, room.gameID, topRightPlayer.id)}/>
               </div>
-              <div className="withRight">et</div>
+              <span className="teamWith right" role="img" aria-label="handshake">🤝</span>
               <div className="bottomRightSeat">
-                <SeatComponent seatedPlayer={bottomRightPlayer} roomID={room.gameID} myPlayerName={playerName} myPlayerInThisRoom={myPlayerInThisRoom} leaveRoom={leaveRoom} joinRoom={joinRoom}/>
+                <SeatComponent seatedPlayerName={bottomRightPlayer.name} myPlayerName={playerName} myPlayerIsSeatedInThisRoom={myPlayerIsSeatedInThisRoom} leaveRoom={() => leaveRoom(GameName.Coinche, room.gameID, bottomRightPlayer.id)} joinRoom={() => joinRoom(GameName.Coinche, room.gameID, bottomRightPlayer.id)}/>
               </div>
-
-              {myPlayerInThisRoom && room.players.every(player => Boolean(player.name)) && (
-                <button className="goToRoomButton" type="button" onClick={() => goToRoom(GameName.Coinche, room.gameID, myPlayerInThisRoom.id)}>{i18n.goToRoom}</button>
-              )}
             </div>;
           })
-          : (
-            <div className="noRoom">{i18n.noAvailableRoom}</div>
-          )
+          : <div className="noRoom">{i18n.noAvailableRoom}</div>
         }
       </div>
 

@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
 import {BrowserRouter as Router, Switch, Redirect, Route, RouteProps} from 'react-router-dom';
-import {GameBuilderComponent} from './client/game/GameBuilder';
-import {LobbyComponent} from './client/lobby/Lobby';
-import {findPlayerKeys, persistPlayerKeys} from './client/lobby/repository/playerKeyRepository';
-import {LoginComponent} from './client/login/Login';
-import {findPlayerName, persistPlayerName} from './client/login/repository/playerNameRepository';
+import {GameBuilderComponent} from './game/GameBuilder';
+import {LobbyComponent} from './lobby/Lobby';
+import {findPlayerKeys, persistPlayerKeys} from './lobby/repository/playerKeyRepository';
+import {LoginComponent} from './login/Login';
+import {findPlayerName, persistPlayerName} from './login/repository/playerNameRepository';
 
 const App: React.FunctionComponent = () => {
   if (!process.env.REACT_APP_API_BASE_URL) {

@@ -2,6 +2,7 @@ import './Login.css';
 import React, {useContext} from 'react';
 import {useHistory, useLocation} from 'react-router-dom';
 import type {Location} from 'history';
+import {TitleComponent} from '../Title';
 import {I18nContext} from './context/i18n';
 
 type ComponentProps = {
@@ -32,6 +33,8 @@ export const LoginComponent: React.FunctionComponent<ComponentProps> = ({
 
   return (
     <div className="login">
+      <TitleComponent />
+
       <form className="playerForm" onSubmit={login}>
         <input type="text" name="name" placeholder={i18n.playerNamePlaceholder} defaultValue={playerName}/>
         <button type="submit">{i18n.submit}</button>
