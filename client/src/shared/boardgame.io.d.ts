@@ -8,6 +8,12 @@ declare module 'boardgame.io/core' {
   export type DefaultPlayerID = string;
   export type DefaultPhaseID = string;
 
+  export interface Gameover<
+    PlayerID = DefaultPlayerID,
+  > {
+    winners: PlayerID[];
+  }
+
   export interface Context<
     PlayerID = DefaultPlayerID,
     PhaseID = DefaultPhaseID,
@@ -22,8 +28,9 @@ declare module 'boardgame.io/core' {
     playOrder: PlayerID[];
     playOrderPos: number;
     phase: PhaseID;
+    gameover: Gameover<PlayerID> | undefined;
     events: {
-      endGame: (gameover?: object) => void;
+      endGame: (gameover: Gameover<PlayerID>) => void;
       endPhase: () => void;
       setPhase: (phase: PhaseID) => void;
       endTurn: (options?: { next: PlayerID }) => void;
@@ -95,8 +102,4 @@ declare module 'boardgame.io/core' {
     endIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => any;
     playerView?: (G: GameState | GameStatePlayerView, ctx: Context<PlayerID, PhaseID>, playerID?: PlayerID) => GameStatePlayerView;
   }
-}
-
-declare module 'boardgame.io/multiplayer' {
-  export function Local(): () => void;
 }

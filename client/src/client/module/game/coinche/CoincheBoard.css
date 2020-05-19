@@ -1,0 +1,580 @@
+/**
+ */
+.coincheBoard {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-areas:
+    "currentInfo playerTop  .          "
+    "playerLeft  centerArea playerRight"
+    "bottomArea  bottomArea bottomArea ";
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 210px 240px auto;
+}
+.coincheBoard > .player.top {
+  grid-area: playerTop;
+}
+.coincheBoard > .player.left {
+  grid-area: playerLeft;
+}
+.coincheBoard > .player.right {
+  grid-area: playerRight;
+}
+.coincheBoard > .player.bottom,
+.coincheBoard > .winnersTeamCongratulation {
+  grid-area: bottomArea;
+}
+.coincheBoard > .playedCardsArea,
+.coincheBoard > .goBackToLobby {
+  grid-area: centerArea;
+}
+.coincheBoard > .currentInfo {
+  grid-area: currentInfo;
+}
+
+/**
+ */
+.coincheBoard .cardWrapper {
+  position: relative;
+  display: inline-block;
+}
+.coincheBoard .card {
+  /**
+   * @TODO: remove extra space around cards to be able to use something else than a white background
+   *   see https://preethisam.com/2018/06/25/how-to-use-emojis-as-icons/ to use transparent color and text-shadow
+   *   see https://medium.com/eightshapes-llc/cropping-away-negative-impacts-of-line-height-84d744e016ce to remove height space
+   */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 100px;
+  display: inline-block;
+}
+.coincheBoard .belotChooseButton {
+  position: absolute;
+  display: none;
+  font-size: 30px;
+  cursor: pointer;
+}
+.coincheBoard .belotChooseButton.say {
+  top: -10px;
+  left: 0;
+}
+.coincheBoard .belotChooseButton.dontSay {
+  top: -10px;
+  right: 0;
+}
+.coincheBoard .cardWrapper.forbidden {
+  cursor: not-allowed;
+  opacity: .4;
+}
+.coincheBoard .cardWrapper.playable {
+  cursor: pointer;
+}
+.coincheBoard .cardWrapper.playable:hover {
+  transform: translateY(-5%);
+}
+.coincheBoard .cardWrapper.playable:hover .belotChooseButton,
+.coincheBoard .cardWrapper.playable:focus .belotChooseButton,
+.coincheBoard .cardWrapper.playable:active .belotChooseButton {
+  display: inline-block;
+}
+
+/**
+ */
+.coincheBoard .myPlayer {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-areas:
+    "myPlayerTalks          myPlayerTalks myPlayerTalks  "
+    "menu                   menu          menu           "
+    "currentPlayerIndicator myCards       additionalCards";
+  grid-template-columns: 50px 1fr 50px;
+  grid-template-rows: 65px 30px 125px;
+  overflow-x: hidden;
+}
+.coincheBoard .myPlayer > .playerTalks {
+  grid-area: myPlayerTalks;
+}
+.coincheBoard .myPlayer > .menu {
+  grid-area: menu;
+}
+.coincheBoard .myPlayer > .currentPlayerIndicator {
+  grid-area: currentPlayerIndicator;
+}
+.coincheBoard .myPlayer > .myCards {
+  grid-area: myCards;
+}
+.coincheBoard .myPlayer > .additionalCards {
+  grid-area: additionalCards;
+}
+.coincheBoard .currentPlayerIndicator {
+  position: relative;
+}
+.coincheBoard .myPlayer.currentPlayer .currentPlayerIndicator::before {
+  content: '👇';
+  font-size: 40px;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  transform: rotate(-125deg);
+}
+.coincheBoard .myPlayer.currentPlayer .currentPlayerIndicator::after {
+  content: '👇';
+  font-size: 40px;
+  position: absolute;
+  top: 50px;
+  left: 10px;
+  transform: rotate(-90deg);
+}
+.coincheBoard .myCards {
+  text-align: center;
+}
+
+/**
+ */
+.coincheBoard .playerTalks {
+  margin: 0 auto;
+}
+.coincheBoard .playerTalks > * {
+  position: relative;
+  border-radius: 50%;
+  font-size: 20px;
+  text-align: center;
+  padding: 18px;
+  background: rgba(230, 230, 230, 1);
+  z-index: 20;
+}
+.coincheBoard .playerTalks > *::after {
+  content: '';
+  position: absolute;
+}
+.coincheBoard .myPlayer .playerTalks > *::after {
+  bottom: 10px;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border: 20px solid transparent;
+  border-bottom: 0;
+  border-top-color: rgba(230, 230, 230, 1);
+  margin-bottom: -20px;
+  margin-left: -20px;
+}
+.coincheBoard .otherPlayer .playerTalks > *::after {
+  top: 10px;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border: 20px solid transparent;
+  border-top: 0;
+  border-bottom-color: rgba(230, 230, 230, 1);
+  margin-top: -20px;
+  margin-left: -20px;
+}
+
+/**
+ */
+.coincheBoard .otherPlayer {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-areas:
+    "otherPlayerCards additionalCards "
+    "playerName       playerName      "
+    "otherPlayerTalks otherPlayerTalks";
+  grid-template-columns: 1fr 40px;
+  grid-template-rows: 100px auto 1fr;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.coincheBoard .otherPlayer > .otherPlayerCards {
+  grid-area: otherPlayerCards;
+}
+.coincheBoard .otherPlayer > .additionalCards {
+  grid-area: additionalCards;
+}
+.coincheBoard .otherPlayer > .playerName {
+  grid-area: playerName;
+}
+.coincheBoard .otherPlayer > .playerTalks {
+  grid-area: otherPlayerTalks;
+}
+.coincheBoard .otherPlayerCards {
+  position: relative;
+  margin-top: -10px;
+  margin-left: -30px;
+  text-align: center;
+}
+.coincheBoard .otherPlayerCards .card {
+  font-size: 90px;
+}
+.coincheBoard .otherPlayerCards .cardWrapper {
+  position: absolute;
+  background: white;
+  transform-origin: bottom center;
+}
+.coincheBoard .otherPlayerCards .cardWrapper:nth-child(1) {
+  z-index: 8;
+  transform: rotate(-27deg);
+}
+.coincheBoard .otherPlayerCards .cardWrapper:nth-child(2) {
+  z-index: 7;
+  transform: rotate(-18deg);
+}
+.coincheBoard .otherPlayerCards .cardWrapper:nth-child(3) {
+  z-index: 6;
+  transform: rotate(-9deg);
+}
+.coincheBoard .otherPlayerCards .cardWrapper:nth-child(4) {
+  z-index: 5;
+  transform: rotate(0deg);
+}
+.coincheBoard .otherPlayerCards .cardWrapper:nth-child(5) {
+  z-index: 4;
+  transform: rotate(9deg);
+}
+.coincheBoard .otherPlayerCards .cardWrapper:nth-child(6) {
+  z-index: 3;
+  transform: rotate(18deg);
+}
+.coincheBoard .otherPlayerCards .cardWrapper:nth-child(7) {
+  z-index: 2;
+  transform: rotate(27deg);
+}
+.coincheBoard .otherPlayerCards .cardWrapper:nth-child(8) {
+  z-index: 1;
+  transform: rotate(36deg);
+}
+.coincheBoard .otherPlayer.currentPlayer .otherPlayerCards .cardWrapper:nth-child(1)::before {
+  content: '👉';
+  position: absolute;
+  top: 35%;
+  left: -45px;
+  font-size: 40px;
+  z-index: 10;
+}
+.coincheBoard .hiddenAdditionalCards {
+  margin-left: -20px;
+  transform: scale(.5);
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: white;
+  z-index: 1;
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(1) {
+  z-index: 12;
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(2) {
+  z-index: 11;
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(3) {
+  z-index: 10;
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(4) {
+  z-index: 9;
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(5) {
+  z-index: 8;
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(6) {
+  z-index: 7;
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(7) {
+  z-index: 6;
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(8) {
+  z-index: 5;
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(9) {
+  z-index: 4;
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(10) {
+  z-index: 3;
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(11) {
+  z-index: 2;
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(12) {
+  z-index: 1;
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper .card {
+  color: transparent;
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(1) .card {
+  text-shadow: 5px 6px rgba(0,0,0,.8);
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(2) .card {
+  text-shadow: 6px 7px rgba(0,0,0,.8);
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(3) .card {
+  text-shadow: 7px 8px rgba(0,0,0,.8);
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(4) .card {
+  text-shadow: 8px 9px rgba(0,0,0,.8);
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(5) .card {
+  text-shadow: 9px 10px rgba(0,0,0,.8);
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(6) .card {
+  text-shadow: 10px 11px rgba(0,0,0,.8);
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(7) .card {
+  text-shadow: 11px 12px rgba(0,0,0,.8);
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(8) .card {
+  text-shadow: 12px 13px rgba(0,0,0,.8);
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(9) .card {
+  text-shadow: 13px 14px rgba(0,0,0,.8);
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(10) .card {
+  text-shadow: 14px 15px rgba(0,0,0,.8);
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(11) .card {
+  text-shadow: 15px 16px rgba(0,0,0,.8);
+}
+.coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(12) .card {
+  text-shadow: 16px 17px rgba(0,0,0,.8);
+}
+
+/**
+ */
+.coincheBoard .menu {
+  display: grid;
+}
+.coincheBoard .sayAnnounce {
+  display: grid;
+  grid-template-columns: 75% 25%;
+}
+.coincheBoard .sayAnnounce > * {
+  font-size: 20px;
+  background-color: rgba(110,220,250, .5);
+  color: black;
+  font-weight: bold;
+}
+.coincheBoard .talk {
+  display: flex;
+  flex-wrap: wrap;
+}
+.coincheBoard .talk > * {
+  flex: 1 1 auto;
+  font-size: 20px;
+  font-weight: bold;
+  color: black;
+}
+.coincheBoard .talk > select {
+  background-color: rgba(100, 100, 100, .1);
+}
+.coincheBoard .talk > .sayCoincheButton {
+  background-color: rgba(178,34,34, .8);
+  color: white;
+}
+.coincheBoard .talk > .saySkipButton {
+  background-color: rgba(110,220,250, .5);
+}
+.coincheBoard .talk button:disabled {
+  cursor: not-allowed;
+  opacity: .4;
+}
+.coincheBoard .toggleIsDisplayedPreviousCardsPlayed {
+  display: grid;
+}
+.coincheBoard .toggleIsDisplayedPreviousCardsPlayed > * {
+  font-size: 20px;
+  width: 50%;
+  margin: 0 auto;
+  color: black;
+  font-weight: bold;
+}
+
+/**
+ */
+.coincheBoard .playerName {
+  z-index: 10;
+  font-size: 20px;
+  text-align: center;
+}
+
+/**
+ */
+.coincheBoard .playedCardsArea {
+  margin: 0 auto;
+}
+.coincheBoard .playedCards {
+  display: grid;
+  grid-gap: 7px;
+  grid-template-areas:
+    ".              playedCardTop    .               "
+    "playedCardLeft .                playedCardRight "
+    ".              playedCardBottom .               ";
+  grid-template-columns: 60px 60px 60px;
+  grid-template-rows: 60px 60px 60px;
+}
+.coincheBoard .playedCards > .playedCard.top {
+  grid-area: playedCardTop;
+}
+.coincheBoard .playedCards > .playedCard.left {
+  grid-area: playedCardLeft;
+}
+.coincheBoard .playedCards > .playedCard.right {
+  grid-area: playedCardRight;
+}
+.coincheBoard .playedCards > .playedCard.bottom {
+  grid-area: playedCardBottom;
+}
+.coincheBoard .playedCard.left .cardWrapper {
+  transform: rotate(90deg);
+}
+.coincheBoard .playedCard.top .cardWrapper {
+  transform: rotate(180deg);
+}
+.coincheBoard .playedCard.right .cardWrapper {
+  transform: rotate(270deg);
+}
+
+/**
+ */
+.coincheBoard .currentInfo {
+  font-size: 18px;
+  overflow: auto;
+}
+.coincheBoard .currentInfo .label {
+  text-align: left;
+}
+.coincheBoard .currentInfo .data {
+  text-align: right;
+}
+.coincheBoard .currentInfo .teamPoints {
+  display: flex;
+  justify-content: space-between;
+  max-width: 250px;
+}
+.coincheBoard .currentInfo .attackingPlayer {
+  display: flex;
+  justify-content: space-between;
+  max-width: 250px;
+}
+.coincheBoard .currentInfo .goal {
+  display: flex;
+  justify-content: space-between;
+  max-width: 250px;
+}
+
+/**
+ */
+.coincheBoard .modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  overflow-x: hidden;
+  z-index: 100;
+  transform: translateY(calc(-100vh + 50px));
+  transition: all .5s ease-in-out;
+}
+.coincheBoard .modal.opened {
+  transform: translateY(0);
+}
+.coincheBoard .modal .content {
+  height: calc(100vh - 50px);
+  box-sizing: border-box;
+  padding: 20px;
+  overflow-y: auto;
+  background: rgba(0,0,0,.9);
+  color: white;
+}
+.coincheBoard .modal .toggleButtons {
+  width: 55px;
+  border-left: 3px solid black;
+  margin: 0 0 0 auto;
+  color: white;
+}
+.coincheBoard .modal .toggleButton {
+  display: inline-block;
+  width: 55px;
+  height: 50px;
+  box-sizing: border-box;
+  border-bottom: 3px solid black;
+  border-right: 3px solid black;
+  text-align: center;
+  cursor: pointer;
+}
+.coincheBoard .modal .toggleButton.active {
+  background: black;
+}
+.coincheBoard .modal .toggleButton span {
+  font-size: 40px;
+}
+
+/**
+ */
+.coincheBoard .gameHistory {
+  font-size: 20px;
+}
+.coincheBoard .gameHistory ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.coincheBoard .gameHistory .round {
+  margin-bottom: 20px;
+}
+.coincheBoard .gameHistory .round + .round {
+  padding-top: 15px;
+  border-top: 3px solid white;
+}
+.coincheBoard .gameHistory .roundTitle {
+  margin-bottom: 10px;
+  font-weight: bold;
+  text-decoration: underline;
+  text-transform: uppercase;
+}
+.coincheBoard .gameHistory .sectionTitle {
+  text-decoration: underline;
+}
+.coincheBoard .gameHistory .roundSummary {
+  margin-top: 10px;
+}
+.coincheBoard .gameHistory .teamPointsAtTheEndOfRound .sectionTitle {
+  font-weight: bold;
+}
+.coincheBoard .gameHistory .roundDetailToggleButton button {
+  width: 100%;
+  line-height: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.coincheBoard .gameHistory .roundDetail {
+  margin-top: 5px;
+  border: 1px solid white;
+  padding: 10px;
+}
+.coincheBoard .gameHistory .roundPointsSummary,
+.coincheBoard .gameHistory .teamPointsAtTheEndOfRound,
+.coincheBoard .gameHistory .goalPoints,
+.coincheBoard .gameHistory .endOfRoundPoints,
+.coincheBoard .gameHistory .turnsPoints,
+.coincheBoard .gameHistory .announcesPoints,
+.coincheBoard .gameHistory .turnsDetail,
+.coincheBoard .gameHistory .announcesDetail {
+  margin-bottom: 10px;
+}
+
+/**
+ */
+.coincheBoard .goBackToLobby {
+  margin: auto;
+}
+.coincheBoard .goBackToLobby .leaveButton {
+  font-size: 60px;
+  cursor: pointer;
+}
+
+/**
+ */
+.coincheBoard .winnersTeamCongratulation {
+  margin: auto;
+  font-size: 28px;
+}

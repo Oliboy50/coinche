@@ -1,13 +1,6 @@
 /// <reference types="Cypress" />
 /* eslint-disable cypress/no-unnecessary-waiting */
 
-const showLobby = () => cy.get('.hidden')
-  .invoke('attr', 'style', 'display: block')
-  .should('have.attr', 'style', 'display: block');
-const hideLobby = () => cy.get('.hidden')
-  .invoke('attr', 'style', 'display: none')
-  .should('have.attr', 'style', 'display: none');
-
 // Internal
 Cypress.Commands.add('clearData', () => {
   if (Cypress.env('E2E_ENV') === 'dev') {
@@ -17,28 +10,24 @@ Cypress.Commands.add('clearData', () => {
 
 // Lobby
 Cypress.Commands.add('connectPlayerAndCreateCoincheRoomAndJoin', (player) => {
-  cy.get(`input[value="Visitor"]`).clear().type(player);
-  cy.contains('button', 'Enter').click();
-  cy.contains('button', 'Create').click();
-  cy.contains('button', 'Join').click();
-  cy.wait(500);
-  cy.get('#instances td:nth-child(3)').should('contain', player);
+  cy.get(`.login [data-testid="input name"]`).type(player);
+  cy.get(`.login [data-testid="button submit"]`).click();
+  cy.get(`.lobby [data-testid="button createRoom"]`).click();
+  cy.get(`.lobby .room:nth-child(1) .topLeftSeat`).should('contain', player);
 });
-Cypress.Commands.add('connectPlayerAndJoin', (player) => {
-  showLobby();
-  cy.get(`.hidden input[type="text"]`).clear().type(player);
-  cy.contains('button', 'Enter').click();
-  cy.contains('button', 'Join').click();
-  cy.wait(500);
-  cy.get('#instances td:nth-child(3)').should('contain', player);
-  hideLobby();
+Cypress.Commands.add('connectPlayerAndJoin', (player, seatClassName) => {
+  cy.visit('/logout');
+  cy.get(`.login [data-testid="input name"]`).type(player);
+  cy.get(`.login [data-testid="button submit"]`).click();
+  cy.get(`.lobby .${seatClassName} [data-testid="button join"]`).click();
+  cy.get(`.lobby .room:nth-child(1) .${seatClassName}`).should('contain', player);
 });
 Cypress.Commands.add('usingPlayer', (player) => {
-  showLobby();
-  cy.get(`.hidden input[type="text"]`).clear().type(player);
-  cy.contains('button', 'Enter').click();
-  cy.contains('button', 'Play').click();
-  hideLobby();
+  cy.visit('/logout');
+  cy.get(`.login [data-testid="input name"]`).type(player);
+  cy.get(`.login [data-testid="button submit"]`).click();
+  cy.reload();
+  cy.get(`.lobby .room:nth-child(1) [data-testid="button go"]`).click();
 });
 
 // Game

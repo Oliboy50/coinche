@@ -1,4 +1,5 @@
 import {Context, GameConfig, TurnConfig} from 'boardgame.io/core';
+import {GameName} from '../index';
 import endTurn from './move/endTurn';
 import waitBeforeMovingToNextPhase from './move/waitBeforeMovingToNextPhase';
 import moveToNextPhase from './move/moveToNextPhase';
@@ -9,7 +10,7 @@ import saySkip from './move/saySkip';
 import sayTake from './move/sayTake';
 import sayCoinche from './move/sayCoinche';
 import {getWinningTeamAndNewAttackingTeamPointsAndDefensingTeamPointsAfterEndOfRound} from './service/pointsCounter';
-import {getGameWinnerTeam, getTurnWinner, getWinningAnnounces, getWinningCard} from './service/winnerResolver';
+import {getGameWinningTeam, getTurnWinner, getWinningAnnounces, getWinningCard} from './service/winnerResolver';
 
 export enum CardColor {
   Spade = 'Spade',
@@ -49,7 +50,8 @@ export enum PlayerID {
   South = '2',
   West = '3',
 }
-export const howManyPlayers = Object.keys(PlayerID).length;
+export const validPlayerIDs: PlayerID[] = Object.values(PlayerID);
+export const howManyPlayers = validPlayerIDs.length;
 
 export enum PhaseID {
   Deal = 'Deal',
@@ -287,6 +289,7 @@ export const getPlayerPartner = (player: PlayerID): PlayerID => {
   }
 };
 export const getPlayerTeam = (player: PlayerID): TeamID => [PlayerID.North, PlayerID.South].includes(player) ? TeamID.NorthSouth : TeamID.EastWest;
+export const getTeamPlayers = (team: TeamID): PlayerID[] => team === TeamID.NorthSouth ? [PlayerID.North, PlayerID.South] : [PlayerID.East, PlayerID.West];
 
 export const isSayableExpectedPoints = (expectedPoints: ExpectedPoints, currentSayTakeExpectedPoints: ExpectedPoints | undefined): boolean => expectedPoints > (currentSayTakeExpectedPoints || 0);
 
@@ -2549,7 +2552,6 @@ const getDefaultPlayersCardPlayedInCurrentTurn = () => ({
   [PlayerID.South]: undefined,
   [PlayerID.West]: undefined,
 });
-const getDefaultPlayersCardPlayedInPreviousTurn = () => undefined;
 const getDefaultPlayersAnnouncesDisplayedInCurrentTurn = () => ({
   [PlayerID.North]: [],
   [PlayerID.East]: [],
@@ -2576,7 +2578,7 @@ const resolve_shuffleCards = (ctx: Context<PlayerID, PhaseID>): GameState['__shu
 
   return ctx.random.Shuffle;
 };
-const resolve_howManyPointsATeamMustReachToEndTheGame = (ctx: Context<PlayerID, PhaseID>): GameState['howManyPointsATeamMustReachToEndTheGame'] => {
+const resolve_howManyPointsATeamMustReachToEndTheGame = (_: Context<PlayerID, PhaseID>): GameState['howManyPointsATeamMustReachToEndTheGame'] => {
   const fromEnv = Number(process.env.APP_howManyPointsATeamMustReachToEndTheGame);
   if (fromEnv > 0) {
     return fromEnv;
@@ -2596,11 +2598,13 @@ export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>): GameState =>
     __isWaitingBeforeMovingToNextPhase: false,
     __canMoveToNextPhase: false,
     __shuffleCards: resolve_shuffleCards(ctx),
+
     howManyPointsATeamMustReachToEndTheGame: resolve_howManyPointsATeamMustReachToEndTheGame(ctx),
     howManyCardsToDealToEachPlayerBeforeTalking,
     howManyCardsToDealToEachPlayerAfterTalking,
     teamsPoints: { [TeamID.NorthSouth]: 0, [TeamID.EastWest]: 0 },
     history: { rounds: [] },
+
     availableCards,
     playersCards: getDefaultPlayersCards(),
     wonTeamsCards: getDefaultWonTeamsCards(),
@@ -2614,9 +2618,10 @@ export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>): GameState =>
     currentSayTake: undefined,
     belotAnnounce: undefined,
     playersAnnounces: getDefaultPlayersAnnounces(),
+
     firstPlayerInCurrentTurn: nextDealer,
     playersCardPlayedInCurrentTurn: getDefaultPlayersCardPlayedInCurrentTurn(),
-    playersCardPlayedInPreviousTurn: getDefaultPlayersCardPlayedInPreviousTurn(),
+    playersCardPlayedInPreviousTurn: undefined,
     playersAnnouncesDisplayedInCurrentTurn: getDefaultPlayersAnnouncesDisplayedInCurrentTurn(),
   };
 };
@@ -2687,8 +2692,8 @@ const defaultTurnConfig: TurnConfig<GameState, PlayerID, PhaseID> = {
     },
   },
 };
-export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, PhaseID> = {
-  name: 'coinche',
+export const coincheGame: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, PhaseID> = {
+  name: GameName.Coinche,
   minPlayers: howManyPlayers,
   maxPlayers: howManyPlayers,
 
@@ -2716,19 +2721,19 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
         const nextDealer = getTurnOrder(dealer)[1];
 
         // reset round state
+        G.availableCards = G.__shuffleCards(getCards());
         G.playersCards = getDefaultPlayersCards();
         G.wonTeamsCards = getDefaultWonTeamsCards();
-        G.playersSaid = getDefaultPlayersSaid();
-        G.lastPlayersTakeSaid = getDefaultLastPlayersTakeSaid();
-        G.belotAnnounce = undefined;
-        G.playersAnnounces = getDefaultPlayersAnnounces();
-        G.numberOfSuccessiveSkipSaid = 0;
-        G.currentSayTake = undefined;
         G.dealer = dealer;
         G.nextDealer = nextDealer;
+        G.playersSaid = getDefaultPlayersSaid();
+        G.lastPlayersTakeSaid = getDefaultLastPlayersTakeSaid();
+        G.numberOfSuccessiveSkipSaid = 0;
+        G.currentSayTake = undefined;
+        G.belotAnnounce = undefined;
+        G.playersAnnounces = getDefaultPlayersAnnounces();
         G.firstPlayerInCurrentTurn = nextDealer;
-        G.playersCardPlayedInPreviousTurn = getDefaultPlayersCardPlayedInPreviousTurn();
-        G.availableCards = G.__shuffleCards(getCards());
+        G.playersCardPlayedInPreviousTurn = undefined;
 
         // deal cards before talking
         getTurnOrder(nextDealer).forEach(playerID => {
@@ -2974,14 +2979,15 @@ export const game: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, P
         ];
 
         // go to Deal phase if the end of the game has not been reached
-        const gameWinnerTeam = getGameWinnerTeam(G.teamsPoints, G.howManyPointsATeamMustReachToEndTheGame, G.wonTeamsCards);
-        if (gameWinnerTeam === undefined) {
+        const gameWinningTeam = getGameWinningTeam(G.teamsPoints, G.howManyPointsATeamMustReachToEndTheGame, G.wonTeamsCards);
+        if (gameWinningTeam === undefined) {
           G.__forcedNextPhase = PhaseID.Deal;
           return;
         }
 
-        console.log(`The winner is... ${gameWinnerTeam || 'both'}!`, G, ctx);
-        ctx.events.endGame();
+        ctx.events.endGame({
+          winners: gameWinningTeam ? getTeamPlayers(gameWinningTeam) : [],
+        });
       },
       endIf: (G) => {
         return G.__forcedNextPhase ? { next: G.__forcedNextPhase } : false;

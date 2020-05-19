@@ -1,0 +1,50 @@
+/**
+ */
+.login {
+  display: grid;
+  grid-gap: 30px;
+  grid-template-areas:
+    "pageHeader"
+    "loginForm ";
+  margin: 30px 0;
+}
+.login > .pageHeader {
+  grid-area: pageHeader;
+}
+.login > .loginForm {
+  grid-area: loginForm;
+}
+
+/**
+ */
+.login .loginForm {
+  display: grid;
+  grid-gap: 30px;
+  grid-template-areas:
+    "nameInput   "
+    "submitButton";
+  margin: 30px;
+  text-align: center;
+}
+.login .loginForm > .nameInput {
+  grid-area: nameInput;
+}
+.login .loginForm > .submitButton {
+  grid-area: submitButton;
+}
+
+/**
+ */
+.login .nameInput {
+  margin: 0 auto;
+  font-size: 16px;
+  text-align: center;
+}
+
+/**
+ */
+.login .submitButton {
+  margin: 0 auto;
+  font-size: 16px;
+  cursor: pointer;
+}

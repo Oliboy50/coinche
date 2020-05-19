@@ -1,0 +1,170 @@
+/**
+ */
+.lobby {
+  display: grid;
+  grid-gap: 30px;
+  grid-template-areas:
+    "pageHeader      "
+    "rooms           "
+    "createRoomButton";
+  margin: 30px 0;
+}
+.lobby > .pageHeader {
+  grid-area: pageHeader;
+}
+.lobby > .rooms {
+  grid-area: rooms;
+}
+.lobby > .createRoomButton {
+  grid-area: createRoomButton;
+}
+
+/**
+ */
+.lobby .rooms {
+  margin: 30px;
+}
+
+/**
+ */
+.lobby .createRoomButton {
+  margin: 0 auto;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/**
+ */
+.lobby .room {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-areas:
+    "topLeftSeat    .      topRightSeat   "
+    "withLeft       VSorGO withRight      "
+    "bottomLeftSeat .      bottomRightSeat";
+  grid-template-columns: 1fr 200px 1fr;
+  grid-template-rows: auto 48px auto;
+  text-align: center;
+  padding: 10px 0;
+  border: 1px solid black;
+}
+.lobby .room > .topLeftSeat {
+  grid-area: topLeftSeat;
+}
+.lobby .room > .topRightSeat {
+  grid-area: topRightSeat;
+}
+.lobby .room > .bottomLeftSeat {
+  grid-area: bottomLeftSeat;
+}
+.lobby .room > .bottomRightSeat {
+  grid-area: bottomRightSeat;
+}
+.lobby .room > .versus,
+.lobby .room > .goButtonWrapper {
+  grid-area: VSorGO;
+}
+.lobby .room > .teamWith.left {
+  grid-area: withLeft;
+}
+.lobby .room > .teamWith.right {
+  grid-area: withRight;
+}
+
+/**
+ */
+.lobby .room + .room {
+  margin-top: 30px;
+}
+
+/**
+ */
+.lobby .versus,
+.lobby .goButtonWrapper,
+.lobby .teamWith {
+  font-size: 40px;
+}
+.lobby .versus {
+  font-style: italic;
+}
+.lobby .versus::before {
+  content: '/';
+  position: relative;
+  top: 100%;
+  left: 10px;
+}
+.lobby .versus::after {
+  content: '/';
+  position: relative;
+  top: -100%;
+  left: -10px;
+}
+.lobby .goButtonWrapper {
+  margin: 0 auto;
+}
+.lobby .goButtonWrapper::before {
+  content: '👆';
+  position: relative;
+  top: 120%;
+  left: 40%;
+}
+.lobby .goButtonWrapper::after {
+  content: '👇';
+  position: relative;
+  top: -120%;
+  left: -40%;
+}
+.lobby .goButton {
+  padding: 5px;
+  border: 1px solid black;
+  border-radius: 50%;
+  background-color: rgba(230, 230, 230, .5);
+  cursor: pointer;
+}
+.lobby .goButton:hover {
+  padding: 10px;
+  margin: -5px;
+  background-color: rgba(230, 230, 230, 1);
+}
+
+/**
+ */
+.lobby .seat {
+  display: grid;
+  grid-gap: 5px;
+}
+.lobby .topLeftSeat .seat,
+.lobby .topRightSeat .seat {
+  grid-template-areas:
+    "seatButton"
+    "playerName";
+  grid-template-rows: 20px auto;
+}
+.lobby .bottomLeftSeat .seat,
+.lobby .bottomRightSeat .seat {
+  grid-template-areas:
+    "playerName"
+    "seatButton";
+  grid-template-rows: auto 20px;
+}
+.lobby .seat > .playerName {
+  grid-area: playerName;
+}
+.lobby .seat > .seatButton {
+  grid-area: seatButton;
+}
+
+/**
+ */
+.lobby .playerName {
+  font-weight: bold;
+}
+.lobby .mySeat .playerName {
+  text-decoration: underline;
+}
+.lobby .seatButton > button {
+  cursor: pointer;
+}
+.lobby .seatButton > button:disabled {
+  cursor: not-allowed;
+}
