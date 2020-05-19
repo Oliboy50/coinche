@@ -14,27 +14,34 @@ export type I18n = {
     attackingPlayer: string;
     goal: string;
     announcesOf: (playerName: string) => string;
-  },
+  };
   TalkMenu: {
     selectTrumpModePlaceholder: string;
     takeButton: string;
     skipButton: string;
     coincheButton: string;
     surcoincheButton: string;
-  },
+  };
   PreviousCardsPlayedMenu: {
     displayPreviousCardsPlayed: string;
     doNotDisplayPreviousCardsPlayed: string;
-  },
+  };
   PlayerSaid: {
     skip: string;
     coinche: string;
     surcoinche: string;
-  },
+  };
   SayAnnounceMenu: {
     noAvailableAnnounce: string;
     sayAnnounceButton: string;
-  },
+  };
+  GoBackToLobby: {
+    leave: string;
+  };
+  WinningTeamCongratulation: {
+    congratsTo: (winners: string[]) => string;
+    draw: string;
+  };
 };
 
 export { fr } from './fr';

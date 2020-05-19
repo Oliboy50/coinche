@@ -64,7 +64,7 @@ export const getTurnWinner = (
   return winningPlayerCard[0] as PlayerID;
 };
 
-export const getGameWinnerTeam = (
+export const getGameWinningTeam = (
   teamsPoints: Record<TeamID, number>,
   howManyPointsATeamMustReachToEndTheGame: number,
   wonTeamsCards: Record<TeamID, Card[]>,

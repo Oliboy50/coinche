@@ -152,4 +152,11 @@ export const fr: I18n = {
     noAvailableAnnounce: 'Aucune annonce disponible',
     sayAnnounceButton: 'Annoncer',
   },
+  GoBackToLobby: {
+    leave: 'Sortir',
+  },
+  WinningTeamCongratulation: {
+    congratsTo: (winners) => `🎊 ${winners.join(' et ')} ont gagné 🎊`,
+    draw: '🤯 Match nul 🤯',
+  },
 };

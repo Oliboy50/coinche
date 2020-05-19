@@ -4,9 +4,9 @@
   display: grid;
   grid-gap: 10px;
   grid-template-areas:
-    "info         playerTop       .           "
-    "playerLeft   playedCardsArea playerRight "
-    "playerBottom playerBottom    playerBottom";
+    "currentInfo playerTop  .          "
+    "playerLeft  centerArea playerRight"
+    "bottomArea  bottomArea bottomArea ";
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 210px 240px auto;
 }
@@ -19,14 +19,16 @@
 .coincheBoard > .player.right {
   grid-area: playerRight;
 }
-.coincheBoard > .player.bottom {
-  grid-area: playerBottom;
+.coincheBoard > .player.bottom,
+.coincheBoard > .winnersTeamCongratulation {
+  grid-area: bottomArea;
 }
-.coincheBoard > .playedCardsArea {
-  grid-area: playedCardsArea;
+.coincheBoard > .playedCardsArea,
+.coincheBoard > .goBackToLobby {
+  grid-area: centerArea;
 }
-.coincheBoard > .info {
-  grid-area: info;
+.coincheBoard > .currentInfo {
+  grid-area: currentInfo;
 }
 
 /**
@@ -433,27 +435,27 @@
 
 /**
  */
-.coincheBoard .info {
+.coincheBoard .currentInfo {
   font-size: 18px;
   overflow: auto;
 }
-.coincheBoard .info .label {
+.coincheBoard .currentInfo .label {
   text-align: left;
 }
-.coincheBoard .info .data {
+.coincheBoard .currentInfo .data {
   text-align: right;
 }
-.coincheBoard .info .teamPoints {
+.coincheBoard .currentInfo .teamPoints {
   display: flex;
   justify-content: space-between;
   max-width: 250px;
 }
-.coincheBoard .info .attackingPlayer {
+.coincheBoard .currentInfo .attackingPlayer {
   display: flex;
   justify-content: space-between;
   max-width: 250px;
 }
-.coincheBoard .info .goal {
+.coincheBoard .currentInfo .goal {
   display: flex;
   justify-content: space-between;
   max-width: 250px;
@@ -558,4 +560,21 @@
 .coincheBoard .gameHistory .turnsDetail,
 .coincheBoard .gameHistory .announcesDetail {
   margin-bottom: 10px;
+}
+
+/**
+ */
+.coincheBoard .goBackToLobby {
+  margin: auto;
+}
+.coincheBoard .goBackToLobby .leaveButton {
+  font-size: 60px;
+  cursor: pointer;
+}
+
+/**
+ */
+.coincheBoard .winnersTeamCongratulation {
+  margin: auto;
+  font-size: 28px;
 }

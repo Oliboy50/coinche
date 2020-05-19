@@ -31,7 +31,7 @@ export const CurrentInfoComponent: React.FunctionComponent<ComponentProps> = ({
   const i18n = useContext(I18nContext);
 
   return (
-    <React.Fragment>
+    <div className="currentInfo">
       <div className="teamPoints">
         <span className="label">{i18n.Info.partnerTeam}</span>
         <span className="data">{`${partnerTeamPoints}/${howManyPointsATeamMustReachToEndTheGame}`}</span>
@@ -63,6 +63,6 @@ export const CurrentInfoComponent: React.FunctionComponent<ComponentProps> = ({
           </div>
         ))
       }
-    </React.Fragment>
+    </div>
   );
 };

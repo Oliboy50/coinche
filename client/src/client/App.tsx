@@ -53,7 +53,7 @@ const App: React.FunctionComponent = () => {
         }}/>
 
         <AuthenticatedRoute path="/:gameName/:roomID/:playerID" exact>
-          <GameBuilderComponent apiBaseUrl={apiBaseUrl} playerKeysByRoomID={playerKeysByRoomID}/>
+          <GameBuilderComponent apiBaseUrl={apiBaseUrl} playerKeysByRoomID={playerKeysByRoomID} updatePlayerKey={updatePlayerKey}/>
         </AuthenticatedRoute>
 
         <AuthenticatedRoute path="/" exact>

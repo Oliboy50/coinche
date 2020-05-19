@@ -196,6 +196,10 @@ describe('coinche', () => {
 
     cy.usingPlayer(PLAYER_1);
     cy.playCard('Diamond', 'Eight');
+
+    // WinnersCongratulation
+    cy.get('.winnersTeamCongratulation').should('contain', `${PLAYER_2} et ${PLAYER_4} ont gagné`);
+
     // GameHistory after playing last round card
     cy.get('[data-testid="button toggleGameHistory"]').click();
     cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Récapitulatif des scores à la fin de la jetée');
@@ -228,5 +232,10 @@ describe('coinche', () => {
     cy.get('.gameHistory .round:nth-child(1)').should('contain', `Annonce : Belote`);
     cy.get('.gameHistory .round:nth-child(1)').should('contain', `Valeur : 20 points pour ${PLAYER_4}`);
     cy.get('[data-testid="button toggleGameHistory"]').click();
+
+    // GoBackToLobby
+    cy.get('.goBackToLobby [data-testid="button leave"]').click();
+    cy.wait(1000);
+    cy.get('.lobby .room:nth-child(1) .topLeftSeat').should('not.contain', PLAYER_1);
   });
 });

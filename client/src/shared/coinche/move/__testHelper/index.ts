@@ -22,6 +22,7 @@ export const getDefaultContext = (): Context<PlayerID, PhaseID> => ({
   ],
   playOrderPos: 0,
   phase: PhaseID.Deal,
+  gameover: undefined,
   events: {
     endGame: () => undefined,
     endPhase: () => undefined,

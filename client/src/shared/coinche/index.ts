@@ -10,7 +10,7 @@ import saySkip from './move/saySkip';
 import sayTake from './move/sayTake';
 import sayCoinche from './move/sayCoinche';
 import {getWinningTeamAndNewAttackingTeamPointsAndDefensingTeamPointsAfterEndOfRound} from './service/pointsCounter';
-import {getGameWinnerTeam, getTurnWinner, getWinningAnnounces, getWinningCard} from './service/winnerResolver';
+import {getGameWinningTeam, getTurnWinner, getWinningAnnounces, getWinningCard} from './service/winnerResolver';
 
 export enum CardColor {
   Spade = 'Spade',
@@ -289,6 +289,7 @@ export const getPlayerPartner = (player: PlayerID): PlayerID => {
   }
 };
 export const getPlayerTeam = (player: PlayerID): TeamID => [PlayerID.North, PlayerID.South].includes(player) ? TeamID.NorthSouth : TeamID.EastWest;
+export const getTeamPlayers = (team: TeamID): PlayerID[] => team === TeamID.NorthSouth ? [PlayerID.North, PlayerID.South] : [PlayerID.East, PlayerID.West];
 
 export const isSayableExpectedPoints = (expectedPoints: ExpectedPoints, currentSayTakeExpectedPoints: ExpectedPoints | undefined): boolean => expectedPoints > (currentSayTakeExpectedPoints || 0);
 
@@ -2978,14 +2979,15 @@ export const coincheGame: GameConfig<GameState, GameStatePlayerView, Moves, Play
         ];
 
         // go to Deal phase if the end of the game has not been reached
-        const gameWinnerTeam = getGameWinnerTeam(G.teamsPoints, G.howManyPointsATeamMustReachToEndTheGame, G.wonTeamsCards);
-        if (gameWinnerTeam === undefined) {
+        const gameWinningTeam = getGameWinningTeam(G.teamsPoints, G.howManyPointsATeamMustReachToEndTheGame, G.wonTeamsCards);
+        if (gameWinningTeam === undefined) {
           G.__forcedNextPhase = PhaseID.Deal;
           return;
         }
 
-        console.log(`The winner is... ${gameWinnerTeam || 'both'}!`, G, ctx);
-        ctx.events.endGame();
+        ctx.events.endGame({
+          winners: gameWinningTeam ? getTeamPlayers(gameWinningTeam) : [],
+        });
       },
       endIf: (G) => {
         return G.__forcedNextPhase ? { next: G.__forcedNextPhase } : false;

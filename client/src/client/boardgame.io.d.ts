@@ -16,7 +16,7 @@ declare module 'boardgame.io/react' {
     gameMetadata: {
       id: PlayerID;
       name: string;
-    }[];
+    }[] | undefined;
     isActive: boolean;
     isMultiplayer: boolean;
     isConnected: boolean;
