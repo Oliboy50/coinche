@@ -8,6 +8,16 @@ const apiBaseUrl = process.env.REACT_APP_API_BASE_URL.endsWith('/') ? process.en
 
 export const getApiBaseUrl = (): string => apiBaseUrl;
 
+export const isServerStillAlive = async (): Promise<boolean> => {
+  try {
+    await fetch(`${apiBaseUrl}/healthz`);
+
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
 export const requestToGetRooms = async (gameName: GameName): Promise<{
   rooms: {
     roomID: string;
