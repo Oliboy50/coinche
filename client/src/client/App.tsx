@@ -8,11 +8,6 @@ import {LoginComponent} from './module/login/Login';
 import {findPlayerName, persistPlayerName} from './module/login/repository/playerNameRepository';
 
 const App: React.FunctionComponent = () => {
-  if (!process.env.REACT_APP_API_BASE_URL) {
-    throw new Error('REACT_APP_API_BASE_URL env var must be set');
-  }
-  const apiBaseUrl = process.env.REACT_APP_API_BASE_URL.endsWith('/') ? process.env.REACT_APP_API_BASE_URL.slice(0, -1) : process.env.REACT_APP_API_BASE_URL;
-
   const [playerName, setPlayerName] = useState(findPlayerName());
   const updatePlayerName = (playerName: string) => {
     setPlayerName(playerName);
@@ -53,11 +48,11 @@ const App: React.FunctionComponent = () => {
         }}/>
 
         <AuthenticatedRoute path="/:gameName/:roomID/:playerID" exact>
-          <GameBuilderComponent apiBaseUrl={apiBaseUrl} playerKeysByRoomID={playerKeysByRoomID} updatePlayerKey={updatePlayerKey}/>
+          <GameBuilderComponent playerKeysByRoomID={playerKeysByRoomID} updatePlayerKey={updatePlayerKey}/>
         </AuthenticatedRoute>
 
         <AuthenticatedRoute path="/" exact>
-          <LobbyComponent apiBaseUrl={apiBaseUrl} playerName={playerName} playerKeysByRoomID={playerKeysByRoomID} updatePlayerKey={updatePlayerKey}/>
+          <LobbyComponent playerName={playerName} playerKeysByRoomID={playerKeysByRoomID} updatePlayerKey={updatePlayerKey}/>
         </AuthenticatedRoute>
 
         <Route path="*" render={() => <Redirect to="/"/>}/>
