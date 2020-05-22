@@ -17,18 +17,22 @@ export const stop = async (): Promise<void> => {
   server.kill(runningServers);
 };
 
-server.app.use(getRoute('/healthz', ({ res }) => {
+server.app.use(getRoute('/healthz', ({ res }, next) => {
   res.statusCode = 200;
+
+  return next();
 }));
 
 // dev routing
 if (process.env.SERVER_ENV === 'dev') {
-  server.app.use(getRoute('/restart-with-clean-data', async ({ res }) => {
+  server.app.use(getRoute('/restart-with-clean-data', async ({ res }, next) => {
     await stop();
     server.db.listGames().forEach(gameID => {
       server.db.wipe(gameID);
     });
     await start();
     res.statusCode = 200;
+
+    return next();
   }));
 }
