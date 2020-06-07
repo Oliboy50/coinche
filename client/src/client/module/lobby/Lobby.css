@@ -40,7 +40,7 @@
   grid-gap: 10px;
   grid-template-areas:
     "topLeftSeat    .      topRightSeat   "
-    "withLeft       VSorGO withRight      "
+    "teamWithLeft   VSorGO teamWithRight  "
     "bottomLeftSeat .      bottomRightSeat";
   grid-template-columns: 1fr 200px 1fr;
   grid-template-rows: auto 48px auto;
@@ -65,10 +65,10 @@
   grid-area: VSorGO;
 }
 .lobby .room > .teamWith.left {
-  grid-area: withLeft;
+  grid-area: teamWithLeft;
 }
 .lobby .room > .teamWith.right {
-  grid-area: withRight;
+  grid-area: teamWithRight;
 }
 
 /**

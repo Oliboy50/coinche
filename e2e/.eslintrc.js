@@ -5,27 +5,27 @@ module.exports = {
   },
   extends: [
     'eslint:recommended',
-    'plugin:cypress/recommended'
+    'plugin:cypress/recommended',
   ],
   rules: {
     semi: [
       'warn',
-      'always'
+      'always',
     ],
     'comma-dangle': [
       'warn',
-      'always-multiline'
+      'always-multiline',
     ],
     quotes: [
       'warn',
       'single',
       {
-        allowTemplateLiterals: true
-      }
+        allowTemplateLiterals: true,
+      },
     ],
     indent: [
       'warn',
-      2
+      2,
     ],
   },
 };
