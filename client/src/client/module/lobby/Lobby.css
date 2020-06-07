@@ -105,14 +105,20 @@
 .lobby .goButtonWrapper::before {
   content: '👆';
   position: relative;
-  top: 120%;
-  left: 40%;
+  top: 62px;
+  left: 57px;
+  display: inline-block;
+  width: 42px;
+  height: 54px;
 }
 .lobby .goButtonWrapper::after {
   content: '👇';
   position: relative;
-  top: -120%;
-  left: -40%;
+  top: -62px;
+  left: -57px;
+  display: inline-block;
+  width: 42px;
+  height: 54px;
 }
 .lobby .goButton {
   padding: 5px;
@@ -120,6 +126,11 @@
   border-radius: 50%;
   background-color: rgba(230, 230, 230, .5);
   cursor: pointer;
+  display: inline-block;
+  width: 50px;
+  height: 40px;
+  vertical-align: baseline;
+  font-size: 34px;
 }
 .lobby .goButton:hover {
   padding: 10px;
