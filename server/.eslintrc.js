@@ -1,5 +1,8 @@
 module.exports = {
   root: true,
+  env: {
+    node: true,
+  },
   parser: '@typescript-eslint/parser',
   plugins: [
     '@typescript-eslint',
@@ -12,38 +15,29 @@ module.exports = {
   rules: {
     semi: [
       'warn',
-      'always'
+      'always',
     ],
     'comma-dangle': [
       'warn',
-      'always-multiline'
+      'always-multiline',
     ],
     quotes: [
       'warn',
       'single',
       {
-        allowTemplateLiterals: true
-      }
+        allowTemplateLiterals: true,
+      },
     ],
     '@typescript-eslint/indent': [
       'warn',
-      2
+      2,
     ],
   },
   overrides: [
     {
       files: [
-        "jest.config.js",
-        "jest.e2e-config.js",
-      ],
-      env: {
-        node: true,
-      },
-    },
-    {
-      files: [
-        "**/*.test.ts",
-        "**/*.e2e-test.ts",
+        '**/*.test.ts',
+        '**/*.e2e-test.ts',
       ],
       env: {
         jest: true,
