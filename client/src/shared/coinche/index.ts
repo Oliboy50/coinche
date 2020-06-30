@@ -2970,7 +2970,7 @@ export const coincheGame: GameConfig<GameState, GameStatePlayerView, Moves, Play
               ownerTeam: getPlayerTeam(playerID),
             })),
           ], []),
-          ...(G.belotAnnounce ? [{
+          ...(G.belotAnnounce && G.belotAnnounce.isSaid ? [{
             id: G.belotAnnounce.id,
             cards: getBelotCards(G.currentSayTake.trumpMode),
             owner: G.belotAnnounce.owner,
