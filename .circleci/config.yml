@@ -14,22 +14,12 @@ jobs:
     steps:
       - *addCertificates
       - checkout
-      - restore_cache:
-          keys:
-            - v1-install-{{ .Branch }}-{{ checksum "server/package.json" }}-{{ checksum "client/package.json" }}
-            - v1-install-{{ .Branch }}
-            - v1-install
       - run:
           name: client install
           command: cd client && npm ci && cd -
       - run:
           name: server install
           command: cd server && npm ci && cd -
-      - save_cache:
-          key: v1-install-{{ .Branch }}-{{ checksum "server/package.json" }}-{{ checksum "client/package.json" }}
-          paths:
-            - ~/.npm
-            - ~/.cache
       - persist_to_workspace:
           root: .
           paths: '*'
@@ -67,19 +57,9 @@ jobs:
       - attach_workspace:
           at: .
       - checkout
-      - restore_cache:
-          keys:
-            - v1-e2e-{{ .Branch }}-{{ checksum "e2e/package.json" }}
-            - v1-e2e-{{ .Branch }}
-            - v1-e2e
       - run:
           name: e2e install
           command: cd e2e && npm ci && cd -
-      - save_cache:
-          key: v1-e2e-{{ .Branch }}-{{ checksum "e2e/package.json" }}
-          paths:
-            - ~/.npm
-            - ~/.cache
       - run:
           name: e2e test
           command: cd e2e && npm run test && cd -
