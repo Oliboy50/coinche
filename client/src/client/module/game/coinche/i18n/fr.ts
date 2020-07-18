@@ -2,10 +2,10 @@ import {I18n} from './index';
 import {AnnounceGroup, AnnounceID, CardColor, CardName, TrumpMode} from '../../../../../shared/coinche';
 
 const translatedTrumpMode = {
-  [TrumpMode.TrumpSpade]: 'Pique',
-  [TrumpMode.TrumpDiamond]: 'Carreau',
-  [TrumpMode.TrumpClub]: 'Trèfle',
-  [TrumpMode.TrumpHeart]: 'Coeur',
+  [TrumpMode.TrumpSpade]: '♠️ Pique',
+  [TrumpMode.TrumpDiamond]: '♦️ Carreau',
+  [TrumpMode.TrumpClub]: '♣️ Trèfle',
+  [TrumpMode.TrumpHeart]: '♥️ Coeur',
   [TrumpMode.NoTrump]: 'Sans atout',
 };
 
