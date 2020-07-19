@@ -23,6 +23,7 @@ describe('getWinningAnnounces', () => {
           announceGroup: AnnounceGroup.Tierce,
           isSaid: true,
           isCardsDisplayable: false,
+          isCountable: false,
         },
       ],
       expectedResult: [
@@ -32,6 +33,7 @@ describe('getWinningAnnounces', () => {
           announceGroup: AnnounceGroup.Tierce,
           isSaid: true,
           isCardsDisplayable: false,
+          isCountable: false,
         },
       ],
     },
@@ -45,6 +47,7 @@ describe('getWinningAnnounces', () => {
           announceGroup: AnnounceGroup.Tierce,
           isSaid: true,
           isCardsDisplayable: false,
+          isCountable: false,
         },
         {
           player: PlayerID.East,
@@ -52,6 +55,7 @@ describe('getWinningAnnounces', () => {
           announceGroup: AnnounceGroup.Tierce,
           isSaid: true,
           isCardsDisplayable: false,
+          isCountable: false,
         },
       ],
       expectedResult: [
@@ -61,6 +65,7 @@ describe('getWinningAnnounces', () => {
           announceGroup: AnnounceGroup.Tierce,
           isSaid: true,
           isCardsDisplayable: false,
+          isCountable: false,
         },
       ],
     },
@@ -74,6 +79,7 @@ describe('getWinningAnnounces', () => {
           announceGroup: AnnounceGroup.Tierce,
           isSaid: true,
           isCardsDisplayable: false,
+          isCountable: false,
         },
         {
           player: PlayerID.South,
@@ -81,6 +87,7 @@ describe('getWinningAnnounces', () => {
           announceGroup: AnnounceGroup.Tierce,
           isSaid: true,
           isCardsDisplayable: false,
+          isCountable: false,
         },
       ],
       expectedResult: [
@@ -90,6 +97,7 @@ describe('getWinningAnnounces', () => {
           announceGroup: AnnounceGroup.Tierce,
           isSaid: true,
           isCardsDisplayable: false,
+          isCountable: false,
         },
         {
           player: PlayerID.South,
@@ -97,6 +105,7 @@ describe('getWinningAnnounces', () => {
           announceGroup: AnnounceGroup.Tierce,
           isSaid: true,
           isCardsDisplayable: false,
+          isCountable: false,
         },
       ],
     },
@@ -110,6 +119,7 @@ describe('getWinningAnnounces', () => {
           announceGroup: AnnounceGroup.Tierce,
           isSaid: true,
           isCardsDisplayable: false,
+          isCountable: false,
         },
         {
           player: PlayerID.East,
@@ -117,6 +127,7 @@ describe('getWinningAnnounces', () => {
           announceGroup: AnnounceGroup.Tierce,
           isSaid: true,
           isCardsDisplayable: false,
+          isCountable: false,
         },
       ],
       expectedResult: [
@@ -126,6 +137,7 @@ describe('getWinningAnnounces', () => {
           announceGroup: AnnounceGroup.Tierce,
           isSaid: true,
           isCardsDisplayable: false,
+          isCountable: false,
         },
         {
           player: PlayerID.East,
@@ -133,6 +145,7 @@ describe('getWinningAnnounces', () => {
           announceGroup: AnnounceGroup.Tierce,
           isSaid: true,
           isCardsDisplayable: false,
+          isCountable: false,
         },
       ],
     },
@@ -146,6 +159,7 @@ describe('getWinningAnnounces', () => {
           announceGroup: AnnounceGroup.Tierce,
           isSaid: true,
           isCardsDisplayable: false,
+          isCountable: false,
         },
         {
           player: PlayerID.East,
@@ -153,6 +167,7 @@ describe('getWinningAnnounces', () => {
           announceGroup: AnnounceGroup.Tierce,
           isSaid: true,
           isCardsDisplayable: false,
+          isCountable: false,
         },
       ],
       expectedResult: [
@@ -162,6 +177,7 @@ describe('getWinningAnnounces', () => {
           announceGroup: AnnounceGroup.Tierce,
           isSaid: true,
           isCardsDisplayable: false,
+          isCountable: false,
         },
       ],
     },

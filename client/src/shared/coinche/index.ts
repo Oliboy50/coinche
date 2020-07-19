@@ -158,12 +158,14 @@ export interface PlayerAnnounce {
   announceGroup: AnnounceGroup;
   isSaid: boolean;
   isCardsDisplayable: boolean;
+  isCountable: boolean;
 }
 export interface SecretPlayerAnnounce {
   announce: Announce | undefined;
   announceGroup: AnnounceGroup | undefined;
   isSaid: boolean;
   isCardsDisplayable: boolean;
+  isCountable: boolean;
 }
 
 export interface SayTakeLevel {
@@ -2245,6 +2247,7 @@ const transformPlayerAnnounceToSecretPlayerAnnounce = (playerAnnounce: PlayerAnn
   announceGroup: playerAnnounce.isSaid ? playerAnnounce.announceGroup : undefined,
   isSaid: playerAnnounce.isSaid,
   isCardsDisplayable: playerAnnounce.isCardsDisplayable,
+  isCountable: playerAnnounce.isCountable,
 });
 
 export const getCards = (): Card[] => [
@@ -2786,7 +2789,7 @@ export const coincheGame: GameConfig<GameState, GameStatePlayerView, Moves, Play
               G.playersCards[playerID].push(card!);
             }
             // list available announces
-            G.playersAnnounces[playerID] = getAnnouncesForCards(G.playersCards[playerID], G.currentSayTake!.trumpMode).map(announce => ({ player: playerID, announce, announceGroup: getAnnounceGroupByAnnounceID(announce.id), isCardsDisplayable: false, isSaid: false }));
+            G.playersAnnounces[playerID] = getAnnouncesForCards(G.playersCards[playerID], G.currentSayTake!.trumpMode).map(announce => ({ player: playerID, announce, announceGroup: getAnnounceGroupByAnnounceID(announce.id), isCardsDisplayable: false, isCountable: false, isSaid: false }));
           });
 
           // set belot announce if available
@@ -2848,16 +2851,66 @@ export const coincheGame: GameConfig<GameState, GameStatePlayerView, Moves, Play
             && G.playersCards[G.firstPlayerInCurrentTurn].length <= (G.currentSayTake!.trumpMode === TrumpMode.NoTrump ? 5 : 6)
           ) {
             const winningAnnounces = getWinningAnnounces(allSaidPlayerAnnounces, G.currentSayTake!.trumpMode);
-            const bestAnnounceBelongsToNorthSouthTeam = winningAnnounces.some(a => [PlayerID.North, PlayerID.South].includes(a.player));
-            const bestAnnounceBelongsToEastWestTeam = winningAnnounces.some(a => [PlayerID.East, PlayerID.West].includes(a.player));
+            const northPlayerWinningAnnounceIDs = winningAnnounces.filter(a => a.player === PlayerID.North).map(a => a.announce.id);
+            const eastPlayerWinningAnnounceIDs = winningAnnounces.filter(a => a.player === PlayerID.East).map(a => a.announce.id);
+            const southPlayerWinningAnnounceIDs = winningAnnounces.filter(a => a.player === PlayerID.South).map(a => a.announce.id);
+            const westPlayerWinningAnnounceIDs = winningAnnounces.filter(a => a.player === PlayerID.West).map(a => a.announce.id);
+            const bestAnnounceBelongsToNorthSouthTeam = northPlayerWinningAnnounceIDs.length > 0 || southPlayerWinningAnnounceIDs.length > 0;
+            const bestAnnounceBelongsToEastWestTeam = eastPlayerWinningAnnounceIDs.length > 0 || westPlayerWinningAnnounceIDs.length > 0;
+
+            // if best announces belongs to a single team
             if (
               (bestAnnounceBelongsToNorthSouthTeam && !bestAnnounceBelongsToEastWestTeam)
               || (!bestAnnounceBelongsToNorthSouthTeam && bestAnnounceBelongsToEastWestTeam)
             ) {
-              const northPlayerAnnounces = G.playersAnnounces[PlayerID.North].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && bestAnnounceBelongsToNorthSouthTeam }));
-              const eastPlayerAnnounces = G.playersAnnounces[PlayerID.East].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && bestAnnounceBelongsToEastWestTeam }));
-              const southPlayerAnnounces = G.playersAnnounces[PlayerID.South].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && bestAnnounceBelongsToNorthSouthTeam }));
-              const westPlayerAnnounces = G.playersAnnounces[PlayerID.West].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && bestAnnounceBelongsToEastWestTeam }));
+              const northPlayerAnnounces = G.playersAnnounces[PlayerID.North].map(pa => {
+                const isCardsDisplayable = pa.isSaid && bestAnnounceBelongsToNorthSouthTeam;
+                return { ...pa, isCardsDisplayable, isCountable: isCardsDisplayable };
+              });
+              const eastPlayerAnnounces = G.playersAnnounces[PlayerID.East].map(pa => {
+                const isCardsDisplayable = pa.isSaid && bestAnnounceBelongsToEastWestTeam;
+                return { ...pa, isCardsDisplayable, isCountable: isCardsDisplayable };
+              });
+              const southPlayerAnnounces = G.playersAnnounces[PlayerID.South].map(pa => {
+                const isCardsDisplayable = pa.isSaid && bestAnnounceBelongsToNorthSouthTeam;
+                return { ...pa, isCardsDisplayable, isCountable: isCardsDisplayable };
+              });
+              const westPlayerAnnounces = G.playersAnnounces[PlayerID.West].map(pa => {
+                const isCardsDisplayable = pa.isSaid && bestAnnounceBelongsToEastWestTeam;
+                return { ...pa, isCardsDisplayable, isCountable: isCardsDisplayable };
+              });
+              G.playersAnnounces = {
+                [PlayerID.North]: northPlayerAnnounces,
+                [PlayerID.East]: eastPlayerAnnounces,
+                [PlayerID.South]: southPlayerAnnounces,
+                [PlayerID.West]: westPlayerAnnounces,
+              };
+              G.playersAnnouncesDisplayedInCurrentTurn = {
+                [PlayerID.North]: [
+                  ...G.playersAnnouncesDisplayedInCurrentTurn[PlayerID.North],
+                  ...northPlayerAnnounces.filter(a => a.isCardsDisplayable).map(a => ({ id: a.announce.id })),
+                ],
+                [PlayerID.East]: [
+                  ...G.playersAnnouncesDisplayedInCurrentTurn[PlayerID.East],
+                  ...eastPlayerAnnounces.filter(a => a.isCardsDisplayable).map(a => ({ id: a.announce.id })),
+                ],
+                [PlayerID.South]: [
+                  ...G.playersAnnouncesDisplayedInCurrentTurn[PlayerID.South],
+                  ...southPlayerAnnounces.filter(a => a.isCardsDisplayable).map(a => ({ id: a.announce.id })),
+                ],
+                [PlayerID.West]: [
+                  ...G.playersAnnouncesDisplayedInCurrentTurn[PlayerID.West],
+                  ...westPlayerAnnounces.filter(a => a.isCardsDisplayable).map(a => ({ id: a.announce.id })),
+                ],
+              };
+            }
+
+            // if best announces belongs to both team
+            if (bestAnnounceBelongsToNorthSouthTeam && bestAnnounceBelongsToEastWestTeam) {
+              const northPlayerAnnounces = G.playersAnnounces[PlayerID.North].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && northPlayerWinningAnnounceIDs.includes(pa.announce.id) }));
+              const eastPlayerAnnounces = G.playersAnnounces[PlayerID.East].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && eastPlayerWinningAnnounceIDs.includes(pa.announce.id) }));
+              const southPlayerAnnounces = G.playersAnnounces[PlayerID.South].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && southPlayerWinningAnnounceIDs.includes(pa.announce.id) }));
+              const westPlayerAnnounces = G.playersAnnounces[PlayerID.West].map(pa => ({ ...pa, isCardsDisplayable: pa.isSaid && westPlayerWinningAnnounceIDs.includes(pa.announce.id) }));
               G.playersAnnounces = {
                 [PlayerID.North]: northPlayerAnnounces,
                 [PlayerID.East]: eastPlayerAnnounces,
@@ -2947,8 +3000,8 @@ export const coincheGame: GameConfig<GameState, GameStatePlayerView, Moves, Play
           G.wonTeamsCards[G.defensingTeam],
           G.currentSayTake,
           turnWinnerTeam,
-          [...G.playersAnnounces[PlayerID.North], ...G.playersAnnounces[PlayerID.South]].filter(a => a.isCardsDisplayable).map(a => a.announce),
-          [...G.playersAnnounces[PlayerID.East], ...G.playersAnnounces[PlayerID.West]].filter(a => a.isCardsDisplayable).map(a => a.announce),
+          [...G.playersAnnounces[PlayerID.North], ...G.playersAnnounces[PlayerID.South]].filter(a => a.isCountable).map(a => a.announce),
+          [...G.playersAnnounces[PlayerID.East], ...G.playersAnnounces[PlayerID.West]].filter(a => a.isCountable).map(a => a.announce),
           G.belotAnnounce,
         );
         G.teamsPoints[G.attackingTeam] = newAttackingTeamPoints;
@@ -2963,7 +3016,7 @@ export const coincheGame: GameConfig<GameState, GameStatePlayerView, Moves, Play
         G.history.rounds[G.history.rounds.length - 1].displayableAnnounces = [
           ...(Object.entries(G.playersAnnounces) as [PlayerID, PlayerAnnounce[]][]).reduce<GameHistory['rounds'][0]['displayableAnnounces']>((acc, [playerID, playerAnnounces]) => [
             ...acc,
-            ...playerAnnounces.filter(a => a.isCardsDisplayable).map(a => ({
+            ...playerAnnounces.filter(a => a.isCountable).map(a => ({
               id: a.announce.id,
               cards: a.announce.cards,
               owner: playerID,
