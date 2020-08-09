@@ -21,8 +21,10 @@
 
 /**
  */
-.lobby .rooms {
-  margin: 30px;
+@media (min-width: 769px) {
+  .lobby .rooms {
+    margin: 30px;
+  }
 }
 
 /**

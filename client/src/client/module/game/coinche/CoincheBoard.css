@@ -2,13 +2,17 @@
  */
 .coincheBoard {
   display: grid;
-  grid-gap: 10px;
   grid-template-areas:
     "currentInfo playerTop  .          "
     "playerLeft  centerArea playerRight"
     "bottomArea  bottomArea bottomArea ";
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 210px 240px auto;
+}
+@media (min-width: 769px) {
+  .coincheBoard {
+    grid-gap: 10px;
+  }
 }
 .coincheBoard > .player.top {
   grid-area: playerTop;
