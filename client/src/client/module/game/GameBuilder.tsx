@@ -1,4 +1,5 @@
 import React, {useEffect} from 'react';
+import {useHistory} from 'react-router';
 import {useParams, Redirect} from 'react-router-dom';
 import {Client} from 'boardgame.io/react';
 import {SocketIO} from 'boardgame.io/multiplayer';
@@ -7,7 +8,6 @@ import {GameStatePlayerView, Moves, PhaseID, PlayerID, validPlayerIDs, coincheGa
 import {getApiBaseUrl, isServerStillAlive, requestToLeaveRoom} from '../../service/serverRequester';
 import {PlayerKeysByRoomID} from '../lobby/repository/playerKeyRepository';
 import {buildCoincheBoardComponent} from './coinche/CoincheBoard';
-import {useHistory} from 'react-router';
 
 type ComponentProps = {
   playerKeysByRoomID: PlayerKeysByRoomID;
@@ -17,19 +17,18 @@ export const GameBuilderComponent: React.FunctionComponent<ComponentProps> = ({
   playerKeysByRoomID,
   updatePlayerKey,
 }) => {
-  // server liveness probe
-  // => by calling it every 10min, server won't going idle even when using only websockets for a while
-  //   => for example, this is useful when using Heroku free plan
+  // server liveliness probe
+  // (when using Heroku free plan, it keeps the server alive during a long "only websockets" usage)
   useEffect(() => {
-    const livenessProbe = setInterval(() => {
+    const livelinessProbe = setInterval(() => {
       isServerStillAlive().then(isStillAlive => {
         if (!isStillAlive) {
           console.error(`Server connection has been lost`);
         }
       });
-    }, 1000 * 60 * 10);
+    }, 600000/* 10min */);
 
-    return () => clearInterval(livenessProbe);
+    return () => clearInterval(livelinessProbe);
   }, []);
 
   const history = useHistory();

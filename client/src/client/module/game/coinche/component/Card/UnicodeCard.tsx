@@ -116,15 +116,16 @@ const getPlayCardStateClass = (playCardState: CardComponentProps['playCardState'
   }
 };
 
-export const UnicodeCardComponent: React.FunctionComponent<CardComponentProps> = ({
+export const UnicodeCardComponent: React.FunctionComponent<CardComponentProps & { extraClassName?: string }> = ({
   card,
   playCardState,
   onCardClick,
   onSayBelotClick,
   onDontSayBelotClick,
+  extraClassName,
 }) => {
   return (
-    <span className={`cardWrapper ${getPlayCardStateClass(playCardState)}`}>
+    <span className={`cardWrapper ${getPlayCardStateClass(playCardState)} ${extraClassName || ''}`}>
       <span className={`card ${getColorClass(card)}`} onClick={onCardClick} data-testid={`card ${card === secretCard ? 'secretCard' : `${card.color}|${card.name}`}`}>{
         getUnicode(card)
       }</span>

@@ -42,15 +42,11 @@
   display: inline-block;
 }
 .coincheBoard .card {
-  /**
-   * @TODO: remove extra space around cards to be able to use something else than a white background
-   *   see https://preethisam.com/2018/06/25/how-to-use-emojis-as-icons/ to use transparent color and text-shadow
-   *   see https://medium.com/eightshapes-llc/cropping-away-negative-impacts-of-line-height-84d744e016ce to remove height space
-   */
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+  font-family: "Apple Symbols", "Segoe UI Symbol", "DejaVu Sans", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-size: 100px;
+  line-height: 110px;
+  font-size: 110px;
   display: inline-block;
 }
 .coincheBoard .belotChooseButton {
@@ -74,7 +70,7 @@
 .coincheBoard .cardWrapper.playable {
   cursor: pointer;
 }
-.coincheBoard .cardWrapper.playable:hover {
+.coincheBoard .cardWrapper.playable:hover .card {
   transform: translateY(-5%);
 }
 .coincheBoard .cardWrapper.playable:hover .belotChooseButton,
@@ -203,17 +199,17 @@
 }
 .coincheBoard .otherPlayerCards {
   position: relative;
-  margin-top: -10px;
-  margin-left: -30px;
+  top: 10px;
+  left: -15px;
   text-align: center;
 }
 .coincheBoard .otherPlayerCards .card {
-  font-size: 90px;
+  font-size: 100px;
 }
 .coincheBoard .otherPlayerCards .cardWrapper {
   position: absolute;
   background: white;
-  transform-origin: bottom center;
+  transform-origin: 26px 78px;
 }
 .coincheBoard .otherPlayerCards .cardWrapper:nth-child(1) {
   z-index: 8;
@@ -256,7 +252,8 @@
   z-index: 10;
 }
 .coincheBoard .hiddenAdditionalCards {
-  margin-left: -20px;
+  position: relative;
+  left: -20px;
   transform: scale(.5);
 }
 .coincheBoard .hiddenAdditionalCards .cardWrapper {
@@ -304,6 +301,8 @@
 }
 .coincheBoard .hiddenAdditionalCards .cardWrapper .card {
   color: transparent;
+  line-height: 82px;
+  font-size: 100px;
 }
 .coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(1) .card {
   text-shadow: 5px 6px rgba(0,0,0,.8);
@@ -489,7 +488,7 @@
   color: white;
 }
 .coincheBoard .modal .toggleButtons {
-  width: 55px;
+  width: 110px;
   border-left: 3px solid black;
   margin: 0 0 0 auto;
   color: white;
@@ -564,6 +563,17 @@
 .coincheBoard .gameHistory .turnsDetail,
 .coincheBoard .gameHistory .announcesDetail {
   margin-bottom: 10px;
+}
+
+/**
+ */
+.coincheBoard .option {
+  display: flex;
+}
+.coincheBoard .option label,
+.coincheBoard .option select {
+  flex: 1 1 auto;
+  font-size: 20px;
 }
 
 /**

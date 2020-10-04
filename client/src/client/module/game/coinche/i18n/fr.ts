@@ -1,19 +1,22 @@
 import {I18n} from './index';
 import {AnnounceGroup, AnnounceID, CardColor, CardName, TrumpMode} from '../../../../../shared/coinche';
-
-const translatedTrumpMode = {
-  [TrumpMode.TrumpSpade]: '♠️ Pique',
-  [TrumpMode.TrumpDiamond]: '♦️ Carreau',
-  [TrumpMode.TrumpClub]: '♣️ Trèfle',
-  [TrumpMode.TrumpHeart]: '♥️ Coeur',
-  [TrumpMode.NoTrump]: 'Sans atout',
-};
+import {CardDisplay} from '../context/cardDisplay';
 
 export const fr: I18n = {
-  trumpMode: translatedTrumpMode,
+  trumpMode: {
+    [TrumpMode.TrumpSpade]: '♠️ Pique',
+    [TrumpMode.TrumpDiamond]: '♦️ Carreau',
+    [TrumpMode.TrumpClub]: '♣️ Trèfle',
+    [TrumpMode.TrumpHeart]: '♥️ Coeur',
+    [TrumpMode.NoTrump]: 'Sans atout',
+  },
   sayCoincheLevel: {
     coinche: 'coinché',
     surcoinche: 'surcoinché',
+  },
+  cardDisplay: {
+    [CardDisplay.UnicodeNativeFont]: 'Natif',
+    [CardDisplay.UnicodeDejaVuFont]: 'DejaVu',
   },
   card: (card) => {
     const colorName = (() => {
@@ -158,5 +161,8 @@ export const fr: I18n = {
   WinningTeamCongratulation: {
     congratsTo: (winners) => `🎊 ${winners.join(' et ')} ont gagné 🎊`,
     draw: '🤯 Match nul 🤯',
+  },
+  Options: {
+    selectCardDisplay: `Type d'affichage de carte :`,
   },
 };
