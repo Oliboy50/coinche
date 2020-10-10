@@ -1,0 +1,14 @@
+[build]
+  base = "client/"
+  publish = "build/"
+  command = "npm run build"
+
+# for every other branches than the production one, override PUBLIC_URL production env var with DEPLOY_URL netlify env var
+[context.branch-deploy]
+  command = "PUBLIC_URL=${DEPLOY_URL%/} npm run build"
+
+# allow internal routing history mode
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
