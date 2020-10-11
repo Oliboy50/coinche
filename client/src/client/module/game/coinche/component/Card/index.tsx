@@ -1,7 +1,9 @@
-import React, {useContext} from 'react';
+import React, {Suspense, useContext} from 'react';
 import {Card, SecretCard} from '../../../../../../shared/coinche';
-import {ThemeContext} from '../../context/theme';
+import {CardDisplay, CardDisplayContext} from '../../context/cardDisplay';
 import {UnicodeCardComponent} from './UnicodeCard';
+
+const DejaVuFontCardComponent = React.lazy(() => import('./DejaVuFontCard').then(({ DejaVuFontCardComponent }) => ({ default: DejaVuFontCardComponent })));
 
 export type PlayCardState =
   | 'playable' // when the player must play a card and the card is playable
@@ -16,10 +18,14 @@ export type CardComponentProps = {
   onDontSayBelotClick?: () => void,
 };
 export const CardComponent: React.FunctionComponent<CardComponentProps> = (props) => {
-  const theme = useContext(ThemeContext);
+  const cardDisplay = useContext(CardDisplayContext);
 
-  switch (theme.cardDisplay) {
-    case 'unicode':
+  switch (cardDisplay) {
+    case CardDisplay.UnicodeNativeFont:
       return <UnicodeCardComponent {...props}/>;
+    case CardDisplay.UnicodeDejaVuFont:
+      return <Suspense fallback={<span />}>
+        <DejaVuFontCardComponent {...props}/>
+      </Suspense>;
   }
 };

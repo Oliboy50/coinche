@@ -7,4 +7,4 @@ export const i18n: Record<LanguageCode, I18n> = {
 };
 
 // @TODO: add env var to set the default language code
-export const I18nContext = React.createContext(i18n.fr);
+export const I18nContext = React.createContext<I18n>(i18n.fr);

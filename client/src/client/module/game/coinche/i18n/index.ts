@@ -1,8 +1,10 @@
 import {AnnounceGroup, AnnounceID, Card, SayCoincheLevel, TrumpMode} from '../../../../../shared/coinche';
+import {CardDisplay} from '../context/cardDisplay';
 
 export type I18n = {
   trumpMode: Record<TrumpMode, string>;
   sayCoincheLevel: Record<SayCoincheLevel, string>;
+  cardDisplay: Record<CardDisplay, string>;
   card: (card: Card) => string;
   announce: {
     id: Record<AnnounceID | 'Belot', string>;
@@ -41,6 +43,9 @@ export type I18n = {
   WinningTeamCongratulation: {
     congratsTo: (winners: string[]) => string;
     draw: string;
+  };
+  Options: {
+    selectCardDisplay: string;
   };
 };
 

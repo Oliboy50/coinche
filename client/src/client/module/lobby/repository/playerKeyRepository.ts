@@ -6,14 +6,11 @@ const LOCAL_STORAGE_KEY = 'coinche-pk';
 
 const getPlayersKeysByPlayerName = (): {[playerName: string]: PlayerKeysByRoomID} => {
   const jsonEncodedPlayersKeysByPlayerName = localStorage.getItem(LOCAL_STORAGE_KEY) || '{}';
+
   return JSON.parse(jsonEncodedPlayersKeysByPlayerName) || {};
 };
 
-export const findPlayerKeys = (playerName: string): PlayerKeysByRoomID => {
-  const playersKeysByPlayerName = getPlayersKeysByPlayerName();
-
-  return playersKeysByPlayerName[playerName] || {};
-};
+export const findPlayerKeys = (playerName: string): PlayerKeysByRoomID => getPlayersKeysByPlayerName()[playerName] || {};
 
 export const persistPlayerKeys = (playerName: string, playerKeys: PlayerKeysByRoomID): void => {
   const playersKeysByPlayerName = getPlayersKeysByPlayerName();
