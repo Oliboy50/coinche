@@ -1,11 +1,17 @@
 @font-face {
   font-family: "EmbeddedDejaVuSans";
-  src: url("/font/DejaVuCards.ttf") format("truetype");
+  src: url("/font/DejaVuCards.woff2") format("woff2"),
+       url("/font/DejaVuCards.woff") format("woff"),
+       url("/font/DejaVuCards.ttf") format("truetype");
 }
 
 .coincheBoard .DejaVuFont .card {
   font-family: "EmbeddedDejaVuSans", sans-serif;
   line-height: 96px;
+  font-size: 80px;
+}
+.coincheBoard .playedCards .DejaVuFont .card {
+  line-height: 50px;
   font-size: 80px;
 }
 .coincheBoard .otherPlayerCards .DejaVuFont .card {

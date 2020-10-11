@@ -1,10 +1,10 @@
 /// <reference types="Cypress" />
 /* eslint-disable cypress/no-unnecessary-waiting */
 
-const PLAYER_1 = 'the_player_1';
-const PLAYER_2 = 'el_famoso_2';
-const PLAYER_3 = 'the_third_best';
-const PLAYER_4 = 'totoro';
+const PLAYER_1 = 'p1';
+const PLAYER_2 = 'p2';
+const PLAYER_3 = 'p3';
+const PLAYER_4 = '♥️4♣️';
 
 describe('coinche', () => {
   beforeEach(() => {
@@ -21,6 +21,15 @@ describe('coinche', () => {
     cy.connectPlayerAndJoin(PLAYER_4, 'bottomRightSeat');
 
     cy.usingPlayer(PLAYER_4);
+
+    // Options
+    cy.get('[data-testid="button toggleOptions"]').click();
+    cy.get('[data-testid="select cardDisplay"]').select('DejaVu');
+    cy.get('.coincheBoard .DejaVuFont .card').should('be.visible');
+    cy.get('[data-testid="select cardDisplay"]').select('Natif');
+    cy.get('.coincheBoard .DejaVuFont .card').should('not.be.visible');
+    cy.get('[data-testid="button toggleOptions"]').click();
+
     cy.get('[data-testid="button toggleGameHistory"]').should('not.be.visible');
     cy.get('[data-testid="select sayTakeExpectedPoint"]').select('100');
     cy.get('[data-testid="select sayTakeTrumpMode"]').select('TrumpClub');

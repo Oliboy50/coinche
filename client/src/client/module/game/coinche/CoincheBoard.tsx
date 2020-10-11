@@ -351,26 +351,26 @@ export const buildCoincheBoardComponent = (
           </React.Fragment>
         )}
 
-        {G.history.rounds.length > 0 && (
-          <div className={`modal ${(isDisplayedGameHistory || isDisplayedOptions) ? 'opened': ''}`}>
-            <div className="content">
-              {isDisplayedOptions && (
-                <OptionsComponent updateCardDisplay={updateCardDisplay} />
-              )}
-              {isDisplayedGameHistory && (
-                <GameHistoryComponent gameHistory={G.history} getPlayerNameByID={getPlayerNameByID} />
-              )}
-            </div>
-            <div className="toggleButtons">
-              <div className={`toggleButton toggleOptions ${isDisplayedOptions ? 'active': ''}`} onClick={() => onClickModalButton('Options')}>
-                <span role="img" aria-label="options" data-testid="button toggleOptions">⚙️</span>
-              </div>
+        <div className={`modal ${(isDisplayedGameHistory || isDisplayedOptions) ? 'opened': ''}`}>
+          <div className="content">
+            {isDisplayedOptions && (
+              <OptionsComponent updateCardDisplay={updateCardDisplay} />
+            )}
+            {isDisplayedGameHistory && (
+              <GameHistoryComponent gameHistory={G.history} getPlayerNameByID={getPlayerNameByID} />
+            )}
+          </div>
+          <div className="toggleButtons">
+            {G.history.rounds.length > 0 && (
               <div className={`toggleButton toggleGameHistory ${isDisplayedGameHistory ? 'active': ''}`} onClick={() => onClickModalButton('GameHistory')}>
                 <span role="img" aria-label="notebook" data-testid="button toggleGameHistory">📝</span>
               </div>
+            )}
+            <div className={`toggleButton toggleOptions ${isDisplayedOptions ? 'active': ''}`} onClick={() => onClickModalButton('Options')}>
+              <span role="img" aria-label="options" data-testid="button toggleOptions">⚙️</span>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </CardDisplayContext.Provider>
   );
