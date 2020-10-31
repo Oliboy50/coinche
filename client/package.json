@@ -17,19 +17,19 @@
   },
   "dependencies": {
     "boardgame.io": "0.39.15",
-    "react": "16.13.1",
-    "react-dom": "16.13.1",
+    "react": "16.14.0",
+    "react-dom": "16.14.0",
     "react-router-dom": "5.2.0",
-    "swr": "0.2.3"
+    "swr": "0.3.7"
   },
   "devDependencies": {
-    "@types/jest": "26.0.4",
-    "@types/node": "12.12.50",
-    "@types/react": "16.9.43",
-    "@types/react-dom": "16.9.8",
-    "@types/react-router-dom": "5.1.5",
-    "husky": "4.2.5",
-    "lint-staged": "10.2.11",
+    "@types/jest": "26.0.15",
+    "@types/node": "12.19.3",
+    "@types/react": "16.9.55",
+    "@types/react-dom": "16.9.9",
+    "@types/react-router-dom": "5.1.6",
+    "husky": "4.3.0",
+    "lint-staged": "10.5.0",
     "npm-run-all": "4.1.5",
     "react-scripts": "3.4.1",
     "typescript": "3.9.7"
