@@ -3,8 +3,12 @@
   publish = "build/"
   command = "npm run build"
 
-# for every other branches than the production one, override PUBLIC_URL production env var with DEPLOY_URL netlify env var
+# for all branches (except the production one), override PUBLIC_URL production env var with DEPLOY_URL netlify env var
 [context.branch-deploy]
+  command = "PUBLIC_URL=${DEPLOY_URL%/} npm run build"
+
+# for all pull requests
+[context.deploy-preview]
   command = "PUBLIC_URL=${DEPLOY_URL%/} npm run build"
 
 # allow internal routing history mode
