@@ -61,8 +61,8 @@ describe('coinche', () => {
     cy.get('[data-testid="button toggleGameHistory"]').click();
     cy.get('.gameHistory').should('be.visible');
     cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Détail de la jetée n°1');
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Attaquant : ${PLAYER_4}`);
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Objectif : 100 ♣️ Trèfle');
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Attaquant\u00A0: ${PLAYER_4}`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Objectif\u00A0: 100 ♣️ Trèfle');
     cy.get('[data-testid="button toggleGameHistory"]').click();
     cy.get('.gameHistory .round:nth-child(1)').should('not.be.visible');
 
@@ -212,34 +212,34 @@ describe('coinche', () => {
     // GameHistory after playing last round card
     cy.get('[data-testid="button toggleGameHistory"]').click();
     cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Récapitulatif des scores à la fin de la jetée');
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_1}|${PLAYER_3}] : 0 (0 + 0) points`);
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_2}|${PLAYER_4}] : 492 (0 + 492) points`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_1}|${PLAYER_3}]\u00A0: 0 (0 + 0) points`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_2}|${PLAYER_4}]\u00A0: 492 (0 + 492) points`);
     cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Résumé des points de la jetée');
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_1}|${PLAYER_3}] : 0 points`);
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_2}|${PLAYER_4}] : 392 points pour 100 points demandés`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_1}|${PLAYER_3}]\u00A0: 0 points`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_2}|${PLAYER_4}]\u00A0: 392 points pour 100 points demandés`);
     cy.get('.gameHistory .round:nth-child(1) [data-testid="button showRoundDetail"]').click();
     cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Points des enchères');
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_1}|${PLAYER_3}] : 0 points`);
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_2}|${PLAYER_4}] : 100 points (100 ♣️ Trèfle)`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_1}|${PLAYER_3}]\u00A0: 0 points`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_2}|${PLAYER_4}]\u00A0: 100 points (100 ♣️ Trèfle)`);
     cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Points des cartes');
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_1}|${PLAYER_3}] : 0 points`);
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_2}|${PLAYER_4}] : 152 points`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_1}|${PLAYER_3}]\u00A0: 0 points`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_2}|${PLAYER_4}]\u00A0: 152 points`);
     cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Points de fin de jetée');
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_1}|${PLAYER_3}] : 0 points`);
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_2}|${PLAYER_4}] : 100 points (capot)`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_1}|${PLAYER_3}]\u00A0: 0 points`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_2}|${PLAYER_4}]\u00A0: 100 points (capot)`);
     cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Points des annonces');
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_1}|${PLAYER_3}] : 0 points`);
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_2}|${PLAYER_4}] : 140 points`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_1}|${PLAYER_3}]\u00A0: 0 points`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_2}|${PLAYER_4}]\u00A0: 140 points`);
     cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Détail des plis');
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Cartes jouées : As de carreau, As de coeur, As de trèfle, Valet de trèfle`);
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Valeur : 53 points pour ${PLAYER_4}`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Cartes jouées\u00A0: As de carreau, As de coeur, As de trèfle, Valet de trèfle`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Valeur\u00A0: 53 points pour ${PLAYER_4}`);
     cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Détail des annonces');
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Annonce : Tierce au 9 de coeur`);
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Valeur : 20 points pour ${PLAYER_2}`);
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Annonce : Cent au roi de trèfle`);
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Valeur : 100 points pour ${PLAYER_4}`);
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Annonce : Belote`);
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Valeur : 20 points pour ${PLAYER_4}`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Annonce\u00A0: Tierce au 9 de coeur`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Valeur\u00A0: 20 points pour ${PLAYER_2}`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Annonce\u00A0: Cent au roi de trèfle`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Valeur\u00A0: 100 points pour ${PLAYER_4}`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Annonce\u00A0: Belote`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Valeur\u00A0: 20 points pour ${PLAYER_4}`);
     cy.get('[data-testid="button toggleGameHistory"]').click();
 
     // GoBackToLobby
