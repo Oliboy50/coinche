@@ -20,6 +20,7 @@ import {
   howManyPlayers,
   validExpectedPoints,
 } from '../../../../shared/coinche';
+import {PageMenuComponent} from '../../../component/PageMenu';
 import {PlayerScreenPosition, getPlayerIDForPosition} from './service/getPlayerIDForPosition';
 import {constructorForGetPlayerNameByID} from './service/getPlayerNameByID';
 import {CardDisplay, CardDisplayContext, cardDisplayDefaultValue} from './context/cardDisplay';
@@ -102,9 +103,6 @@ export const buildCoincheBoardComponent = (
     persistOption('cardDisplay', c);
   };
 
-  const [isDisplayedGameHistory, setIsDisplayedGameHistory] = useState(false);
-  const [isDisplayedOptions, setIsDisplayedOptions] = useState(false);
-
   const [isDisplayedPreviousCardsPlayed, setIsDisplayedPreviousCardsPlayed] = useState(false);
   const playedCards = isDisplayedPreviousCardsPlayed ? G.playersCardPlayedInPreviousTurn : G.playersCardPlayedInCurrentTurn;
 
@@ -180,18 +178,18 @@ export const buildCoincheBoardComponent = (
     }
   };
 
-  const onClickModalButton = (modalType: 'GameHistory'|'Options') => {
-    switch (modalType) {
-      case 'GameHistory':
-        setIsDisplayedOptions(false);
-        setIsDisplayedGameHistory(!isDisplayedGameHistory);
-        return;
-      case 'Options':
-        setIsDisplayedGameHistory(false);
-        setIsDisplayedOptions(!isDisplayedOptions);
-        return;
-    }
-  };
+  const pageMenuButtons = [
+    ...(G.history.rounds.length > 0 ? [{
+      id: 'toggleGameHistory',
+      renderContent: () => <GameHistoryComponent gameHistory={G.history} getPlayerNameByID={getPlayerNameByID} />,
+      renderButton: () => <span role="img" aria-label="notebook" data-testid="button toggleGameHistory">📝</span>,
+    }] : []),
+    {
+      id: 'toggleOptions',
+      renderContent: () => <OptionsComponent updateCardDisplay={updateCardDisplay} />,
+      renderButton: () => <span role="img" aria-label="options" data-testid="button toggleOptions">⚙️</span>,
+    },
+  ];
 
   return (
     <CardDisplayContext.Provider value={cardDisplay}>
@@ -351,26 +349,7 @@ export const buildCoincheBoardComponent = (
           </React.Fragment>
         )}
 
-        <div className={`modal ${(isDisplayedGameHistory || isDisplayedOptions) ? 'opened': ''}`}>
-          <div className="content">
-            {isDisplayedOptions && (
-              <OptionsComponent updateCardDisplay={updateCardDisplay} />
-            )}
-            {isDisplayedGameHistory && (
-              <GameHistoryComponent gameHistory={G.history} getPlayerNameByID={getPlayerNameByID} />
-            )}
-          </div>
-          <div className="toggleButtons">
-            {G.history.rounds.length > 0 && (
-              <div className={`toggleButton toggleGameHistory ${isDisplayedGameHistory ? 'active': ''}`} onClick={() => onClickModalButton('GameHistory')}>
-                <span role="img" aria-label="notebook" data-testid="button toggleGameHistory">📝</span>
-              </div>
-            )}
-            <div className={`toggleButton toggleOptions ${isDisplayedOptions ? 'active': ''}`} onClick={() => onClickModalButton('Options')}>
-              <span role="img" aria-label="options" data-testid="button toggleOptions">⚙️</span>
-            </div>
-          </div>
-        </div>
+        <PageMenuComponent buttons={pageMenuButtons} />
       </div>
     </CardDisplayContext.Provider>
   );
