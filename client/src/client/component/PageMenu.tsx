@@ -1,29 +1,37 @@
 import './PageMenu.css';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
+import {OptionsComponent} from './Options';
+import {CardDisplay} from '../context/cardDisplay';
+
+interface PageMenuButtonProp {
+  id: string;
+  renderContent: () => JSX.Element;
+  renderButton: () => JSX.Element;
+}
+export const buildOptionsButton = (updateCardDisplay: (c: CardDisplay) => void): PageMenuButtonProp => ({
+  id: 'options',
+  renderContent: () => <OptionsComponent updateCardDisplay={updateCardDisplay} />,
+  renderButton: () => <span role="img" aria-label="options" data-testid="button options">⚙️</span>,
+});
 
 type ComponentProps = {
-  buttons: {
-    id: string;
-    renderContent: () => JSX.Element|undefined;
-    renderButton: () => JSX.Element|undefined;
-  }[];
+  buttons: PageMenuButtonProp[];
 };
 export const PageMenuComponent: React.FunctionComponent<ComponentProps> = ({
   buttons,
 }) => {
-  const [buttonsState, setButtonsState] = useState(buttons.map(b => ({
-    id: b.id,
-    isOpened: false,
-    renderContent: b.renderContent,
-    renderButton: b.renderButton,
-  })));
+  const [buttonsState, setButtonsState] = useState<(PageMenuButtonProp & { isOpened: boolean; })[]>([]);
+  useEffect(() => {
+    setButtonsState(buttons.map(b => ({
+      ...b,
+      isOpened: false,
+    })));
+  }, [buttons]);
 
   const onClickModalButton = (modalId: string) => {
     setButtonsState(buttonsState.map(b => ({
-      id: b.id,
+      ...b,
       isOpened: (b.id === modalId) ? !b.isOpened : false,
-      renderContent: b.renderContent,
-      renderButton: b.renderButton,
     })));
   };
 
@@ -36,7 +44,7 @@ export const PageMenuComponent: React.FunctionComponent<ComponentProps> = ({
       </div>
       <div className="toggleButtons">
         {buttonsState.map((b) => {
-          return <div key={b.id} className={`toggleButton ${b.id} ${b.isOpened ? 'active': ''}`} onClick={() => onClickModalButton(b.id)}>
+          return <div key={b.id} className={`toggleButton ${b.isOpened ? 'active': ''}`} onClick={() => onClickModalButton(b.id)}>
             {b.renderButton()}
           </div>;
         })}

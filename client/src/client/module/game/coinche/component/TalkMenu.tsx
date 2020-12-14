@@ -5,7 +5,7 @@ import {
   validExpectedPoints,
   validTrumpModes,
 } from '../../../../../shared/coinche';
-import {I18nContext} from '../context/i18n';
+import {I18nContext} from '../../../../context/i18n';
 
 type ComponentProps = {
   saySkip: () => void,
@@ -27,7 +27,7 @@ export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
   selectedTrumpModeDefaultValue,
   sayableExpectedPoints,
 }) => {
-  const i18n = useContext(I18nContext);
+  const { game: i18n } = useContext(I18nContext);
   const [selectedTrumpMode, setSelectedTrumpMode] = useState(selectedTrumpModeDefaultValue);
   const [selectedExpectedPoint, setSelectedExpectedPoint] = useState(sayableExpectedPoints.length ? sayableExpectedPoints[0] : undefined);
 

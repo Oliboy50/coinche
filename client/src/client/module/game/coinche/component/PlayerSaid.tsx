@@ -6,7 +6,7 @@ import {
   PhaseID,
   PlayerID,
 } from '../../../../../shared/coinche';
-import {I18nContext} from '../context/i18n';
+import {I18nContext} from '../../../../context/i18n';
 
 type ComponentProps = {
   playerSaid: BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>['G']['playersSaid'][PlayerID.North],
@@ -16,7 +16,7 @@ export const PlayerSaidComponent: React.FunctionComponent<ComponentProps> = ({
 }) => {
   const rootElementClassName = 'playerSaid';
 
-  const i18n = useContext(I18nContext);
+  const { game: i18n } = useContext(I18nContext);
 
   if (!playerSaid) {
     return null;

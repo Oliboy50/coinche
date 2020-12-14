@@ -526,17 +526,6 @@
 
 /**
  */
-.coincheBoard .option {
-  display: flex;
-}
-.coincheBoard .option label,
-.coincheBoard .option select {
-  flex: 1 1 auto;
-  font-size: 20px;
-}
-
-/**
- */
 .coincheBoard .goBackToLobby {
   margin: auto;
 }

@@ -20,11 +20,10 @@ import {
   howManyPlayers,
   validExpectedPoints,
 } from '../../../../shared/coinche';
-import {PageMenuComponent} from '../../../component/PageMenu';
+import {CardDisplay} from '../../../context/cardDisplay';
+import {buildOptionsButton, PageMenuComponent} from '../../../component/PageMenu';
 import {PlayerScreenPosition, getPlayerIDForPosition} from './service/getPlayerIDForPosition';
 import {constructorForGetPlayerNameByID} from './service/getPlayerNameByID';
-import {CardDisplay, CardDisplayContext, cardDisplayDefaultValue} from './context/cardDisplay';
-import {findOption, persistOption} from './repository/optionsRepository';
 import {TalkMenuComponent} from './component/TalkMenu';
 import {MyCardsComponent} from './component/MyCards';
 import {OtherPlayerCardsComponent} from './component/OtherPlayerCards';
@@ -38,7 +37,6 @@ import {HiddenStackedCardsComponent} from './component/HiddenStackedCards';
 import {GameHistoryComponent} from './component/GameHistory';
 import {GoBackToLobbyComponent} from './component/GoBackToLobby';
 import {WinnersCongratulationComponent} from './component/WinnersCongratulation';
-import {OptionsComponent} from './component/Options';
 
 const getTurnIndicatorClassForPosition = (
   position: PlayerScreenPosition,
@@ -63,7 +61,8 @@ const getTurnIndicatorClassForPosition = (
 };
 
 export const buildCoincheBoardComponent = (
-  goBackToLobby: () => Promise<void>,
+  goBackToLobby: () => void,
+  updateCardDisplay: (c: CardDisplay) => void,
 ): React.FunctionComponent<BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>> => ({
   G,
   ctx,
@@ -96,12 +95,6 @@ export const buildCoincheBoardComponent = (
   const currentPhaseNeedsToWaitForAPlayerMove = currentPhaseIsTalk || currentPhaseIsPlayCards;
 
   const isNotFirstPlayCardTurn = G.playersCardPlayedInPreviousTurn !== undefined;
-
-  const [cardDisplay, setCardDisplay] = useState(findOption('cardDisplay') || cardDisplayDefaultValue);
-  const updateCardDisplay = (c: CardDisplay) => {
-    setCardDisplay(c);
-    persistOption('cardDisplay', c);
-  };
 
   const [isDisplayedPreviousCardsPlayed, setIsDisplayedPreviousCardsPlayed] = useState(false);
   const playedCards = isDisplayedPreviousCardsPlayed ? G.playersCardPlayedInPreviousTurn : G.playersCardPlayedInCurrentTurn;
@@ -178,179 +171,171 @@ export const buildCoincheBoardComponent = (
     }
   };
 
-  const pageMenuButtons = [
-    ...(G.history.rounds.length > 0 ? [{
-      id: 'toggleGameHistory',
-      renderContent: () => <GameHistoryComponent gameHistory={G.history} getPlayerNameByID={getPlayerNameByID} />,
-      renderButton: () => <span role="img" aria-label="notebook" data-testid="button toggleGameHistory">📝</span>,
-    }] : []),
-    {
-      id: 'toggleOptions',
-      renderContent: () => <OptionsComponent updateCardDisplay={updateCardDisplay} />,
-      renderButton: () => <span role="img" aria-label="options" data-testid="button toggleOptions">⚙️</span>,
-    },
-  ];
-
   return (
-    <CardDisplayContext.Provider value={cardDisplay}>
-      <div className="coincheBoard">
-        <CurrentInfoComponent
-          sayCoincheLevel={G.currentSayTake?.sayCoincheLevel}
-          partnerTeamPoints={G.teamsPoints[partnerTeamID]}
-          opponentTeamPoints={G.teamsPoints[opponentTeamID]}
-          howManyPointsATeamMustReachToEndTheGame={G.howManyPointsATeamMustReachToEndTheGame}
-          attackingPlayerName={G.currentSayTake && getPlayerNameByID(G.currentSayTake.playerID)}
-          trumpMode={G.currentSayTake?.trumpMode}
-          expectedPoints={G.currentSayTake?.expectedPoints}
-          displayablePlayersAnnounces={displayableAnnouncesByPlayerID}
-        />
+    <div className="coincheBoard">
+      <CurrentInfoComponent
+        sayCoincheLevel={G.currentSayTake?.sayCoincheLevel}
+        partnerTeamPoints={G.teamsPoints[partnerTeamID]}
+        opponentTeamPoints={G.teamsPoints[opponentTeamID]}
+        howManyPointsATeamMustReachToEndTheGame={G.howManyPointsATeamMustReachToEndTheGame}
+        attackingPlayerName={G.currentSayTake && getPlayerNameByID(G.currentSayTake.playerID)}
+        trumpMode={G.currentSayTake?.trumpMode}
+        expectedPoints={G.currentSayTake?.expectedPoints}
+        displayablePlayersAnnounces={displayableAnnouncesByPlayerID}
+      />
 
-        <div className={`otherPlayer player top ${getTurnIndicatorClassForPosition('top', currentPhaseNeedsToWaitForAPlayerMove, currentPlayerIsTopPlayer, currentPlayerIsLeftPlayer, currentPlayerIsRightPlayer, currentPlayerIsBottomPlayer)}`}>
-          <OtherPlayerCardsComponent cards={G.playersCards[topPlayerID]} />
-          <div className="additionalCards">
-            {currentPhaseIsTalk && G.dealer === topPlayerID && (
-              <HiddenStackedCardsComponent cards={G.availableCards} />
-            )}
-            {currentPhaseIsPlayCards && (
-              <HiddenStackedCardsComponent cards={G.wonTeamsCards[partnerTeamID]} />
-            )}
-          </div>
-          <div className="playerName">{getPlayerNameByID(topPlayerID)}</div>
-          <div className="playerTalks">
-            {currentPhaseIsTalk && (!currentPlayerIsTopPlayer || G.__isWaitingBeforeMovingToNextPhase) && G.playersSaid[topPlayerID] && (
-              <PlayerSaidComponent playerSaid={G.playersSaid[topPlayerID]}/>
-            )}
-            {currentPhaseIsPlayCards && (
-              <PlayerSaidAnnouncesComponent
-                saidAnnounceGroups={!isNotFirstPlayCardTurn ? topPlayerSaidAnnounces.map(a => a.announceGroup!) : []}
-                saidAnnounces={G.playersAnnouncesDisplayedInCurrentTurn[topPlayerID]}
-              />
-            )}
-          </div>
+      <div className={`otherPlayer player top ${getTurnIndicatorClassForPosition('top', currentPhaseNeedsToWaitForAPlayerMove, currentPlayerIsTopPlayer, currentPlayerIsLeftPlayer, currentPlayerIsRightPlayer, currentPlayerIsBottomPlayer)}`}>
+        <OtherPlayerCardsComponent cards={G.playersCards[topPlayerID]} />
+        <div className="additionalCards">
+          {currentPhaseIsTalk && G.dealer === topPlayerID && (
+            <HiddenStackedCardsComponent cards={G.availableCards} />
+          )}
+          {currentPhaseIsPlayCards && (
+            <HiddenStackedCardsComponent cards={G.wonTeamsCards[partnerTeamID]} />
+          )}
         </div>
-
-        <div className={`otherPlayer player left ${getTurnIndicatorClassForPosition('left', currentPhaseNeedsToWaitForAPlayerMove, currentPlayerIsTopPlayer, currentPlayerIsLeftPlayer, currentPlayerIsRightPlayer, currentPlayerIsBottomPlayer)}`}>
-          <OtherPlayerCardsComponent cards={G.playersCards[leftPlayerID]} />
-          <div className="additionalCards">
-            {currentPhaseIsTalk && G.dealer === leftPlayerID && (
-              <HiddenStackedCardsComponent cards={G.availableCards} />
-            )}
-            {currentPhaseIsPlayCards && (
-              <HiddenStackedCardsComponent cards={G.wonTeamsCards[opponentTeamID]} />
-            )}
-          </div>
-          <div className="playerName">{getPlayerNameByID(leftPlayerID)}</div>
-          <div className="playerTalks">
-            {currentPhaseIsTalk && (!currentPlayerIsLeftPlayer || G.__isWaitingBeforeMovingToNextPhase) && G.playersSaid[leftPlayerID] && (
-              <PlayerSaidComponent playerSaid={G.playersSaid[leftPlayerID]}/>
-            )}
-            {currentPhaseIsPlayCards && (
-              <PlayerSaidAnnouncesComponent
-                saidAnnounceGroups={!isNotFirstPlayCardTurn ? leftPlayerSaidAnnounces.map(a => a.announceGroup!) : []}
-                saidAnnounces={G.playersAnnouncesDisplayedInCurrentTurn[leftPlayerID]}
-              />
-            )}
-          </div>
-        </div>
-
-        <div className={`otherPlayer player right ${getTurnIndicatorClassForPosition('right', currentPhaseNeedsToWaitForAPlayerMove, currentPlayerIsTopPlayer, currentPlayerIsLeftPlayer, currentPlayerIsRightPlayer, currentPlayerIsBottomPlayer)}`}>
-          <OtherPlayerCardsComponent cards={G.playersCards[rightPlayerID]} />
-          <div className="additionalCards">
-            {currentPhaseIsTalk && G.dealer === rightPlayerID && (
-              <HiddenStackedCardsComponent cards={G.availableCards} />
-            )}
-          </div>
-          <div className="playerName">{getPlayerNameByID(rightPlayerID)}</div>
-          <div className="playerTalks">
-            {currentPhaseIsTalk && (!currentPlayerIsRightPlayer || G.__isWaitingBeforeMovingToNextPhase) && G.playersSaid[rightPlayerID] && (
-              <PlayerSaidComponent playerSaid={G.playersSaid[rightPlayerID]}/>
-            )}
-            {currentPhaseIsPlayCards && (
-              <PlayerSaidAnnouncesComponent
-                saidAnnounceGroups={!isNotFirstPlayCardTurn ? rightPlayerSaidAnnounces.map(a => a.announceGroup!) : []}
-                saidAnnounces={G.playersAnnouncesDisplayedInCurrentTurn[rightPlayerID]}
-              />
-            )}
-          </div>
-        </div>
-
-        {ctx.gameover ? (
-          <React.Fragment>
-            <GoBackToLobbyComponent
-              goBackToLobby={goBackToLobby}
+        <div className="playerName">{getPlayerNameByID(topPlayerID)}</div>
+        <div className="playerTalks">
+          {currentPhaseIsTalk && (!currentPlayerIsTopPlayer || G.__isWaitingBeforeMovingToNextPhase) && G.playersSaid[topPlayerID] && (
+            <PlayerSaidComponent playerSaid={G.playersSaid[topPlayerID]}/>
+          )}
+          {currentPhaseIsPlayCards && (
+            <PlayerSaidAnnouncesComponent
+              saidAnnounceGroups={!isNotFirstPlayCardTurn ? topPlayerSaidAnnounces.map(a => a.announceGroup!) : []}
+              saidAnnounces={G.playersAnnouncesDisplayedInCurrentTurn[topPlayerID]}
             />
+          )}
+        </div>
+      </div>
 
-            <WinnersCongratulationComponent
-              winners={ctx.gameover!.winners}
-              getPlayerNameByID={getPlayerNameByID}
+      <div className={`otherPlayer player left ${getTurnIndicatorClassForPosition('left', currentPhaseNeedsToWaitForAPlayerMove, currentPlayerIsTopPlayer, currentPlayerIsLeftPlayer, currentPlayerIsRightPlayer, currentPlayerIsBottomPlayer)}`}>
+        <OtherPlayerCardsComponent cards={G.playersCards[leftPlayerID]} />
+        <div className="additionalCards">
+          {currentPhaseIsTalk && G.dealer === leftPlayerID && (
+            <HiddenStackedCardsComponent cards={G.availableCards} />
+          )}
+          {currentPhaseIsPlayCards && (
+            <HiddenStackedCardsComponent cards={G.wonTeamsCards[opponentTeamID]} />
+          )}
+        </div>
+        <div className="playerName">{getPlayerNameByID(leftPlayerID)}</div>
+        <div className="playerTalks">
+          {currentPhaseIsTalk && (!currentPlayerIsLeftPlayer || G.__isWaitingBeforeMovingToNextPhase) && G.playersSaid[leftPlayerID] && (
+            <PlayerSaidComponent playerSaid={G.playersSaid[leftPlayerID]}/>
+          )}
+          {currentPhaseIsPlayCards && (
+            <PlayerSaidAnnouncesComponent
+              saidAnnounceGroups={!isNotFirstPlayCardTurn ? leftPlayerSaidAnnounces.map(a => a.announceGroup!) : []}
+              saidAnnounces={G.playersAnnouncesDisplayedInCurrentTurn[leftPlayerID]}
             />
-          </React.Fragment>
-        ) : (
-          <React.Fragment>
-            <div className="playedCardsArea">
-              <PlayedCardsComponent bottomPlayerID={bottomPlayerID} playedCards={playedCards} />
-            </div>
+          )}
+        </div>
+      </div>
 
-            <div className={`myPlayer player bottom ${getTurnIndicatorClassForPosition('bottom', currentPhaseNeedsToWaitForAPlayerMove, currentPlayerIsTopPlayer, currentPlayerIsLeftPlayer, currentPlayerIsRightPlayer, currentPlayerIsBottomPlayer)}`}>
-              <div className="playerTalks">
-                {currentPhaseIsTalk && (!currentPlayerIsBottomPlayer || G.__isWaitingBeforeMovingToNextPhase) && G.playersSaid[bottomPlayerID] && (
-                  <PlayerSaidComponent playerSaid={G.playersSaid[bottomPlayerID]}/>
-                )}
-                {currentPhaseIsPlayCards && (
-                  <PlayerSaidAnnouncesComponent
-                    saidAnnounceGroups={!isNotFirstPlayCardTurn ? bottomPlayerSaidAnnounces.map(a => a.announceGroup!) : []}
-                    saidAnnounces={G.playersAnnouncesDisplayedInCurrentTurn[bottomPlayerID]}
-                  />
-                )}
-              </div>
-              <div className="menu">
-                {!G.__isWaitingBeforeMovingToNextPhase && currentPhaseIsPlayCards && isNotFirstPlayCardTurn && (
-                  <PreviousCardsPlayedMenuComponent
-                    isDisplayedPreviousCardsPlayed={isDisplayedPreviousCardsPlayed}
-                    toggleIsDisplayedPreviousCardsPlayed={() => setIsDisplayedPreviousCardsPlayed(!isDisplayedPreviousCardsPlayed)}
-                  />
-                )}
-                {!G.__isWaitingBeforeMovingToNextPhase && !isDisplayedPreviousCardsPlayed && currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && currentPlayerIsBottomPlayer && (
-                  <SayAnnounceMenuComponent sayAnnounce={moves.sayAnnounce} availableAnnounces={G.playerAnnounces.filter(a => !a.isSaid).map(a => a.announce)} />
-                )}
-                {!G.__isWaitingBeforeMovingToNextPhase && !isDisplayedPreviousCardsPlayed && currentPhaseIsTalk && currentPlayerIsBottomPlayer && (
-                  <TalkMenuComponent
-                    saySkip={saySkip}
-                    canSayTake={!(G.currentSayTake && G.currentSayTake.sayCoincheLevel === 'coinche' && G.currentSayTake.playerID === bottomPlayerID)}
-                    sayTake={sayTake}
-                    sayCoinche={sayCoinche}
-                    canSayCoinche={Boolean(G.currentSayTake && G.attackingTeam === opponentTeamID && G.currentSayTake.sayCoincheLevel !== 'coinche')}
-                    canSaySurcoinche={Boolean(G.currentSayTake && G.attackingTeam === partnerTeamID && G.currentSayTake.sayCoincheLevel === 'coinche')}
-                    selectedTrumpModeDefaultValue={lastBottomPlayerTakeSaid ? lastBottomPlayerTakeSaid.trumpMode : undefined}
-                    sayableExpectedPoints={validExpectedPoints.filter(expectedPoint => isSayableExpectedPoints(expectedPoint, G.currentSayTake?.expectedPoints))}
-                  />
-                )}
-              </div>
-              <div className="currentPlayerIndicator" />
-              {!isDisplayedPreviousCardsPlayed && (
-                <MyCardsComponent
-                  cards={G.playerCards}
-                  isMyTurnToPlayACard={!G.__isWaitingBeforeMovingToNextPhase && currentPhaseIsPlayCards && currentPlayerIsBottomPlayer}
-                  playCard={playCard}
-                  trumpMode={G.currentSayTake?.trumpMode}
-                  playersCardPlayedInCurrentTurn={G.playersCardPlayedInCurrentTurn}
-                  firstPlayerInCurrentTurn={G.firstPlayerInCurrentTurn}
-                  playerPartner={getPlayerPartner(bottomPlayerID)}
-                  sayBelotOrNot={moves.sayBelotOrNot}
-                  belotCards={(belotCards.length && belotCards.every(bc => G.playerCards.some(pc => isSameCard(bc, pc)))) ? belotCards : []}
+      <div className={`otherPlayer player right ${getTurnIndicatorClassForPosition('right', currentPhaseNeedsToWaitForAPlayerMove, currentPlayerIsTopPlayer, currentPlayerIsLeftPlayer, currentPlayerIsRightPlayer, currentPlayerIsBottomPlayer)}`}>
+        <OtherPlayerCardsComponent cards={G.playersCards[rightPlayerID]} />
+        <div className="additionalCards">
+          {currentPhaseIsTalk && G.dealer === rightPlayerID && (
+            <HiddenStackedCardsComponent cards={G.availableCards} />
+          )}
+        </div>
+        <div className="playerName">{getPlayerNameByID(rightPlayerID)}</div>
+        <div className="playerTalks">
+          {currentPhaseIsTalk && (!currentPlayerIsRightPlayer || G.__isWaitingBeforeMovingToNextPhase) && G.playersSaid[rightPlayerID] && (
+            <PlayerSaidComponent playerSaid={G.playersSaid[rightPlayerID]}/>
+          )}
+          {currentPhaseIsPlayCards && (
+            <PlayerSaidAnnouncesComponent
+              saidAnnounceGroups={!isNotFirstPlayCardTurn ? rightPlayerSaidAnnounces.map(a => a.announceGroup!) : []}
+              saidAnnounces={G.playersAnnouncesDisplayedInCurrentTurn[rightPlayerID]}
+            />
+          )}
+        </div>
+      </div>
+
+      {ctx.gameover ? (
+        <React.Fragment>
+          <GoBackToLobbyComponent
+            goBackToLobby={goBackToLobby}
+          />
+
+          <WinnersCongratulationComponent
+            winners={ctx.gameover.winners}
+            getPlayerNameByID={getPlayerNameByID}
+          />
+        </React.Fragment>
+      ) : (
+        <React.Fragment>
+          <div className="playedCardsArea">
+            <PlayedCardsComponent bottomPlayerID={bottomPlayerID} playedCards={playedCards} />
+          </div>
+
+          <div className={`myPlayer player bottom ${getTurnIndicatorClassForPosition('bottom', currentPhaseNeedsToWaitForAPlayerMove, currentPlayerIsTopPlayer, currentPlayerIsLeftPlayer, currentPlayerIsRightPlayer, currentPlayerIsBottomPlayer)}`}>
+            <div className="playerTalks">
+              {currentPhaseIsTalk && (!currentPlayerIsBottomPlayer || G.__isWaitingBeforeMovingToNextPhase) && G.playersSaid[bottomPlayerID] && (
+                <PlayerSaidComponent playerSaid={G.playersSaid[bottomPlayerID]}/>
+              )}
+              {currentPhaseIsPlayCards && (
+                <PlayerSaidAnnouncesComponent
+                  saidAnnounceGroups={!isNotFirstPlayCardTurn ? bottomPlayerSaidAnnounces.map(a => a.announceGroup!) : []}
+                  saidAnnounces={G.playersAnnouncesDisplayedInCurrentTurn[bottomPlayerID]}
                 />
               )}
-              <div className="additionalCards">
-                {!isDisplayedPreviousCardsPlayed && currentPhaseIsTalk && G.dealer === bottomPlayerID && (
-                  <HiddenStackedCardsComponent cards={G.availableCards} />
-                )}
-              </div>
             </div>
-          </React.Fragment>
-        )}
+            <div className="menu">
+              {!G.__isWaitingBeforeMovingToNextPhase && currentPhaseIsPlayCards && isNotFirstPlayCardTurn && (
+                <PreviousCardsPlayedMenuComponent
+                  isDisplayedPreviousCardsPlayed={isDisplayedPreviousCardsPlayed}
+                  toggleIsDisplayedPreviousCardsPlayed={() => setIsDisplayedPreviousCardsPlayed(!isDisplayedPreviousCardsPlayed)}
+                />
+              )}
+              {!G.__isWaitingBeforeMovingToNextPhase && !isDisplayedPreviousCardsPlayed && currentPhaseIsPlayCards && !isNotFirstPlayCardTurn && currentPlayerIsBottomPlayer && (
+                <SayAnnounceMenuComponent sayAnnounce={moves.sayAnnounce} availableAnnounces={G.playerAnnounces.filter(a => !a.isSaid).map(a => a.announce)} />
+              )}
+              {!G.__isWaitingBeforeMovingToNextPhase && !isDisplayedPreviousCardsPlayed && currentPhaseIsTalk && currentPlayerIsBottomPlayer && (
+                <TalkMenuComponent
+                  saySkip={saySkip}
+                  canSayTake={!(G.currentSayTake && G.currentSayTake.sayCoincheLevel === 'coinche' && G.currentSayTake.playerID === bottomPlayerID)}
+                  sayTake={sayTake}
+                  sayCoinche={sayCoinche}
+                  canSayCoinche={Boolean(G.currentSayTake && G.attackingTeam === opponentTeamID && G.currentSayTake.sayCoincheLevel !== 'coinche')}
+                  canSaySurcoinche={Boolean(G.currentSayTake && G.attackingTeam === partnerTeamID && G.currentSayTake.sayCoincheLevel === 'coinche')}
+                  selectedTrumpModeDefaultValue={lastBottomPlayerTakeSaid ? lastBottomPlayerTakeSaid.trumpMode : undefined}
+                  sayableExpectedPoints={validExpectedPoints.filter(expectedPoint => isSayableExpectedPoints(expectedPoint, G.currentSayTake?.expectedPoints))}
+                />
+              )}
+            </div>
+            <div className="currentPlayerIndicator" />
+            {!isDisplayedPreviousCardsPlayed && (
+              <MyCardsComponent
+                cards={G.playerCards}
+                isMyTurnToPlayACard={!G.__isWaitingBeforeMovingToNextPhase && currentPhaseIsPlayCards && currentPlayerIsBottomPlayer}
+                playCard={playCard}
+                trumpMode={G.currentSayTake?.trumpMode}
+                playersCardPlayedInCurrentTurn={G.playersCardPlayedInCurrentTurn}
+                firstPlayerInCurrentTurn={G.firstPlayerInCurrentTurn}
+                playerPartner={getPlayerPartner(bottomPlayerID)}
+                sayBelotOrNot={moves.sayBelotOrNot}
+                belotCards={(belotCards.length && belotCards.every(bc => G.playerCards.some(pc => isSameCard(bc, pc)))) ? belotCards : []}
+              />
+            )}
+            <div className="additionalCards">
+              {!isDisplayedPreviousCardsPlayed && currentPhaseIsTalk && G.dealer === bottomPlayerID && (
+                <HiddenStackedCardsComponent cards={G.availableCards} />
+              )}
+            </div>
+          </div>
+        </React.Fragment>
+      )}
 
-        <PageMenuComponent buttons={pageMenuButtons} />
-      </div>
-    </CardDisplayContext.Provider>
+      <PageMenuComponent buttons={[
+        ...(G.history.rounds.length > 0 ? [{
+          id: 'gameHistory',
+          renderContent: () => <GameHistoryComponent gameHistory={G.history} getPlayerNameByID={getPlayerNameByID} />,
+          renderButton: () => <span role="img" aria-label="notebook" data-testid="button gameHistory">📝</span>,
+        }] : []),
+        buildOptionsButton(updateCardDisplay),
+      ]} />
+    </div>
   );
 };

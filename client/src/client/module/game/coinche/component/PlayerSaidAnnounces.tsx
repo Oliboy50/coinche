@@ -1,6 +1,6 @@
 import React, {useContext} from 'react';
 import {AnnounceGroup, AnnounceID} from '../../../../../shared/coinche';
-import {I18nContext} from '../context/i18n';
+import {I18nContext} from '../../../../context/i18n';
 
 type ComponentProps = {
   saidAnnounceGroups: AnnounceGroup[],
@@ -10,7 +10,7 @@ export const PlayerSaidAnnouncesComponent: React.FunctionComponent<ComponentProp
   saidAnnounceGroups,
   saidAnnounces,
 }) => {
-  const i18n = useContext(I18nContext);
+  const { game: i18n } = useContext(I18nContext);
 
   if (!saidAnnounceGroups.length && !saidAnnounces.length) {
     return null;

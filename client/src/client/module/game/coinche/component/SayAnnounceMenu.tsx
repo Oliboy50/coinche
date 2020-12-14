@@ -5,7 +5,7 @@ import {
   getAnnounceByID,
   Moves,
 } from '../../../../../shared/coinche';
-import {I18nContext} from '../context/i18n';
+import {I18nContext} from '../../../../context/i18n';
 
 type ComponentProps = {
   sayAnnounce: Moves['sayAnnounce'],
@@ -15,7 +15,7 @@ export const SayAnnounceMenuComponent: React.FunctionComponent<ComponentProps> =
   sayAnnounce,
   availableAnnounces,
 }) => {
-  const i18n = useContext(I18nContext);
+  const { game: i18n } = useContext(I18nContext);
   const [selectedAnnounce, setSelectedAnnounce] = useState(availableAnnounces.length ? availableAnnounces[0] : undefined);
 
   const onChangeAnnounce = (event: React.ChangeEvent<HTMLSelectElement>) => {

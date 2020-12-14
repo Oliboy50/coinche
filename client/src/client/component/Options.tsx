@@ -1,3 +1,4 @@
+import './Options.css';
 import React, {useContext} from 'react';
 import {I18nContext} from '../context/i18n';
 import {CardDisplay, CardDisplayContext, validCardDisplays} from '../context/cardDisplay';
@@ -8,7 +9,7 @@ type ComponentProps = {
 export const OptionsComponent: React.FunctionComponent<ComponentProps> = ({
   updateCardDisplay,
 }) => {
-  const i18n = useContext(I18nContext);
+  const { common: i18n } = useContext(I18nContext);
   const selectedCardDisplay = useContext(CardDisplayContext);
 
   const onChangeCardDisplay = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -25,7 +26,7 @@ export const OptionsComponent: React.FunctionComponent<ComponentProps> = ({
         <select id="selectCardDisplay" value={selectedCardDisplay} onChange={onChangeCardDisplay} data-testid="select cardDisplay">
           {validCardDisplays.map(display => (
             <option value={display} key={`cardDisplay_${display}`}>
-              {i18n.cardDisplay[display]}
+              {i18n.Options.cardDisplay[display]}
             </option>
           ))}
         </select>

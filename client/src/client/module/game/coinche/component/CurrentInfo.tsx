@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {I18nContext} from '../context/i18n';
+import {I18nContext} from '../../../../context/i18n';
 import {
   AnnounceID,
   ExpectedPoints,
@@ -28,7 +28,7 @@ export const CurrentInfoComponent: React.FunctionComponent<ComponentProps> = ({
   expectedPoints,
   displayablePlayersAnnounces,
 }) => {
-  const i18n = useContext(I18nContext);
+  const { game: i18n } = useContext(I18nContext);
 
   return (
     <div className="currentInfo">

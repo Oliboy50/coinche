@@ -1,6 +1,6 @@
 import React, {Suspense, useContext} from 'react';
 import {Card, SecretCard} from '../../../../../../shared/coinche';
-import {CardDisplay, CardDisplayContext} from '../../context/cardDisplay';
+import {CardDisplay, CardDisplayContext} from '../../../../../context/cardDisplay';
 import {UnicodeCardComponent} from './UnicodeCard';
 
 const DejaVuFontCardComponent = React.lazy(() => import('./DejaVuFontCard').then(({ DejaVuFontCardComponent }) => ({ default: DejaVuFontCardComponent })));
