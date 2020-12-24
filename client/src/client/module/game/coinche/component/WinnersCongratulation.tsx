@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {I18nContext} from '../context/i18n';
+import {I18nContext} from '../../../../context/i18n';
 import {PlayerID} from '../../../../../shared/coinche';
 
 type ComponentProps = {
@@ -10,7 +10,7 @@ export const WinnersCongratulationComponent: React.FunctionComponent<ComponentPr
   getPlayerNameByID,
   winners,
 }) => {
-  const i18n = useContext(I18nContext);
+  const { game: i18n } = useContext(I18nContext);
 
   return (
     <div className="winnersTeamCongratulation">

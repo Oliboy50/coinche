@@ -2,12 +2,14 @@ import './Lobby.css';
 import React, {useContext} from 'react';
 import {useHistory} from 'react-router-dom';
 import useSWR, {mutate as updateRequestCache} from 'swr';
-import {GameName} from '../../../shared';
+import {GameName, LanguageCode} from '../../../shared';
 import {PlayerID} from '../../../shared/coinche';
 import {requestToCreateRoom, requestToGetRooms, requestToJoinRoom, requestToLeaveRoom} from '../../service/serverRequester';
+import {PlayerKeysByRoomID} from '../../repository/playerKeyRepository';
+import {I18nContext} from '../../context/i18n';
+import {CardDisplay} from '../../context/cardDisplay';
 import {PageHeaderComponent} from '../../component/PageHeader';
-import {PlayerKeysByRoomID} from './repository/playerKeyRepository';
-import {I18nContext} from './context/i18n';
+import {buildOptionsButton, PageMenuComponent} from '../../component/PageMenu';
 import {SeatComponent} from './component/SeatComponent';
 
 const getCacheKeyForGetRoomsRequest = (gameName: GameName) => `/games/${gameName}`;
@@ -16,13 +18,17 @@ type ComponentProps = {
   playerName: string;
   playerKeysByRoomID: PlayerKeysByRoomID;
   updatePlayerKey: (roomID: string, playerKey: string | undefined) => void;
+  updateLanguageCode: (lc: LanguageCode) => void;
+  updateCardDisplay: (c: CardDisplay) => void;
 };
 export const LobbyComponent: React.FunctionComponent<ComponentProps> = ({
   playerName,
   playerKeysByRoomID,
   updatePlayerKey,
+  updateLanguageCode,
+  updateCardDisplay,
 }) => {
-  const i18n = useContext(I18nContext);
+  const { lobby: i18n } = useContext(I18nContext);
   const history = useHistory();
 
   const { data: getCoincheRoomsResponse } = useSWR(getCacheKeyForGetRoomsRequest(GameName.Coinche), {
@@ -109,6 +115,10 @@ export const LobbyComponent: React.FunctionComponent<ComponentProps> = ({
       </div>
 
       <button className="createRoomButton" type="button" onClick={() => createRoom(GameName.Coinche)} data-testid="button createRoom">{i18n.createRoom}</button>
+
+      <PageMenuComponent buttons={[
+        buildOptionsButton(updateLanguageCode, updateCardDisplay),
+      ]} />
     </div>
   );
 };

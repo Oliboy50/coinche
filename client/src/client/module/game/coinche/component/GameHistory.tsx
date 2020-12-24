@@ -1,5 +1,5 @@
 import React, {useContext, useState} from 'react';
-import {I18nContext} from '../context/i18n';
+import {I18nContext} from '../../../../context/i18n';
 import {
   GameHistory,
   PlayerID,
@@ -22,7 +22,7 @@ export const GameHistoryComponent: React.FunctionComponent<ComponentProps> = ({
 }) => {
   const reversedRounds = [...gameHistory.rounds].reverse();
 
-  const i18n = useContext(I18nContext);
+  const { game: i18n } = useContext(I18nContext);
   const [displayedRoundDetail, setDisplayedRoundDetail] = useState<number | undefined>(undefined);
 
   const getTeamNameByID = (teamID: TeamID): string => teamID === TeamID.NorthSouth ? `[${getPlayerNameByID(PlayerID.North)}|${getPlayerNameByID(PlayerID.South)}]` : `[${getPlayerNameByID(PlayerID.East)}|${getPlayerNameByID(PlayerID.West)}]`;

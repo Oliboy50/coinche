@@ -1,0 +1,11 @@
+/**
+ */
+.options .option {
+  display: flex;
+  margin-bottom: 20px;
+}
+.options .option label,
+.options .option select {
+  flex: 1 1 auto;
+  font-size: 20px;
+}

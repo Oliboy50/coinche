@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {I18nContext} from '../context/i18n';
+import {I18nContext} from '../../../context/i18n';
 
 type ComponentProps = {
   seatedPlayerName: string | undefined;
@@ -15,7 +15,7 @@ export const SeatComponent: React.FunctionComponent<ComponentProps> = ({
   joinRoom,
   leaveRoom,
 }) => {
-  const i18n = useContext(I18nContext);
+  const { lobby: i18n } = useContext(I18nContext);
 
   return (
     <div className={`seat ${seatedPlayerName === myPlayerName ? 'mySeat' : 'otherSeat'}`}>

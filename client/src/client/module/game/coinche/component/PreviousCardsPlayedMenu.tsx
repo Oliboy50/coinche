@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {I18nContext} from '../context/i18n';
+import {I18nContext} from '../../../../context/i18n';
 
 type ComponentProps = {
   isDisplayedPreviousCardsPlayed: boolean;
@@ -9,7 +9,7 @@ export const PreviousCardsPlayedMenuComponent: React.FunctionComponent<Component
   isDisplayedPreviousCardsPlayed,
   toggleIsDisplayedPreviousCardsPlayed,
 }) => {
-  const i18n = useContext(I18nContext);
+  const { game: i18n } = useContext(I18nContext);
 
   return (
     <div className="toggleIsDisplayedPreviousCardsPlayed">

@@ -15,6 +15,14 @@ describe('coinche', () => {
   it('creates a 4 players game and plays until the game is over', () => {
     cy.visit('/');
 
+    // Language option
+    cy.get('[data-testid="button options"]').click();
+    cy.get('[data-testid="select languageCode"]').select('Anglais');
+    cy.get('[data-testid="button submit"]').should('contain', 'Submit');
+    cy.get('[data-testid="button options"]').click();
+    cy.get('[data-testid="select languageCode"]').select('French');
+    cy.get('[data-testid="button submit"]').should('contain', 'Valider');
+
     cy.connectPlayerAndCreateCoincheRoomAndJoin(PLAYER_1);
     cy.connectPlayerAndJoin(PLAYER_2, 'topRightSeat');
     cy.connectPlayerAndJoin(PLAYER_3, 'bottomLeftSeat');
@@ -22,15 +30,17 @@ describe('coinche', () => {
 
     cy.usingPlayer(PLAYER_4);
 
-    // Options
-    cy.get('[data-testid="button toggleOptions"]').click();
+    // Card display option
+    cy.get('[data-testid="button options"]').click();
     cy.get('[data-testid="select cardDisplay"]').select('DejaVu');
     cy.get('.coincheBoard .DejaVuFont .card').should('be.visible');
+    cy.get('[data-testid="button options"]').click();
     cy.get('[data-testid="select cardDisplay"]').select('Natif');
     cy.get('.coincheBoard .DejaVuFont .card').should('not.be.visible');
-    cy.get('[data-testid="button toggleOptions"]').click();
 
-    cy.get('[data-testid="button toggleGameHistory"]').should('not.be.visible');
+    // GameHistory before starting first round
+    cy.get('[data-testid="button gameHistory"]').should('not.be.visible');
+
     cy.get('[data-testid="select sayTakeExpectedPoint"]').select('100');
     cy.get('[data-testid="select sayTakeTrumpMode"]').select('TrumpClub');
     cy.get('[data-testid="button sayTake"]').click();
@@ -55,15 +65,16 @@ describe('coinche', () => {
     cy.get('.myPlayer .playerSaid').should('contain', 'Je passe');
     cy.wait(1500);
     cy.get('.myPlayer .playerSaid').should('not.be.visible');
+
     // GameHistory after starting first round
-    cy.get('[data-testid="button toggleGameHistory"]').should('be.visible');
+    cy.get('[data-testid="button gameHistory"]').should('be.visible');
     cy.get('.gameHistory').should('not.be.visible');
-    cy.get('[data-testid="button toggleGameHistory"]').click();
+    cy.get('[data-testid="button gameHistory"]').click();
     cy.get('.gameHistory').should('be.visible');
     cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Détail de la jetée n°1');
     cy.get('.gameHistory .round:nth-child(1)').should('contain', `Attaquant\u00A0: ${PLAYER_4}`);
     cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Objectif\u00A0: 100 ♣️ Trèfle');
-    cy.get('[data-testid="button toggleGameHistory"]').click();
+    cy.get('[data-testid="button gameHistory"]').click();
     cy.get('.gameHistory .round:nth-child(1)').should('not.be.visible');
 
     cy.usingPlayer(PLAYER_4);
@@ -210,7 +221,7 @@ describe('coinche', () => {
     cy.get('.winnersTeamCongratulation').should('contain', `${PLAYER_2} et ${PLAYER_4} ont gagné`);
 
     // GameHistory after playing last round card
-    cy.get('[data-testid="button toggleGameHistory"]').click();
+    cy.get('[data-testid="button gameHistory"]').click();
     cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Récapitulatif des scores à la fin de la jetée');
     cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_1}|${PLAYER_3}]\u00A0: 0 (0 + 0) points`);
     cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_2}|${PLAYER_4}]\u00A0: 492 (0 + 492) points`);
@@ -240,7 +251,7 @@ describe('coinche', () => {
     cy.get('.gameHistory .round:nth-child(1)').should('contain', `Valeur\u00A0: 100 points pour ${PLAYER_4}`);
     cy.get('.gameHistory .round:nth-child(1)').should('contain', `Annonce\u00A0: Belote`);
     cy.get('.gameHistory .round:nth-child(1)').should('contain', `Valeur\u00A0: 20 points pour ${PLAYER_4}`);
-    cy.get('[data-testid="button toggleGameHistory"]').click();
+    cy.get('[data-testid="button gameHistory"]').click();
 
     // GoBackToLobby
     cy.get('.goBackToLobby [data-testid="button leave"]').click();

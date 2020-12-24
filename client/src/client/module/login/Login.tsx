@@ -1,22 +1,28 @@
 import './Login.css';
 import React, {useContext} from 'react';
 import {useHistory, useLocation} from 'react-router-dom';
-import type {Location} from 'history';
+import {LanguageCode} from '../../../shared';
+import {I18nContext} from '../../context/i18n';
+import {CardDisplay} from '../../context/cardDisplay';
 import {PageHeaderComponent} from '../../component/PageHeader';
-import {I18nContext} from './context/i18n';
+import {buildOptionsButton, PageMenuComponent} from '../../component/PageMenu';
 
 type ComponentProps = {
   playerName: string;
   updatePlayerName: (playerName: string) => void;
+  updateLanguageCode: (lc: LanguageCode) => void;
+  updateCardDisplay: (c: CardDisplay) => void;
 };
 export const LoginComponent: React.FunctionComponent<ComponentProps> = ({
   playerName,
   updatePlayerName,
+  updateLanguageCode,
+  updateCardDisplay,
 }) => {
-  const i18n = useContext(I18nContext);
+  const { login: i18n } = useContext(I18nContext);
   const history = useHistory();
-  const location = useLocation<{ referer: Location }>();
-  const { referer } = location.state || { referer: { pathname: '/' } };
+  const location = useLocation<{ referer: string }>();
+  const { referer } = location.state || { referer: '/' };
 
   const login = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -28,7 +34,7 @@ export const LoginComponent: React.FunctionComponent<ComponentProps> = ({
     }
 
     updatePlayerName(newPlayerName);
-    history.replace(referer);
+    history.replace((['/login', '/logout'].includes(referer)) ? '/' : referer );
   };
 
   return (
@@ -39,6 +45,13 @@ export const LoginComponent: React.FunctionComponent<ComponentProps> = ({
         <input className="nameInput" type="text" name="name" placeholder={i18n.playerNamePlaceholder} defaultValue={playerName} data-testid="input name"/>
         <button className="submitButton" type="submit" data-testid="button submit">{i18n.submit}</button>
       </form>
+
+      <PageMenuComponent buttons={[
+        buildOptionsButton(
+          updateLanguageCode,
+          updateCardDisplay,
+        ),
+      ]} />
     </div>
   );
 };
