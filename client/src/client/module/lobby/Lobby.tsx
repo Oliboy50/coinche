@@ -2,7 +2,7 @@ import './Lobby.css';
 import React, {useContext} from 'react';
 import {useHistory} from 'react-router-dom';
 import useSWR, {mutate as updateRequestCache} from 'swr';
-import {GameName} from '../../../shared';
+import {GameName, LanguageCode} from '../../../shared';
 import {PlayerID} from '../../../shared/coinche';
 import {requestToCreateRoom, requestToGetRooms, requestToJoinRoom, requestToLeaveRoom} from '../../service/serverRequester';
 import {PlayerKeysByRoomID} from '../../repository/playerKeyRepository';
@@ -18,12 +18,14 @@ type ComponentProps = {
   playerName: string;
   playerKeysByRoomID: PlayerKeysByRoomID;
   updatePlayerKey: (roomID: string, playerKey: string | undefined) => void;
+  updateLanguageCode: (lc: LanguageCode) => void;
   updateCardDisplay: (c: CardDisplay) => void;
 };
 export const LobbyComponent: React.FunctionComponent<ComponentProps> = ({
   playerName,
   playerKeysByRoomID,
   updatePlayerKey,
+  updateLanguageCode,
   updateCardDisplay,
 }) => {
   const { lobby: i18n } = useContext(I18nContext);
@@ -115,7 +117,7 @@ export const LobbyComponent: React.FunctionComponent<ComponentProps> = ({
       <button className="createRoomButton" type="button" onClick={() => createRoom(GameName.Coinche)} data-testid="button createRoom">{i18n.createRoom}</button>
 
       <PageMenuComponent buttons={[
-        buildOptionsButton(updateCardDisplay),
+        buildOptionsButton(updateLanguageCode, updateCardDisplay),
       ]} />
     </div>
   );

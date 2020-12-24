@@ -3,7 +3,7 @@ import {useHistory} from 'react-router';
 import {useParams, Redirect} from 'react-router-dom';
 import {Client} from 'boardgame.io/react';
 import {SocketIO} from 'boardgame.io/multiplayer';
-import {GameName, validGameNames} from '../../../shared';
+import {GameName, LanguageCode, validGameNames} from '../../../shared';
 import {GameStatePlayerView, Moves, PhaseID, PlayerID, validPlayerIDs, coincheGame} from '../../../shared/coinche';
 import {getApiBaseUrl, isServerStillAlive, requestToLeaveRoom} from '../../service/serverRequester';
 import {PlayerKeysByRoomID} from '../../repository/playerKeyRepository';
@@ -13,11 +13,13 @@ import {buildCoincheBoardComponent} from './coinche/CoincheBoard';
 type ComponentProps = {
   playerKeysByRoomID: PlayerKeysByRoomID;
   updatePlayerKey: (roomID: string, playerKey: string | undefined) => void;
+  updateLanguageCode: (lc: LanguageCode) => void;
   updateCardDisplay: (c: CardDisplay) => void;
 };
 export const GameBuilderComponent: React.FunctionComponent<ComponentProps> = ({
   playerKeysByRoomID,
   updatePlayerKey,
+  updateLanguageCode,
   updateCardDisplay,
 }) => {
   // server liveliness probe
@@ -51,7 +53,7 @@ export const GameBuilderComponent: React.FunctionComponent<ComponentProps> = ({
 
   const GameComponent = Client<GameStatePlayerView, Moves, PlayerID, PhaseID>({
     game: coincheGame,
-    board: buildCoincheBoardComponent(goBackToLobby, updateCardDisplay),
+    board: buildCoincheBoardComponent(goBackToLobby, updateLanguageCode, updateCardDisplay),
     multiplayer: SocketIO({ server: getApiBaseUrl() }),
     debug: false,
   });

@@ -1,15 +1,22 @@
 import {I18n} from './index';
+import {LanguageCode} from '../../shared';
 import {AnnounceGroup, AnnounceID, CardColor, CardName, TrumpMode} from '../../shared/coinche';
 import {CardDisplay} from '../context/cardDisplay';
 
 export const fr: I18n = {
   common: {
+    languageCode: LanguageCode.FR,
     Options: {
+      languageCode: {
+        [LanguageCode.EN]: 'Anglais',
+        [LanguageCode.FR]: 'Français',
+      },
+      selectLanguageCode: `Langue\u00A0:`,
       cardDisplay: {
         [CardDisplay.UnicodeNativeFont]: 'Natif',
         [CardDisplay.UnicodeDejaVuFont]: 'DejaVu',
       },
-      selectCardDisplay: `Type d'affichage de carte\u00A0:`,
+      selectCardDisplay: `Affichage des cartes\u00A0:`,
     },
   },
   game: {

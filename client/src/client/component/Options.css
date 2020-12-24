@@ -2,6 +2,7 @@
  */
 .options .option {
   display: flex;
+  margin-bottom: 20px;
 }
 .options .option label,
 .options .option select {

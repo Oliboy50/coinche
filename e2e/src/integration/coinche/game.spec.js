@@ -15,6 +15,14 @@ describe('coinche', () => {
   it('creates a 4 players game and plays until the game is over', () => {
     cy.visit('/');
 
+    // Language option
+    cy.get('[data-testid="button options"]').click();
+    cy.get('[data-testid="select languageCode"]').select('Anglais');
+    cy.get('[data-testid="button submit"]').should('contain', 'Submit');
+    cy.get('[data-testid="button options"]').click();
+    cy.get('[data-testid="select languageCode"]').select('French');
+    cy.get('[data-testid="button submit"]').should('contain', 'Valider');
+
     cy.connectPlayerAndCreateCoincheRoomAndJoin(PLAYER_1);
     cy.connectPlayerAndJoin(PLAYER_2, 'topRightSeat');
     cy.connectPlayerAndJoin(PLAYER_3, 'bottomLeftSeat');
@@ -22,7 +30,7 @@ describe('coinche', () => {
 
     cy.usingPlayer(PLAYER_4);
 
-    // Options
+    // Card display option
     cy.get('[data-testid="button options"]').click();
     cy.get('[data-testid="select cardDisplay"]').select('DejaVu');
     cy.get('.coincheBoard .DejaVuFont .card').should('be.visible');
@@ -30,7 +38,9 @@ describe('coinche', () => {
     cy.get('[data-testid="select cardDisplay"]').select('Natif');
     cy.get('.coincheBoard .DejaVuFont .card').should('not.be.visible');
 
+    // GameHistory before starting first round
     cy.get('[data-testid="button gameHistory"]').should('not.be.visible');
+
     cy.get('[data-testid="select sayTakeExpectedPoint"]').select('100');
     cy.get('[data-testid="select sayTakeTrumpMode"]').select('TrumpClub');
     cy.get('[data-testid="button sayTake"]').click();
@@ -55,6 +65,7 @@ describe('coinche', () => {
     cy.get('.myPlayer .playerSaid').should('contain', 'Je passe');
     cy.wait(1500);
     cy.get('.myPlayer .playerSaid').should('not.be.visible');
+
     // GameHistory after starting first round
     cy.get('[data-testid="button gameHistory"]').should('be.visible');
     cy.get('.gameHistory').should('not.be.visible');

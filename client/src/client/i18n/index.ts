@@ -1,3 +1,4 @@
+import {LanguageCode} from '../../shared';
 import {
   AnnounceGroup,
   AnnounceID,
@@ -10,7 +11,10 @@ import {CardDisplay} from '../context/cardDisplay';
 
 export interface I18n {
   common: {
+    languageCode: LanguageCode;
     Options: {
+      languageCode: Record<LanguageCode, string>;
+      selectLanguageCode: string;
       cardDisplay: Record<CardDisplay, string>;
       selectCardDisplay: string;
     };
@@ -95,4 +99,5 @@ export interface I18n {
   };
 }
 
+export { en } from './en';
 export { fr } from './fr';

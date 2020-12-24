@@ -1,6 +1,8 @@
+import {LanguageCode} from '../../shared';
 import {CardDisplay} from '../context/cardDisplay';
 
 interface Options {
+  languageCode: LanguageCode;
   cardDisplay: CardDisplay;
 }
 

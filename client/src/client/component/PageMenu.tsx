@@ -1,5 +1,6 @@
 import './PageMenu.css';
 import React, {useEffect, useState} from 'react';
+import {LanguageCode} from '../../shared';
 import {OptionsComponent} from './Options';
 import {CardDisplay} from '../context/cardDisplay';
 
@@ -8,9 +9,12 @@ interface PageMenuButtonProp {
   renderContent: () => JSX.Element;
   renderButton: () => JSX.Element;
 }
-export const buildOptionsButton = (updateCardDisplay: (c: CardDisplay) => void): PageMenuButtonProp => ({
+export const buildOptionsButton = (
+  updateLanguageCode: (lc: LanguageCode) => void,
+  updateCardDisplay: (c: CardDisplay) => void,
+): PageMenuButtonProp => ({
   id: 'options',
-  renderContent: () => <OptionsComponent updateCardDisplay={updateCardDisplay} />,
+  renderContent: () => <OptionsComponent updateLanguageCode={updateLanguageCode} updateCardDisplay={updateCardDisplay} />,
   renderButton: () => <span role="img" aria-label="options" data-testid="button options">⚙️</span>,
 });
 

@@ -1,6 +1,7 @@
 import './Login.css';
 import React, {useContext} from 'react';
 import {useHistory, useLocation} from 'react-router-dom';
+import {LanguageCode} from '../../../shared';
 import {I18nContext} from '../../context/i18n';
 import {CardDisplay} from '../../context/cardDisplay';
 import {PageHeaderComponent} from '../../component/PageHeader';
@@ -9,11 +10,13 @@ import {buildOptionsButton, PageMenuComponent} from '../../component/PageMenu';
 type ComponentProps = {
   playerName: string;
   updatePlayerName: (playerName: string) => void;
+  updateLanguageCode: (lc: LanguageCode) => void;
   updateCardDisplay: (c: CardDisplay) => void;
 };
 export const LoginComponent: React.FunctionComponent<ComponentProps> = ({
   playerName,
   updatePlayerName,
+  updateLanguageCode,
   updateCardDisplay,
 }) => {
   const { login: i18n } = useContext(I18nContext);
@@ -44,7 +47,10 @@ export const LoginComponent: React.FunctionComponent<ComponentProps> = ({
       </form>
 
       <PageMenuComponent buttons={[
-        buildOptionsButton(updateCardDisplay),
+        buildOptionsButton(
+          updateLanguageCode,
+          updateCardDisplay,
+        ),
       ]} />
     </div>
   );

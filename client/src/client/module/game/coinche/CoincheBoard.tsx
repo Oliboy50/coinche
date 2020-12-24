@@ -1,6 +1,7 @@
 import './CoincheBoard.css';
 import React, {useState} from 'react';
 import {BoardProps} from 'boardgame.io/react';
+import {LanguageCode} from '../../../../shared';
 import {
   AnnounceID,
   Card,
@@ -62,6 +63,7 @@ const getTurnIndicatorClassForPosition = (
 
 export const buildCoincheBoardComponent = (
   goBackToLobby: () => void,
+  updateLanguageCode: (lc: LanguageCode) => void,
   updateCardDisplay: (c: CardDisplay) => void,
 ): React.FunctionComponent<BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>> => ({
   G,
@@ -334,7 +336,7 @@ export const buildCoincheBoardComponent = (
           renderContent: () => <GameHistoryComponent gameHistory={G.history} getPlayerNameByID={getPlayerNameByID} />,
           renderButton: () => <span role="img" aria-label="notebook" data-testid="button gameHistory">📝</span>,
         }] : []),
-        buildOptionsButton(updateCardDisplay),
+        buildOptionsButton(updateLanguageCode, updateCardDisplay),
       ]} />
     </div>
   );
