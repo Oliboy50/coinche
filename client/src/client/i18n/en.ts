@@ -5,7 +5,6 @@ import {CardDisplay} from '../context/cardDisplay';
 
 export const en: I18n = {
   common: {
-    languageCode: LanguageCode.EN,
     Options: {
       languageCode: {
         [LanguageCode.EN]: 'English',

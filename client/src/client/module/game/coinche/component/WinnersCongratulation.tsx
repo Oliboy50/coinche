@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {I18nContext} from '../../../../context/i18n';
+import {I18nContext} from '../../../../context';
 import {PlayerID} from '../../../../../shared/coinche';
 
 type ComponentProps = {

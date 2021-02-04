@@ -1,36 +1,34 @@
 import './PageMenu.css';
 import React, {useEffect, useState} from 'react';
-import {LanguageCode} from '../../shared';
 import {OptionsComponent} from './Options';
-import {CardDisplay} from '../context/cardDisplay';
 
 interface PageMenuButtonProp {
   id: string;
-  renderContent: () => JSX.Element;
-  renderButton: () => JSX.Element;
+  renderContent: JSX.Element;
+  renderButton: JSX.Element;
 }
-export const buildOptionsButton = (
-  updateLanguageCode: (lc: LanguageCode) => void,
-  updateCardDisplay: (c: CardDisplay) => void,
-): PageMenuButtonProp => ({
-  id: 'options',
-  renderContent: () => <OptionsComponent updateLanguageCode={updateLanguageCode} updateCardDisplay={updateCardDisplay} />,
-  renderButton: () => <span role="img" aria-label="options" data-testid="button options">⚙️</span>,
-});
+
+const defaultButtons = [
+  {
+    id: 'options',
+    renderContent: <OptionsComponent />,
+    renderButton: <span role="img" aria-label="options" data-testid="button options">⚙️</span>,
+  },
+];
 
 type ComponentProps = {
-  buttons: PageMenuButtonProp[];
+  extraButtons: PageMenuButtonProp[];
 };
 export const PageMenuComponent: React.FunctionComponent<ComponentProps> = ({
-  buttons,
+  extraButtons,
 }) => {
   const [buttonsState, setButtonsState] = useState<(PageMenuButtonProp & { isOpened: boolean; })[]>([]);
   useEffect(() => {
-    setButtonsState(buttons.map(b => ({
+    setButtonsState([...extraButtons, ...defaultButtons].map(b => ({
       ...b,
       isOpened: false,
     })));
-  }, [buttons]);
+  }, [extraButtons]);
 
   const onClickModalButton = (modalId: string) => {
     setButtonsState(buttonsState.map(b => ({
@@ -43,13 +41,13 @@ export const PageMenuComponent: React.FunctionComponent<ComponentProps> = ({
     <div className={`modal ${buttonsState.some(({isOpened}) => isOpened) ? 'opened': ''}`}>
       <div className="content">
         {buttonsState.filter(({isOpened}) => isOpened).map(b => {
-          return <React.Fragment key={b.id}>{b.renderContent()}</React.Fragment>;
+          return <React.Fragment key={b.id}>{b.renderContent}</React.Fragment>;
         })}
       </div>
       <div className="toggleButtons">
         {buttonsState.map((b) => {
           return <div key={b.id} className={`toggleButton ${b.isOpened ? 'active': ''}`} onClick={() => onClickModalButton(b.id)}>
-            {b.renderButton()}
+            {b.renderButton}
           </div>;
         })}
       </div>

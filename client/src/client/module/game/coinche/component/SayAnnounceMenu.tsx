@@ -5,7 +5,7 @@ import {
   getAnnounceByID,
   Moves,
 } from '../../../../../shared/coinche';
-import {I18nContext} from '../../../../context/i18n';
+import {I18nContext} from '../../../../context';
 
 type ComponentProps = {
   sayAnnounce: Moves['sayAnnounce'],

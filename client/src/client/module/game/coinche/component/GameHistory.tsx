@@ -1,5 +1,5 @@
 import React, {useContext, useState} from 'react';
-import {I18nContext} from '../../../../context/i18n';
+import {I18nContext} from '../../../../context';
 import {
   GameHistory,
   PlayerID,

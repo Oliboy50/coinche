@@ -3,24 +3,19 @@ import {useHistory} from 'react-router';
 import {useParams, Redirect} from 'react-router-dom';
 import {Client} from 'boardgame.io/react';
 import {SocketIO} from 'boardgame.io/multiplayer';
-import {GameName, LanguageCode, validGameNames} from '../../../shared';
+import {GameName, validGameNames} from '../../../shared';
 import {GameStatePlayerView, Moves, PhaseID, PlayerID, validPlayerIDs, coincheGame} from '../../../shared/coinche';
 import {getApiBaseUrl, isServerStillAlive, requestToLeaveRoom} from '../../service/serverRequester';
 import {PlayerKeysByRoomID} from '../../repository/playerKeyRepository';
-import {CardDisplay} from '../../context/cardDisplay';
 import {buildCoincheBoardComponent} from './coinche/CoincheBoard';
 
 type ComponentProps = {
   playerKeysByRoomID: PlayerKeysByRoomID;
   updatePlayerKey: (roomID: string, playerKey: string | undefined) => void;
-  updateLanguageCode: (lc: LanguageCode) => void;
-  updateCardDisplay: (c: CardDisplay) => void;
 };
 export const GameBuilderComponent: React.FunctionComponent<ComponentProps> = ({
   playerKeysByRoomID,
   updatePlayerKey,
-  updateLanguageCode,
-  updateCardDisplay,
 }) => {
   // server liveliness probe
   // (when using Heroku free plan, it keeps the server alive during a long "only websockets" usage)
@@ -53,7 +48,7 @@ export const GameBuilderComponent: React.FunctionComponent<ComponentProps> = ({
 
   const GameComponent = Client<GameStatePlayerView, Moves, PlayerID, PhaseID>({
     game: coincheGame,
-    board: buildCoincheBoardComponent(goBackToLobby, updateLanguageCode, updateCardDisplay),
+    board: buildCoincheBoardComponent(goBackToLobby),
     multiplayer: SocketIO({ server: getApiBaseUrl() }),
     debug: false,
   });

@@ -1,7 +1,6 @@
 import './CoincheBoard.css';
 import React, {useState} from 'react';
 import {BoardProps} from 'boardgame.io/react';
-import {LanguageCode} from '../../../../shared';
 import {
   AnnounceID,
   Card,
@@ -21,8 +20,7 @@ import {
   howManyPlayers,
   validExpectedPoints,
 } from '../../../../shared/coinche';
-import {CardDisplay} from '../../../context/cardDisplay';
-import {buildOptionsButton, PageMenuComponent} from '../../../component/PageMenu';
+import {PageMenuComponent} from '../../../component/PageMenu';
 import {PlayerScreenPosition, getPlayerIDForPosition} from './service/getPlayerIDForPosition';
 import {constructorForGetPlayerNameByID} from './service/getPlayerNameByID';
 import {TalkMenuComponent} from './component/TalkMenu';
@@ -63,8 +61,6 @@ const getTurnIndicatorClassForPosition = (
 
 export const buildCoincheBoardComponent = (
   goBackToLobby: () => void,
-  updateLanguageCode: (lc: LanguageCode) => void,
-  updateCardDisplay: (c: CardDisplay) => void,
 ): React.FunctionComponent<BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>> => ({
   G,
   ctx,
@@ -330,13 +326,12 @@ export const buildCoincheBoardComponent = (
         </React.Fragment>
       )}
 
-      <PageMenuComponent buttons={[
+      <PageMenuComponent extraButtons={[
         ...(G.history.rounds.length > 0 ? [{
           id: 'gameHistory',
-          renderContent: () => <GameHistoryComponent gameHistory={G.history} getPlayerNameByID={getPlayerNameByID} />,
-          renderButton: () => <span role="img" aria-label="notebook" data-testid="button gameHistory">📝</span>,
+          renderContent: <GameHistoryComponent gameHistory={G.history} getPlayerNameByID={getPlayerNameByID} />,
+          renderButton: <span role="img" aria-label="notebook" data-testid="button gameHistory">📝</span>,
         }] : []),
-        buildOptionsButton(updateLanguageCode, updateCardDisplay),
       ]} />
     </div>
   );

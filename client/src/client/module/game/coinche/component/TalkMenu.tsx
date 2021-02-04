@@ -5,7 +5,7 @@ import {
   validExpectedPoints,
   validTrumpModes,
 } from '../../../../../shared/coinche';
-import {I18nContext} from '../../../../context/i18n';
+import {I18nContext} from '../../../../context';
 
 type ComponentProps = {
   saySkip: () => void,

@@ -1,6 +1,7 @@
 import React, {Suspense, useContext} from 'react';
 import {Card, SecretCard} from '../../../../../../shared/coinche';
-import {CardDisplay, CardDisplayContext} from '../../../../../context/cardDisplay';
+import {OptionsContext} from '../../../../../context';
+import {CardDisplay} from '../../../../../context/cardDisplay';
 import {UnicodeCardComponent} from './UnicodeCard';
 
 const DejaVuFontCardComponent = React.lazy(() => import('./DejaVuFontCard').then(({ DejaVuFontCardComponent }) => ({ default: DejaVuFontCardComponent })));
@@ -18,7 +19,7 @@ export type CardComponentProps = {
   onDontSayBelotClick?: () => void,
 };
 export const CardComponent: React.FunctionComponent<CardComponentProps> = (props) => {
-  const cardDisplay = useContext(CardDisplayContext);
+  const { state: { cardDisplay } } = useContext(OptionsContext);
 
   switch (cardDisplay) {
     case CardDisplay.UnicodeNativeFont:

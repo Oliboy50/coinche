@@ -6,7 +6,7 @@ import {
   PhaseID,
   PlayerID,
 } from '../../../../../shared/coinche';
-import {I18nContext} from '../../../../context/i18n';
+import {I18nContext} from '../../../../context';
 
 type ComponentProps = {
   playerSaid: BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>['G']['playersSaid'][PlayerID.North],
