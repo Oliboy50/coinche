@@ -19,9 +19,9 @@ describe('coinche', () => {
     cy.get('[data-testid="button options"]').click();
     cy.get('[data-testid="select languageCode"]').select('Anglais');
     cy.get('[data-testid="button submit"]').should('contain', 'Submit');
-    cy.get('[data-testid="button options"]').click();
     cy.get('[data-testid="select languageCode"]').select('French');
     cy.get('[data-testid="button submit"]').should('contain', 'Valider');
+    cy.get('[data-testid="button options"]').click();
 
     cy.connectPlayerAndCreateCoincheRoomAndJoin(PLAYER_1);
     cy.connectPlayerAndJoin(PLAYER_2, 'topRightSeat');
@@ -34,9 +34,9 @@ describe('coinche', () => {
     cy.get('[data-testid="button options"]').click();
     cy.get('[data-testid="select cardDisplay"]').select('DejaVu');
     cy.get('.coincheBoard .DejaVuFont .card').should('be.visible');
-    cy.get('[data-testid="button options"]').click();
     cy.get('[data-testid="select cardDisplay"]').select('Natif');
     cy.get('.coincheBoard .DejaVuFont .card').should('not.be.visible');
+    cy.get('[data-testid="button options"]').click();
 
     // GameHistory before starting first round
     cy.get('[data-testid="button gameHistory"]').should('not.be.visible');
@@ -75,7 +75,6 @@ describe('coinche', () => {
     cy.get('.gameHistory .round:nth-child(1)').should('contain', `Attaquant\u00A0: ${PLAYER_4}`);
     cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Objectif\u00A0: 100 ♣️ Trèfle');
     cy.get('[data-testid="button gameHistory"]').click();
-    cy.get('.gameHistory .round:nth-child(1)').should('not.be.visible');
 
     cy.usingPlayer(PLAYER_4);
     // say announce Cent

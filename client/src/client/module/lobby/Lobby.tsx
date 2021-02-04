@@ -1,16 +1,16 @@
 import './Lobby.css';
-import React, {useContext} from 'react';
+import React from 'react';
 import {useHistory} from 'react-router-dom';
 import useSWR, {mutate as updateRequestCache} from 'swr';
-import {GameName, LanguageCode} from '../../../shared';
+import {GameName} from '../../../shared';
 import {PlayerID} from '../../../shared/coinche';
 import {requestToCreateRoom, requestToGetRooms, requestToJoinRoom, requestToLeaveRoom} from '../../service/serverRequester';
 import {PlayerKeysByRoomID} from '../../repository/playerKeyRepository';
-import {I18nContext} from '../../context/i18n';
-import {CardDisplay} from '../../context/cardDisplay';
 import {PageHeaderComponent} from '../../component/PageHeader';
-import {buildOptionsButton, PageMenuComponent} from '../../component/PageMenu';
-import {SeatComponent} from './component/SeatComponent';
+import {PageMenuComponent} from '../../component/PageMenu';
+import {RoomSeatComponent} from './component/RoomSeat';
+import {GoButtonComponent} from './component/GoButton';
+import {CreateRoomButtonComponent} from './component/CreateRoomButton';
 
 const getCacheKeyForGetRoomsRequest = (gameName: GameName) => `/games/${gameName}`;
 
@@ -18,17 +18,12 @@ type ComponentProps = {
   playerName: string;
   playerKeysByRoomID: PlayerKeysByRoomID;
   updatePlayerKey: (roomID: string, playerKey: string | undefined) => void;
-  updateLanguageCode: (lc: LanguageCode) => void;
-  updateCardDisplay: (c: CardDisplay) => void;
 };
 export const LobbyComponent: React.FunctionComponent<ComponentProps> = ({
   playerName,
   playerKeysByRoomID,
   updatePlayerKey,
-  updateLanguageCode,
-  updateCardDisplay,
 }) => {
-  const { lobby: i18n } = useContext(I18nContext);
   const history = useHistory();
 
   const { data: getCoincheRoomsResponse } = useSWR(getCacheKeyForGetRoomsRequest(GameName.Coinche), {
@@ -87,38 +82,34 @@ export const LobbyComponent: React.FunctionComponent<ComponentProps> = ({
 
           return <div className="room" key={room.roomID}>
             <div className="topLeftSeat">
-              <SeatComponent seatedPlayerName={topLeftPlayer.name} myPlayerName={playerName} myPlayerIsSeatedInThisRoom={myPlayerIsSeatedInThisRoom} leaveRoom={() => leaveRoom(GameName.Coinche, room.roomID, topLeftPlayer.id)} joinRoom={() => joinRoom(GameName.Coinche, room.roomID, topLeftPlayer.id)}/>
+              <RoomSeatComponent seatedPlayerName={topLeftPlayer.name} myPlayerName={playerName} myPlayerIsSeatedInThisRoom={myPlayerIsSeatedInThisRoom} leaveRoom={() => leaveRoom(GameName.Coinche, room.roomID, topLeftPlayer.id)} joinRoom={() => joinRoom(GameName.Coinche, room.roomID, topLeftPlayer.id)}/>
             </div>
             <span className="teamWith left" role="img" aria-label="handshake">🤝</span>
             <div className="bottomLeftSeat">
-              <SeatComponent seatedPlayerName={bottomLeftPlayer.name} myPlayerName={playerName} myPlayerIsSeatedInThisRoom={myPlayerIsSeatedInThisRoom} leaveRoom={() => leaveRoom(GameName.Coinche, room.roomID, bottomLeftPlayer.id)} joinRoom={() => joinRoom(GameName.Coinche, room.roomID, bottomLeftPlayer.id)}/>
+              <RoomSeatComponent seatedPlayerName={bottomLeftPlayer.name} myPlayerName={playerName} myPlayerIsSeatedInThisRoom={myPlayerIsSeatedInThisRoom} leaveRoom={() => leaveRoom(GameName.Coinche, room.roomID, bottomLeftPlayer.id)} joinRoom={() => joinRoom(GameName.Coinche, room.roomID, bottomLeftPlayer.id)}/>
             </div>
 
             {myPlayerSeat && room.players.every(player => Boolean(player.name)) ? (
-              <div className="goButtonWrapper">
-                <span className="goButton" onClick={() => goToRoom(GameName.Coinche, room.roomID, myPlayerSeat.id)} title={i18n.goToRoom} data-testid="button go">GO</span>
-              </div>
+              <GoButtonComponent onClick={() => goToRoom(GameName.Coinche, room.roomID, myPlayerSeat.id)} />
             ) : (
               <div className="versus">VS</div>
             )}
 
             <div className="topRightSeat">
-              <SeatComponent seatedPlayerName={topRightPlayer.name} myPlayerName={playerName} myPlayerIsSeatedInThisRoom={myPlayerIsSeatedInThisRoom} leaveRoom={() => leaveRoom(GameName.Coinche, room.roomID, topRightPlayer.id)} joinRoom={() => joinRoom(GameName.Coinche, room.roomID, topRightPlayer.id)}/>
+              <RoomSeatComponent seatedPlayerName={topRightPlayer.name} myPlayerName={playerName} myPlayerIsSeatedInThisRoom={myPlayerIsSeatedInThisRoom} leaveRoom={() => leaveRoom(GameName.Coinche, room.roomID, topRightPlayer.id)} joinRoom={() => joinRoom(GameName.Coinche, room.roomID, topRightPlayer.id)}/>
             </div>
             <span className="teamWith right" role="img" aria-label="handshake">🤝</span>
             <div className="bottomRightSeat">
-              <SeatComponent seatedPlayerName={bottomRightPlayer.name} myPlayerName={playerName} myPlayerIsSeatedInThisRoom={myPlayerIsSeatedInThisRoom} leaveRoom={() => leaveRoom(GameName.Coinche, room.roomID, bottomRightPlayer.id)} joinRoom={() => joinRoom(GameName.Coinche, room.roomID, bottomRightPlayer.id)}/>
+              <RoomSeatComponent seatedPlayerName={bottomRightPlayer.name} myPlayerName={playerName} myPlayerIsSeatedInThisRoom={myPlayerIsSeatedInThisRoom} leaveRoom={() => leaveRoom(GameName.Coinche, room.roomID, bottomRightPlayer.id)} joinRoom={() => joinRoom(GameName.Coinche, room.roomID, bottomRightPlayer.id)}/>
             </div>
           </div>;
         })
         }
       </div>
 
-      <button className="createRoomButton" type="button" onClick={() => createRoom(GameName.Coinche)} data-testid="button createRoom">{i18n.createRoom}</button>
+      <CreateRoomButtonComponent onClick={() => createRoom(GameName.Coinche)} />
 
-      <PageMenuComponent buttons={[
-        buildOptionsButton(updateLanguageCode, updateCardDisplay),
-      ]} />
+      <PageMenuComponent extraButtons={[]}/>
     </div>
   );
 };

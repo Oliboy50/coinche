@@ -1,5 +1,5 @@
-import {LanguageCode} from '../../shared';
-import {CardDisplay} from '../context/cardDisplay';
+import type {LanguageCode} from '../../shared';
+import type {CardDisplay} from '../context/cardDisplay';
 
 interface Options {
   languageCode: LanguageCode;

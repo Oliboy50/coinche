@@ -63,7 +63,7 @@
   grid-area: bottomRightSeat;
 }
 .lobby .room > .versus,
-.lobby .room > .goButtonWrapper {
+.lobby .room > .goButton {
   grid-area: VSorGO;
 }
 .lobby .room > .teamWith.left {
@@ -82,7 +82,7 @@
 /**
  */
 .lobby .versus,
-.lobby .goButtonWrapper,
+.lobby .goButton,
 .lobby .teamWith {
   font-size: 40px;
 }
@@ -101,10 +101,10 @@
   top: -100%;
   left: -10px;
 }
-.lobby .goButtonWrapper {
+.lobby .goButton {
   margin: 0 auto;
 }
-.lobby .goButtonWrapper::before {
+.lobby .goButton::before {
   content: '👆';
   position: relative;
   top: 62px;
@@ -113,7 +113,7 @@
   width: 42px;
   height: 54px;
 }
-.lobby .goButtonWrapper::after {
+.lobby .goButton::after {
   content: '👇';
   position: relative;
   top: -62px;
@@ -122,7 +122,7 @@
   width: 42px;
   height: 54px;
 }
-.lobby .goButton {
+.lobby .goButton span {
   padding: 5px;
   border: 1px solid black;
   border-radius: 50%;
@@ -134,7 +134,7 @@
   vertical-align: baseline;
   font-size: 34px;
 }
-.lobby .goButton:hover {
+.lobby .goButton span:hover {
   padding: 10px;
   margin: -5px;
   background-color: rgba(230, 230, 230, 1);
@@ -142,28 +142,28 @@
 
 /**
  */
-.lobby .seat {
+.lobby .roomSeat {
   display: grid;
   grid-gap: 5px;
 }
-.lobby .topLeftSeat .seat,
-.lobby .topRightSeat .seat {
+.lobby .topLeftSeat .roomSeat,
+.lobby .topRightSeat .roomSeat {
   grid-template-areas:
     "seatButton"
     "playerName";
   grid-template-rows: 20px auto;
 }
-.lobby .bottomLeftSeat .seat,
-.lobby .bottomRightSeat .seat {
+.lobby .bottomLeftSeat .roomSeat,
+.lobby .bottomRightSeat .roomSeat {
   grid-template-areas:
     "playerName"
     "seatButton";
   grid-template-rows: auto 20px;
 }
-.lobby .seat > .playerName {
+.lobby .roomSeat > .playerName {
   grid-area: playerName;
 }
-.lobby .seat > .seatButton {
+.lobby .roomSeat > .seatButton {
   grid-area: seatButton;
 }
 

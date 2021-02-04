@@ -1,12 +1,9 @@
 import './App.css';
 import React, {useState} from 'react';
 import {BrowserRouter as Router, Switch, Redirect, Route, RouteProps} from 'react-router-dom';
-import {LanguageCode} from '../shared';
 import {findPlayerKeys, persistPlayerKeys} from './repository/playerKeyRepository';
 import {findPlayerName, persistPlayerName} from './repository/playerNameRepository';
-import {findOption, persistOption} from './repository/optionsRepository';
-import {CardDisplay, CardDisplayContext, cardDisplayDefaultValue} from './context/cardDisplay';
-import {i18n, I18nContext, languageCodeDefaultValue} from './context/i18n';
+import {ContextProvider} from './context';
 import {GameBuilderComponent} from './module/game/GameBuilder';
 import {LobbyComponent} from './module/lobby/Lobby';
 import {LoginComponent} from './module/login/Login';
@@ -32,18 +29,6 @@ const App: React.FunctionComponent = () => {
     persistPlayerKeys(playerName, newPlayerKeysByRoomID);
   };
 
-  const [cardDisplay, setCardDisplay] = useState(findOption('cardDisplay') || cardDisplayDefaultValue);
-  const updateCardDisplay = (c: CardDisplay) => {
-    setCardDisplay(c);
-    persistOption('cardDisplay', c);
-  };
-
-  const [languageCode, setLanguageCode] = useState(findOption('languageCode') || languageCodeDefaultValue);
-  const updateLanguageCode = (lc: LanguageCode) => {
-    setLanguageCode(lc);
-    persistOption('languageCode', lc);
-  };
-
   const AuthenticatedRoute: React.FunctionComponent<RouteProps> = ({ children, ...rest }) => (
     <Route
       {...rest}
@@ -52,32 +37,30 @@ const App: React.FunctionComponent = () => {
   );
 
   return (
-    <I18nContext.Provider value={i18n[languageCode]}>
-      <CardDisplayContext.Provider value={cardDisplay}>
-        <Router>
-          <Switch>
-            <Route path="/login" exact>
-              <LoginComponent playerName={playerName} updatePlayerName={updatePlayerName} updateLanguageCode={updateLanguageCode} updateCardDisplay={updateCardDisplay}/>
-            </Route>
+    <ContextProvider>
+      <Router>
+        <Switch>
+          <Route path="/login" exact>
+            <LoginComponent playerName={playerName} updatePlayerName={updatePlayerName}/>
+          </Route>
 
-            <Route path="/logout" exact render={() => {
-              updatePlayerName('');
-              return <Redirect to={{ pathname: '/login', state: { referer: '/logout' } }}/>;
-            }}/>
+          <Route path="/logout" exact render={() => {
+            updatePlayerName('');
+            return <Redirect to={{ pathname: '/login', state: { referer: '/logout' } }}/>;
+          }}/>
 
-            <AuthenticatedRoute path="/:gameName/:roomID/:playerID" exact>
-              <GameBuilderComponent playerKeysByRoomID={playerKeysByRoomID} updatePlayerKey={updatePlayerKey} updateLanguageCode={updateLanguageCode} updateCardDisplay={updateCardDisplay}/>
-            </AuthenticatedRoute>
+          <AuthenticatedRoute path="/:gameName/:roomID/:playerID" exact>
+            <GameBuilderComponent playerKeysByRoomID={playerKeysByRoomID} updatePlayerKey={updatePlayerKey}/>
+          </AuthenticatedRoute>
 
-            <AuthenticatedRoute path="/" exact>
-              <LobbyComponent playerName={playerName} playerKeysByRoomID={playerKeysByRoomID} updatePlayerKey={updatePlayerKey} updateLanguageCode={updateLanguageCode} updateCardDisplay={updateCardDisplay}/>
-            </AuthenticatedRoute>
+          <AuthenticatedRoute path="/" exact>
+            <LobbyComponent playerName={playerName} playerKeysByRoomID={playerKeysByRoomID} updatePlayerKey={updatePlayerKey}/>
+          </AuthenticatedRoute>
 
-            <Route path="*" render={() => <Redirect to="/"/>}/>
-          </Switch>
-        </Router>
-      </CardDisplayContext.Provider>
-    </I18nContext.Provider>
+          <Route path="*" render={() => <Redirect to="/"/>}/>
+        </Switch>
+      </Router>
+    </ContextProvider>
   );
 };
 

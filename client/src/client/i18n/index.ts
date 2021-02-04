@@ -11,7 +11,6 @@ import {CardDisplay} from '../context/cardDisplay';
 
 export interface I18n {
   common: {
-    languageCode: LanguageCode;
     Options: {
       languageCode: Record<LanguageCode, string>;
       selectLanguageCode: string;
