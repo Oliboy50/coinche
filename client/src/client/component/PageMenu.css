@@ -1,6 +1,6 @@
 /**
  */
-.modal {
+.pageMenu {
   position: absolute;
   top: 0;
   left: 0;
@@ -10,10 +10,10 @@
   transform: translateY(calc(-100vh + 50px));
   transition: all .5s ease-in-out;
 }
-.modal.opened {
+.pageMenu.opened {
   transform: translateY(0);
 }
-.modal .content {
+.pageMenu .content {
   height: calc(100vh - 50px);
   box-sizing: border-box;
   padding: 20px;
@@ -21,11 +21,11 @@
   background: rgba(0,0,0,.9);
   color: white;
 }
-.modal .toggleButtons {
+.pageMenu .toggleButtons {
   color: white;
   text-align: right;
 }
-.modal .toggleButton {
+.pageMenu .toggleButton {
   display: inline-block;
   width: 55px;
   height: 50px;
@@ -35,12 +35,12 @@
   text-align: center;
   cursor: pointer;
 }
-.modal .toggleButton:first-child {
+.pageMenu .toggleButton:first-child {
   border-left: 3px solid black;
 }
-.modal .toggleButton.active {
+.pageMenu .toggleButton.active {
   background: black;
 }
-.modal .toggleButton span {
+.pageMenu .toggleButton span {
   font-size: 40px;
 }

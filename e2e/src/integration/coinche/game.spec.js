@@ -256,5 +256,6 @@ describe('coinche', () => {
     cy.get('.goBackToLobby [data-testid="button leave"]').click();
     cy.wait(1000);
     cy.get('.lobby .room:nth-child(1) .topLeftSeat').should('not.contain', PLAYER_1);
+    cy.get('[data-testid="button gameHistory"]').should('not.be.visible');
   });
 });

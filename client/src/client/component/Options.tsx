@@ -4,9 +4,7 @@ import {LanguageCode, validLanguageCodes} from '../../shared';
 import {OptionsContext, I18nContext} from '../context';
 import {CardDisplay, validCardDisplays} from '../context/cardDisplay';
 
-type ComponentProps = {
-};
-export const OptionsComponent: React.FunctionComponent<ComponentProps> = () => {
+export const OptionsComponent: React.FunctionComponent = () => {
   const { common: i18n } = useContext(I18nContext);
   const { state, dispatch } = useContext(OptionsContext);
 
