@@ -109,7 +109,7 @@ export const LobbyComponent: React.FunctionComponent<ComponentProps> = ({
 
       <CreateRoomButtonComponent onClick={() => createRoom(GameName.Coinche)} />
 
-      <PageMenuComponent extraButtons={[]}/>
+      <PageMenuComponent />
     </div>
   );
 };

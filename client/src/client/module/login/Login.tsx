@@ -36,7 +36,7 @@ export const LoginComponent: React.FunctionComponent<ComponentProps> = ({
 
       <LoginFormComponent playerName={playerName} onSubmit={login} />
 
-      <PageMenuComponent extraButtons={[]}/>
+      <PageMenuComponent />
     </div>
   );
 };
