@@ -1,9 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 declare module 'boardgame.io/server' {
-  import Application = require('koa');
-  import {InMemory} from 'boardgame.io/dist/types/src/server/db';
-
   export interface RunningServer {
     close(): void;
   }
@@ -14,8 +11,8 @@ declare module 'boardgame.io/server' {
   }
 
   export interface ServerReturn {
-    app: Application;
-    db: InMemory;
+    app: import('koa');
+    db: import('boardgame.io/dist/types/src/server/db').InMemory;
     run(portOrConfig: any): Promise<RunningServers>;
     kill(servers: RunningServers): void;
   }

@@ -66,9 +66,9 @@ export const buildCoincheBoardComponent = (
   ctx,
   moves,
   playerID,
-  gameMetadata,
+  matchData,
 }) => {
-  const getPlayerNameByID = constructorForGetPlayerNameByID(gameMetadata);
+  const getPlayerNameByID = constructorForGetPlayerNameByID(matchData);
 
   const bottomPlayerID = playerID !== null ? playerID : PlayerID.South;
   const topPlayerID = getPlayerIDForPosition(bottomPlayerID, 'top');

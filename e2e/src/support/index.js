@@ -54,6 +54,6 @@ Cypress.Commands.add('playCard', (cardColor, cardName, sayBelot = '') => {
       return;
     }
     cy.wait(2500);
-    cy.get(`.playedCard.bottom [data-testid="card ${cardColor}|${cardName}"]`).should('not.be.visible');
+    cy.get(`.playedCard.bottom [data-testid="card ${cardColor}|${cardName}"]`).should('not.exist');
   });
 });

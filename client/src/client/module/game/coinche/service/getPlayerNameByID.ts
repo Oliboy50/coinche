@@ -1,13 +1,13 @@
 import {BoardProps} from 'boardgame.io/react';
 import {GameStatePlayerView, Moves, PhaseID, PlayerID} from '../../../../../shared/coinche';
 
-export const constructorForGetPlayerNameByID = (gameMetadata: BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>['gameMetadata']) => (ID: PlayerID): string => {
+export const constructorForGetPlayerNameByID = (matchData: BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>['matchData']) => (ID: PlayerID): string => {
   const defaultPlayerName = '\u00A0';
-  if (!gameMetadata) {
+  if (!matchData) {
     return defaultPlayerName;
   }
 
-  const playerMetadata = gameMetadata.find(m => (String(m.id) as PlayerID) === ID);
+  const playerMetadata = matchData.find(m => (String(m.id) as PlayerID) === ID);
   if (!playerMetadata) {
     return defaultPlayerName;
   }

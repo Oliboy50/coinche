@@ -55,7 +55,7 @@ export const GameBuilderComponent: React.FunctionComponent<ComponentProps> = ({
 
   return (
     <GameComponent
-      gameID={roomID}
+      matchID={roomID}
       playerID={playerID}
       credentials={playerRoomKey}
     />
