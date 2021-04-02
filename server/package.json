@@ -11,7 +11,8 @@
     "lint:fix": "run-p lint:fix:es",
     "lint:es": "eslint --max-warnings 0 '**/*.{js,ts}'",
     "lint:fix:es": "eslint --fix '**/*.{js,ts}'",
-    "lint:tsc": "tsc"
+    "lint:tsc": "tsc",
+    "prepare": "cd .. && husky install"
   },
   "engines": {
     "node": "12"
@@ -30,7 +31,7 @@
     "@typescript-eslint/parser": "3.10.1",
     "babel-eslint": "10.1.0",
     "eslint": "7.23.0",
-    "husky": "4.3.8",
+    "husky": "6.0.0",
     "jest": "26.6.3",
     "lint-staged": "10.5.4",
     "npm-run-all": "4.1.5",
@@ -38,11 +39,6 @@
     "ts-jest": "26.5.4",
     "ts-node-dev": "1.1.6",
     "typescript": "3.9.9"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   },
   "lint-staged": {
     "**/*.{js,ts}": "eslint --fix"

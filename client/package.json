@@ -10,7 +10,8 @@
     "lint:fix": "run-p lint:fix:es",
     "lint:es": "eslint --max-warnings 0 '**/*.{js,jsx,ts,tsx}'",
     "lint:fix:es": "eslint --fix '**/*.{js,jsx,ts,tsx}'",
-    "lint:tsc": "tsc"
+    "lint:tsc": "tsc",
+    "prepare": "cd .. && husky install"
   },
   "engines": {
     "node": "12"
@@ -28,7 +29,7 @@
     "@types/react": "16.14.5",
     "@types/react-dom": "16.9.12",
     "@types/react-router-dom": "5.1.7",
-    "husky": "4.3.8",
+    "husky": "6.0.0",
     "lint-staged": "10.5.4",
     "npm-run-all": "4.1.5",
     "react-scripts": "3.4.4",
@@ -69,11 +70,6 @@
         "warn",
         2
       ]
-    }
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
     }
   },
   "lint-staged": {

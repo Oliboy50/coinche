@@ -15,7 +15,8 @@
     "lint": "run-p lint:es",
     "lint:fix": "run-p lint:fix:es",
     "lint:es": "eslint --max-warnings 0 '**/*.{js,ts}'",
-    "lint:fix:es": "eslint --fix '**/*.{js,ts}'"
+    "lint:fix:es": "eslint --fix '**/*.{js,ts}'",
+    "prepare": "cd .. && husky install"
   },
   "engines": {
     "node": "12"
@@ -24,16 +25,11 @@
     "cypress": "6.8.0",
     "eslint": "7.23.0",
     "eslint-plugin-cypress": "2.11.2",
-    "husky": "4.3.8",
+    "husky": "6.0.0",
     "lint-staged": "10.5.4",
     "npm-run-all": "4.1.5",
     "serve": "11.3.2",
     "start-server-and-test": "1.12.1"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   },
   "lint-staged": {
     "**/*.{js,ts}": "eslint --fix"
