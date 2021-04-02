@@ -29,8 +29,8 @@ export const requestToGetRooms = async (gameName: GameName): Promise<{
 }> => {
   const response = await fetch(`${apiBaseUrl}/games/${gameName}`);
   const responseData: {
-    rooms: {
-      gameID: string;
+    matches: {
+      matchID: string;
       players: {
         id: number;
         name?: string;
@@ -39,9 +39,9 @@ export const requestToGetRooms = async (gameName: GameName): Promise<{
   } = await response.json();
 
   return {
-    rooms: responseData.rooms.map(room => ({
-      roomID: room.gameID,
-      players: room.players.map(player => ({
+    rooms: responseData.matches.map(match => ({
+      roomID: match.matchID,
+      players: match.players.map(player => ({
         ...player,
         id: player.id.toString() as PlayerID,
       })),
@@ -61,11 +61,11 @@ export const requestToCreateRoom = async (gameName: GameName): Promise<{
     headers: { 'Content-Type': 'application/json' },
   });
   const responseData: {
-    gameID: string;
+    matchID: string;
   } = await response.json();
 
   return {
-    roomID: responseData.gameID,
+    roomID: responseData.matchID,
   };
 };
 

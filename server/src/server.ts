@@ -27,7 +27,7 @@ server.app.use(getRoute('/healthz', ({ res }, next) => {
 if (process.env.SERVER_ENV === 'dev') {
   server.app.use(getRoute('/restart-with-clean-data', async ({ res }, next) => {
     await stop();
-    server.db.listGames().forEach(gameID => {
+    server.db.listMatches().forEach(gameID => {
       server.db.wipe(gameID);
     });
     await start();

@@ -200,7 +200,6 @@ export interface GameState {
   __forcedNextPhase?: PhaseID;
   __isWaitingBeforeMovingToNextPhase: boolean;
   __canMoveToNextPhase: boolean;
-  __shuffleCards: (cards:Card[]) => Card[];
 
   // global state
   howManyPointsATeamMustReachToEndTheGame: number;
@@ -2574,7 +2573,7 @@ const getDefaultLastPlayersTakeSaid = () => ({
   [PlayerID.West]: undefined,
 });
 
-const resolve_shuffleCards = (ctx: Context<PlayerID, PhaseID>): GameState['__shuffleCards'] => {
+const getShuffleCardsFn = (ctx: Context<PlayerID, PhaseID>): (cards:Card[]) => Card[] => {
   if (process.env.APP_shuffleCards === 'returnSame') {
     return (cards) => cards;
   }
@@ -2600,7 +2599,6 @@ export const getSetupGameState = (ctx: Context<PlayerID, PhaseID>): GameState =>
   return {
     __isWaitingBeforeMovingToNextPhase: false,
     __canMoveToNextPhase: false,
-    __shuffleCards: resolve_shuffleCards(ctx),
 
     howManyPointsATeamMustReachToEndTheGame: resolve_howManyPointsATeamMustReachToEndTheGame(ctx),
     howManyCardsToDealToEachPlayerBeforeTalking,
@@ -2718,13 +2716,13 @@ export const coincheGame: GameConfig<GameState, GameStatePlayerView, Moves, Play
   phases: {
     [PhaseID.Deal]: {
       start: true,
-      onBegin: (G) => {
+      onBegin: (G, ctx) => {
         // set new dealer
         const dealer = G.nextDealer;
         const nextDealer = getTurnOrder(dealer)[1];
 
         // reset round state
-        G.availableCards = G.__shuffleCards(getCards());
+        G.availableCards = getShuffleCardsFn(ctx)(getCards());
         G.playersCards = getDefaultPlayersCards();
         G.wonTeamsCards = getDefaultWonTeamsCards();
         G.dealer = dealer;

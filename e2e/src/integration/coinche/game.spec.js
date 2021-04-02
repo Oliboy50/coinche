@@ -35,11 +35,11 @@ describe('coinche', () => {
     cy.get('[data-testid="select cardDisplay"]').select('DejaVu');
     cy.get('.coincheBoard .DejaVuFont .card').should('be.visible');
     cy.get('[data-testid="select cardDisplay"]').select('Natif');
-    cy.get('.coincheBoard .DejaVuFont .card').should('not.be.visible');
+    cy.get('.coincheBoard .DejaVuFont .card').should('not.exist');
     cy.get('[data-testid="button options"]').click();
 
     // GameHistory before starting first round
-    cy.get('[data-testid="button gameHistory"]').should('not.be.visible');
+    cy.get('[data-testid="button gameHistory"]').should('not.exist');
 
     cy.get('[data-testid="select sayTakeExpectedPoint"]').select('100');
     cy.get('[data-testid="select sayTakeTrumpMode"]').select('TrumpClub');
@@ -64,11 +64,11 @@ describe('coinche', () => {
     cy.get('[data-testid="button saySkip"]').click();
     cy.get('.myPlayer .playerSaid').should('contain', 'Je passe');
     cy.wait(1500);
-    cy.get('.myPlayer .playerSaid').should('not.be.visible');
+    cy.get('.myPlayer .playerSaid').should('not.exist');
 
     // GameHistory after starting first round
     cy.get('[data-testid="button gameHistory"]').should('be.visible');
-    cy.get('.gameHistory').should('not.be.visible');
+    cy.get('.gameHistory').should('not.exist');
     cy.get('[data-testid="button gameHistory"]').click();
     cy.get('.gameHistory').should('be.visible');
     cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Détail de la jetée n°1');
@@ -112,7 +112,7 @@ describe('coinche', () => {
     cy.get('.playedCard.left [data-testid="card Heart|Ace"]').should('be.visible');
     // dont say announce
     cy.get('[data-testid="select sayAnnounce"]').should('contain', 'Cent au valet de carreau');
-    cy.get('.myPlayer .playerSaidAnnounces').should('not.be.visible');
+    cy.get('.myPlayer .playerSaidAnnounces').should('not.exist');
     cy.playCard('Diamond', 'Ace');
 
     cy.usingPlayer(PLAYER_4);
@@ -141,8 +141,8 @@ describe('coinche', () => {
     cy.get('.otherPlayer.left .playerSaidAnnounces').should('contain', 'Tierce au 9 de coeur');
     cy.get('.otherPlayer.right .playerSaidAnnounces').should('contain', 'Cent au roi de trèfle');
     cy.playCard('Spade', 'Ace');
-    cy.get('.otherPlayer.left .playerSaidAnnounces').should('not.be.visible');
-    cy.get('.otherPlayer.right .playerSaidAnnounces').should('not.be.visible');
+    cy.get('.otherPlayer.left .playerSaidAnnounces').should('not.exist');
+    cy.get('.otherPlayer.right .playerSaidAnnounces').should('not.exist');
 
     cy.usingPlayer(PLAYER_4);
     cy.playCard('Club', 'King', 'say belot');
@@ -256,6 +256,6 @@ describe('coinche', () => {
     cy.get('.goBackToLobby [data-testid="button leave"]').click();
     cy.wait(1000);
     cy.get('.lobby .room:nth-child(1) .topLeftSeat').should('not.contain', PLAYER_1);
-    cy.get('[data-testid="button gameHistory"]').should('not.be.visible');
+    cy.get('[data-testid="button gameHistory"]').should('not.exist');
   });
 });

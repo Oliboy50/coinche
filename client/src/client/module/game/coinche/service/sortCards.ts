@@ -134,12 +134,12 @@ export const sortCards = (cards: Card[]): Card[] => {
 
   if (differentColors.length === 3) {
     if (differentColors.every(color => [CardColor.Diamond, CardColor.Spade, CardColor.Heart].includes(color))) {
-      return cards.sort(colorDiamondSpadeHeartCardsSorter);
+      return [...cards].sort(colorDiamondSpadeHeartCardsSorter);
     }
     if (differentColors.every(color => [CardColor.Spade, CardColor.Heart, CardColor.Club].includes(color))) {
-      return cards.sort(colorSpadeHeartClubCardsSorter);
+      return [...cards].sort(colorSpadeHeartClubCardsSorter);
     }
   }
 
-  return cards.sort(colorSpadeDiamondClubHeartCardsSorter);
+  return [...cards].sort(colorSpadeDiamondClubHeartCardsSorter);
 };
