@@ -14,9 +14,9 @@ RUN test -z "$SET_NPM_UNSAFE_PERM_TRUE" || (npm config set unsafe-perm true) && 
 
 COPY . .
 
-RUN npm ci && npm run build \
+RUN npm ci --ignore-scripts && npm run build \
     && cp package-lock.json package.json ./build \
-    && cd ./build && npm ci --production \
+    && cd ./build && npm ci --production --ignore-scripts \
     && rm package-lock.json package.json
 
 # STAGE 2

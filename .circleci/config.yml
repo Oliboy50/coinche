@@ -16,10 +16,10 @@ jobs:
       - checkout
       - run:
           name: client install
-          command: cd client && npm ci && cd -
+          command: cd client && npm ci --ignore-scripts && cd -
       - run:
           name: server install
-          command: cd server && npm ci && cd -
+          command: cd server && npm ci --ignore-scripts && cd -
       - persist_to_workspace:
           root: .
           paths: '*'
