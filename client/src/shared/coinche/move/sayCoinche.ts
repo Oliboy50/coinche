@@ -5,10 +5,10 @@ import {
   PhaseID,
 } from '../index';
 
-export default (
+export default function sayCoinche (
   G: GameState,
   ctx: Context<PlayerID, PhaseID>,
-): void => {
+): void {
   if (!G.currentSayTake || G.currentSayTake.sayCoincheLevel === 'surcoinche') {
     throw new Error();
   }

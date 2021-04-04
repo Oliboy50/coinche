@@ -5,10 +5,10 @@ import {
   PhaseID,
 } from '../index';
 
-export default (
+export default function moveToNextPhase (
   G: GameState,
   ctx: Context<PlayerID, PhaseID>,
-): void => {
+): void {
   G.__isWaitingBeforeMovingToNextPhase = false;
   G.__canMoveToNextPhase = true;
   ctx.events.endTurn();

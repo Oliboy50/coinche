@@ -6,11 +6,11 @@ import {
   Announce,
 } from '../index';
 
-export default (
+export default function sayAnnounce (
   G: GameState,
   ctx: Context<PlayerID, PhaseID>,
   announce: Announce,
-): void => {
+): void {
   const saidAnnounce = G.playersAnnounces[ctx.currentPlayer].find(playerAnnounce => playerAnnounce.announce.id === announce.id);
   if (!saidAnnounce) {
     throw new Error(`Player can't say this announce`);

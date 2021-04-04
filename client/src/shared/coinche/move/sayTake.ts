@@ -12,12 +12,12 @@ import {
   isSayableExpectedPoints,
 } from '../index';
 
-export default (
+export default function sayTake (
   G: GameState,
   ctx: Context<PlayerID, PhaseID>,
   expectedPoints: ExpectedPoints,
   trumpMode: TrumpMode,
-) => {
+): void {
   if (!validExpectedPoints.includes(expectedPoints)) {
     throw new Error('Expected points are not valid');
   }
