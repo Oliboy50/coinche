@@ -5,9 +5,9 @@ import {
   PhaseID,
 } from '../index';
 
-export default (
+export default function endTurn (
   G: GameState,
   ctx: Context<PlayerID, PhaseID>,
-): void => {
+): void {
   ctx.events.endTurn();
 };

@@ -5,9 +5,9 @@ import {
   PhaseID,
 } from '../index';
 
-export default (
+export default function waitBeforeMovingToNextPhase (
   G: GameState,
   _: Context<PlayerID, PhaseID>,
-): void => {
+): void {
   G.__isWaitingBeforeMovingToNextPhase = true;
 };

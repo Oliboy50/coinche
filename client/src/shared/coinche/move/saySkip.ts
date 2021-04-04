@@ -5,10 +5,10 @@ import {
   PhaseID,
 } from '../index';
 
-export default (
+export default function saySkip (
   G: GameState,
   ctx: Context<PlayerID, PhaseID>,
-): void => {
+): void {
   G.numberOfSuccessiveSkipSaid++;
   G.playersSaid = {
     ...G.playersSaid,

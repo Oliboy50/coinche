@@ -9,11 +9,11 @@ import {
   isPlayableCard,
 } from '../index';
 
-export default (
+export default function playCard (
   G: GameState,
   ctx: Context<PlayerID, PhaseID>,
   card: Card,
-): void => {
+): void {
   const cardIndexInPlayerCards = G.playersCards[ctx.currentPlayer].findIndex(c => isSameCard(c, card));
   const playerPartner = getPlayerPartner(ctx.currentPlayer);
 

@@ -5,11 +5,11 @@ import {
   PhaseID,
 } from '../index';
 
-export default (
+export default function sayBelotOrNot (
   G: GameState,
   ctx: Context<PlayerID, PhaseID>,
   sayIt: boolean,
-): void => {
+): void {
   if (
     !G.belotAnnounce
     || G.belotAnnounce.owner !== ctx.currentPlayer
