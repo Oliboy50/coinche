@@ -1,5 +1,5 @@
-import {GameName} from '../../shared';
-import {PlayerID} from '../../shared/coinche';
+import type {GameName} from '../../shared';
+import type {PlayerID} from '../../shared/coinche';
 
 if (!process.env.REACT_APP_API_BASE_URL) {
   throw new Error('REACT_APP_API_BASE_URL env var must be set');

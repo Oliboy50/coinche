@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import {useEffect} from 'react';
 import {useHistory} from 'react-router';
 import {useParams, Redirect} from 'react-router-dom';
 import {Client} from 'boardgame.io/react';

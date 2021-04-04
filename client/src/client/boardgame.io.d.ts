@@ -1,6 +1,6 @@
 declare module 'boardgame.io/react' {
-  import { ComponentType } from 'react';
-  import { Context, DefaultGameStatePlayerView, DefaultMoves, DefaultPlayerID, DefaultPhaseID } from 'boardgame.io/core';
+  import type { ComponentType } from 'react';
+  import type { Context, DefaultGameStatePlayerView, DefaultMoves, DefaultPlayerID, DefaultPhaseID } from 'boardgame.io/core';
 
   export interface BoardProps<
     GameStatePlayerView = DefaultGameStatePlayerView,

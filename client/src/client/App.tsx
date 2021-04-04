@@ -1,5 +1,5 @@
 import './App.css';
-import React, {useState} from 'react';
+import {useState} from 'react';
 import {BrowserRouter as Router, Switch, Redirect, Route, RouteProps} from 'react-router-dom';
 import {findPlayerKeys, persistPlayerKeys} from './repository/playerKeyRepository';
 import {findPlayerName, persistPlayerName} from './repository/playerNameRepository';

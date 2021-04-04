@@ -1,5 +1,5 @@
 import './CoincheBoard.css';
-import React, {useState} from 'react';
+import {Fragment, useState} from 'react';
 import {BoardProps} from 'boardgame.io/react';
 import {
   AnnounceID,
@@ -252,7 +252,7 @@ export const buildCoincheBoardComponent = (
       </div>
 
       {ctx.gameover ? (
-        <React.Fragment>
+        <Fragment>
           <GoBackToLobbyComponent
             goBackToLobby={goBackToLobby}
           />
@@ -261,9 +261,9 @@ export const buildCoincheBoardComponent = (
             winners={ctx.gameover.winners}
             getPlayerNameByID={getPlayerNameByID}
           />
-        </React.Fragment>
+        </Fragment>
       ) : (
-        <React.Fragment>
+        <Fragment>
           <div className="playedCardsArea">
             <PlayedCardsComponent bottomPlayerID={bottomPlayerID} playedCards={playedCards} />
           </div>
@@ -323,7 +323,7 @@ export const buildCoincheBoardComponent = (
               )}
             </div>
           </div>
-        </React.Fragment>
+        </Fragment>
       )}
 
       <PageMenuComponent extraButtons={[

@@ -1,4 +1,4 @@
-import {Context} from 'boardgame.io/core';
+import type {Context} from 'boardgame.io/core';
 import {GameState, PhaseID, PlayerID, TeamID, TrumpMode, validExpectedPoints, validTrumpModes} from '../index';
 import sayTake from './sayTake';
 import {getDefaultContext, getDefaultGameState} from './__testHelper';

@@ -1,6 +1,6 @@
-import React from 'react';
+import {Fragment} from 'react';
 import {CardColor, CardName, secretCard} from '../../../../../../shared/coinche';
-import {CardComponentProps} from './index';
+import type {CardComponentProps} from './index';
 
 const getUnicode = (card: CardComponentProps['card']): string => {
   if (card === secretCard) {
@@ -130,10 +130,10 @@ export const UnicodeCardComponent: React.FunctionComponent<CardComponentProps & 
         getUnicode(card)
       }</span>
       {onSayBelotClick && onDontSayBelotClick && (
-        <React.Fragment>
+        <Fragment>
           <span className="belotChooseButton say" onClick={onSayBelotClick} role="img" aria-label="say" data-testid="button sayBelot">🔈</span>
           <span className="belotChooseButton dontSay" onClick={onDontSayBelotClick} role="img" aria-label="mute" data-testid="button dontSayBelot">🔇</span>
-        </React.Fragment>
+        </Fragment>
       )}
     </span>
   );

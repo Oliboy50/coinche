@@ -1,6 +1,6 @@
-import React, {useContext} from 'react';
+import {Fragment, useContext} from 'react';
 import {I18nContext} from '../../../../context';
-import {
+import type {
   AnnounceID,
   ExpectedPoints,
   PlayerID,
@@ -41,7 +41,7 @@ export const CurrentInfoComponent: React.FunctionComponent<ComponentProps> = ({
         <span className="data">{`${opponentTeamPoints}/${howManyPointsATeamMustReachToEndTheGame}`}</span>
       </div>
       {attackingPlayerName && trumpMode && expectedPoints && (
-        <React.Fragment>
+        <Fragment>
           <div className="attackingPlayer">
             <span className="label">{i18n.Info.attackingPlayer}</span>
             <span className="data">{attackingPlayerName}</span>
@@ -50,7 +50,7 @@ export const CurrentInfoComponent: React.FunctionComponent<ComponentProps> = ({
             <span className="label">{i18n.Info.goal}</span>
             <span className="data">{`${expectedPoints} ${i18n.trumpMode[trumpMode]}${sayCoincheLevel === 'coinche' ? ` (${i18n.sayCoincheLevel.coinche})` : ''}${sayCoincheLevel === 'surcoinche' ? ` (${i18n.sayCoincheLevel.surcoinche})` : ''}`}</span>
           </div>
-        </React.Fragment>
+        </Fragment>
       )}
       {Object.entries(displayablePlayersAnnounces)
         .filter(([_, { announces }]) => announces.length > 0)

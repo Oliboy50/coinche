@@ -1,4 +1,3 @@
-import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './client/App';
 import * as serviceWorker from './client/service/serviceWorker';

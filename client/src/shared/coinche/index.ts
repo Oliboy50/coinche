@@ -1,4 +1,4 @@
-import {Context, GameConfig, TurnConfig} from 'boardgame.io/core';
+import type {Context, GameConfig, TurnConfig} from 'boardgame.io/core';
 import {GameName} from '../index';
 import endTurn from './move/endTurn';
 import waitBeforeMovingToNextPhase from './move/waitBeforeMovingToNextPhase';

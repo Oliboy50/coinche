@@ -1,5 +1,5 @@
-import React, {useContext} from 'react';
-import {AnnounceGroup, AnnounceID} from '../../../../../shared/coinche';
+import {useContext} from 'react';
+import type {AnnounceGroup, AnnounceID} from '../../../../../shared/coinche';
 import {I18nContext} from '../../../../context';
 
 type ComponentProps = {

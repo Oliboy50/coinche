@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import {useContext} from 'react';
 import {I18nContext} from '../../../../context';
 
 type ComponentProps = {

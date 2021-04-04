@@ -1,5 +1,4 @@
 import './Login.css';
-import React from 'react';
 import {useHistory, useLocation} from 'react-router-dom';
 import {PageHeaderComponent} from '../../component/PageHeader';
 import {PageMenuComponent} from '../../component/PageMenu';
