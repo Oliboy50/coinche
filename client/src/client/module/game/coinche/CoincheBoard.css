@@ -40,13 +40,12 @@
 .coincheBoard .cardWrapper {
   position: relative;
   display: inline-block;
+  top: -15px;
 }
 .coincheBoard .card {
-  font-family: "Apple Symbols", "Segoe UI Symbol", "DejaVu Sans", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  line-height: 110px;
-  font-size: 110px;
+  font-size: 100px;
   display: inline-block;
 }
 .coincheBoard .belotChooseButton {
@@ -200,17 +199,14 @@
 }
 .coincheBoard .otherPlayerCards {
   position: relative;
-  top: 10px;
   left: -15px;
   text-align: center;
-}
-.coincheBoard .otherPlayerCards .card {
-  font-size: 100px;
 }
 .coincheBoard .otherPlayerCards .cardWrapper {
   position: absolute;
   background: white;
-  transform-origin: 26px 78px;
+  top: -8px;
+  transform-origin: 36px 95px;
 }
 .coincheBoard .otherPlayerCards .cardWrapper:nth-child(1) {
   z-index: 8;
@@ -302,8 +298,6 @@
 }
 .coincheBoard .hiddenAdditionalCards .cardWrapper .card {
   color: transparent;
-  line-height: 82px;
-  font-size: 100px;
 }
 .coincheBoard .hiddenAdditionalCards .cardWrapper:nth-child(1) .card {
   text-shadow: 5px 6px rgba(0,0,0,.8);
@@ -437,8 +431,7 @@
   transform: rotate(270deg);
 }
 .coincheBoard .playedCards .card {
-  line-height: 40px;
-  font-size: 110px;
+  line-height: 30px;
 }
 
 /**

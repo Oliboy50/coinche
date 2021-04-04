@@ -5,6 +5,9 @@
        url("./font/DejaVuCards.ttf") format("truetype");
 }
 
+.coincheBoard .DejaVuFont.cardWrapper {
+  top: 0;
+}
 .coincheBoard .DejaVuFont .card {
   font-family: "EmbeddedDejaVuSans", sans-serif;
   line-height: 96px;
@@ -14,11 +17,15 @@
   line-height: 50px;
   font-size: 80px;
 }
+.coincheBoard .otherPlayerCards .DejaVuFont.cardWrapper {
+  top: 10px;
+  transform-origin: 29px 69px;
+}
 .coincheBoard .otherPlayerCards .DejaVuFont .card {
   line-height: 80px;
   font-size: 70px;
 }
-.coincheBoard .hiddenAdditionalCards .cardWrapper.DejaVuFont .card {
+.coincheBoard .hiddenAdditionalCards .DejaVuFont .card {
   line-height: 90px;
   font-size: 72px;
 }
