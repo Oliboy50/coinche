@@ -1,5 +1,4 @@
-import React from 'react';
-import {Card, SecretCard} from '../../../../../shared/coinche';
+import type {Card, SecretCard} from '../../../../../shared/coinche';
 import {CardComponent} from './Card';
 
 type ComponentProps = {

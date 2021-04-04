@@ -9,6 +9,7 @@
     "moduleResolution": "node",
     "strict": true,
     "skipLibCheck": true,
+    "removeComments": true,
     "rootDir": "..",
     "outDir": "./build",
     "sourceMap": true,

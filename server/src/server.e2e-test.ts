@@ -1,4 +1,4 @@
-import {RunningServer} from 'boardgame.io/server';
+import type {RunningServer} from 'boardgame.io/server';
 import * as request from 'supertest';
 import { start, stop } from './server';
 

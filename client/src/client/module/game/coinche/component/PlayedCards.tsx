@@ -1,5 +1,4 @@
-import React from 'react';
-import {Card, PlayerID} from '../../../../../shared/coinche';
+import type {Card, PlayerID} from '../../../../../shared/coinche';
 import {CardComponent} from './Card';
 import {getPlayerIDForPosition} from '../service/getPlayerIDForPosition';
 

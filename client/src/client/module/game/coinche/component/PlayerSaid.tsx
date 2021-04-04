@@ -1,6 +1,6 @@
-import React, {useContext} from 'react';
-import {BoardProps} from 'boardgame.io/react';
-import {
+import {useContext} from 'react';
+import type {BoardProps} from 'boardgame.io/react';
+import type {
   GameStatePlayerView,
   Moves,
   PhaseID,

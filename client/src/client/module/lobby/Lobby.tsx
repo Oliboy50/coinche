@@ -1,11 +1,10 @@
 import './Lobby.css';
-import React from 'react';
 import {useHistory} from 'react-router-dom';
 import useSWR, {mutate as updateRequestCache} from 'swr';
 import {GameName} from '../../../shared';
 import {PlayerID} from '../../../shared/coinche';
 import {requestToCreateRoom, requestToGetRooms, requestToJoinRoom, requestToLeaveRoom} from '../../service/serverRequester';
-import {PlayerKeysByRoomID} from '../../repository/playerKeyRepository';
+import type {PlayerKeysByRoomID} from '../../repository/playerKeyRepository';
 import {PageHeaderComponent} from '../../component/PageHeader';
 import {PageMenuComponent} from '../../component/PageMenu';
 import {RoomSeatComponent} from './component/RoomSeat';

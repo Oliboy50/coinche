@@ -1,4 +1,4 @@
-import { Context } from 'boardgame.io/core';
+import type { Context } from 'boardgame.io/core';
 import {
   GameState,
   PlayerID,

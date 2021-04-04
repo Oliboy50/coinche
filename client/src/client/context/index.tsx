@@ -1,7 +1,7 @@
-import React, {useReducer} from 'react';
-import {LanguageCode} from '../../shared';
+import {createContext, useReducer} from 'react';
+import type {LanguageCode} from '../../shared';
 import {findOption, persistOption} from '../repository/optionsRepository';
-import {I18n} from '../i18n';
+import type {I18n} from '../i18n';
 import {i18n, languageCodeDefaultValue} from './i18n';
 import {CardDisplay, cardDisplayDefaultValue} from './cardDisplay';
 import {OptionsComponent} from '../component/Options';
@@ -36,7 +36,7 @@ const optionsReducer = (state: OptionsState, action: OptionsAction) => {
       };
   }
 };
-export const OptionsContext = React.createContext<{
+export const OptionsContext = createContext<{
   state: OptionsState;
   dispatch: React.Dispatch<OptionsAction>;
 }>({
@@ -44,7 +44,7 @@ export const OptionsContext = React.createContext<{
   dispatch: () => null,
 });
 
-export const I18nContext = React.createContext<I18n>(i18n[optionsInitialState.languageCode]);
+export const I18nContext = createContext<I18n>(i18n[optionsInitialState.languageCode]);
 
 export interface PageMenuButton {
   id: string;
@@ -107,7 +107,7 @@ const pageMenuReducer = (state: PageMenuState, action: PageMenuAction) => {
       };
   }
 };
-export const PageMenuContext = React.createContext<{
+export const PageMenuContext = createContext<{
   state: PageMenuState;
   dispatch: React.Dispatch<PageMenuAction>;
 }>({

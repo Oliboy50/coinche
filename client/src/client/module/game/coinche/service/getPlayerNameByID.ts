@@ -1,5 +1,5 @@
-import {BoardProps} from 'boardgame.io/react';
-import {GameStatePlayerView, Moves, PhaseID, PlayerID} from '../../../../../shared/coinche';
+import type {BoardProps} from 'boardgame.io/react';
+import type {GameStatePlayerView, Moves, PhaseID, PlayerID} from '../../../../../shared/coinche';
 
 export const constructorForGetPlayerNameByID = (matchData: BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>['matchData']) => (ID: PlayerID): string => {
   const defaultPlayerName = '\u00A0';

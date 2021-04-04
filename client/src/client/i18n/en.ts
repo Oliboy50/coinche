@@ -1,4 +1,4 @@
-import {I18n} from './index';
+import type {I18n} from './index';
 import {LanguageCode} from '../../shared';
 import {AnnounceGroup, AnnounceID, CardColor, CardName, TrumpMode} from '../../shared/coinche';
 import {CardDisplay} from '../context/cardDisplay';

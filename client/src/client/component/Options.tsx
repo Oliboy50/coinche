@@ -1,5 +1,5 @@
 import './Options.css';
-import React, {useContext} from 'react';
+import {useContext} from 'react';
 import {LanguageCode, validLanguageCodes} from '../../shared';
 import {OptionsContext, I18nContext} from '../context';
 import {CardDisplay, validCardDisplays} from '../context/cardDisplay';

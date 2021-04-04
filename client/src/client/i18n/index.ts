@@ -1,5 +1,5 @@
-import {LanguageCode} from '../../shared';
-import {
+import type {LanguageCode} from '../../shared';
+import type {
   AnnounceGroup,
   AnnounceID,
   Card,
@@ -7,7 +7,7 @@ import {
   SayCoincheLevel,
   TrumpMode,
 } from '../../shared/coinche';
-import {CardDisplay} from '../context/cardDisplay';
+import type {CardDisplay} from '../context/cardDisplay';
 
 export interface I18n {
   common: {

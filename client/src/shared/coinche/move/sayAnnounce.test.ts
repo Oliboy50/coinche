@@ -1,4 +1,4 @@
-import {Context} from 'boardgame.io/core';
+import type {Context} from 'boardgame.io/core';
 import {AnnounceID, GameState, getAnnounceByID, getAnnounceGroupByAnnounceID, PhaseID, PlayerID} from '../index';
 import {getDefaultContext, getDefaultGameState} from './__testHelper';
 import sayAnnounce from './sayAnnounce';

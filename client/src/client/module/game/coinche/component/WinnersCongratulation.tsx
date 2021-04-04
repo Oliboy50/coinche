@@ -1,6 +1,6 @@
-import React, {useContext} from 'react';
+import {useContext} from 'react';
 import {I18nContext} from '../../../../context';
-import {PlayerID} from '../../../../../shared/coinche';
+import type {PlayerID} from '../../../../../shared/coinche';
 
 type ComponentProps = {
   getPlayerNameByID: (playerID: PlayerID) => string;

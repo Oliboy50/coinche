@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import {Fragment, useContext, useState} from 'react';
 import {
   ExpectedPoints,
   TrumpMode,
@@ -49,7 +49,7 @@ export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
   return (
     <div className="talk">
       {canSayTake && sayableExpectedPoints.length > 0 && (
-        <React.Fragment>
+        <Fragment>
           <select value={selectedExpectedPoint} onChange={onChangeExpectedPoint} data-testid="select sayTakeExpectedPoint">
             {sayableExpectedPoints.map(expectedPoint => (
               <option value={expectedPoint} key={`expectedPoint_${expectedPoint}`}>
@@ -66,7 +66,7 @@ export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
             ))}
           </select>
           <button type="button" disabled={!selectedTrumpMode} onClick={(selectedExpectedPoint && selectedTrumpMode) ? () => sayTake(selectedExpectedPoint, selectedTrumpMode) : undefined} data-testid="button sayTake">{i18n.TalkMenu.takeButton}</button>
-        </React.Fragment>
+        </Fragment>
       )}
       {(canSayCoinche || canSaySurcoinche) && (
         <button type="button" className="sayCoincheButton" onClick={() => sayCoinche()} data-testid="button sayCoinche">{canSaySurcoinche ? i18n.TalkMenu.surcoincheButton : i18n.TalkMenu.coincheButton}</button>

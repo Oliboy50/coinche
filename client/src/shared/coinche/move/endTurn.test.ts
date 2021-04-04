@@ -1,5 +1,5 @@
-import { Context } from 'boardgame.io/core';
-import {
+import type { Context } from 'boardgame.io/core';
+import type {
   GameState,
   PhaseID,
   PlayerID,

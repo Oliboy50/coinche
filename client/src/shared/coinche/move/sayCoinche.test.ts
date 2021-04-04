@@ -1,4 +1,4 @@
-import {Context} from 'boardgame.io/core';
+import type {Context} from 'boardgame.io/core';
 import {GameState, PhaseID, PlayerID, TrumpMode} from '../index';
 import sayCoinche from './sayCoinche';
 import {getDefaultContext, getDefaultGameState} from './__testHelper';

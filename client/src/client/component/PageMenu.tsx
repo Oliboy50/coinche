@@ -1,5 +1,5 @@
 import './PageMenu.css';
-import React, {useContext, useEffect} from 'react';
+import {Fragment, useContext, useEffect} from 'react';
 import {PageMenuButton, PageMenuContext} from '../context';
 
 type ComponentProps = {
@@ -23,7 +23,7 @@ export const PageMenuComponent: React.FunctionComponent<ComponentProps> = ({
     <div className={`pageMenu ${state.buttons.some(({isOpened}) => isOpened) ? 'opened': ''}`}>
       <div className="content">
         {state.buttons.filter(({isOpened}) => isOpened).map(b => {
-          return <React.Fragment key={b.id}>{b.renderContent}</React.Fragment>;
+          return <Fragment key={b.id}>{b.renderContent}</Fragment>;
         })}
       </div>
       <div className="toggleButtons">
