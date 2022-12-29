@@ -3,7 +3,7 @@ version: 2
 aliases:
   - &dockerImage
     docker:
-      - image: node:12.19.0-alpine
+      - image: node:16.18.1-alpine
   # fixes https://discuss.circleci.com/t/requesterror-x509-certificate-signed-by-unknown-authority-while-uploading-workspace/27908/3
   - &addCertificates
     run: apk add --no-cache ca-certificates
@@ -50,7 +50,7 @@ jobs:
   e2e:
     # https://docs.cypress.io/guides/guides/continuous-integration.html#Example-circle-yml-v2-config-file
     docker:
-      - image: cypress/base:12.19.0
+      - image: cypress/base:16.18.1
         environment:
           TERM: xterm
     steps:
