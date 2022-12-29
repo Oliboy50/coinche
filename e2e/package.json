@@ -19,7 +19,7 @@
     "prepare": "cd .. && husky install"
   },
   "engines": {
-    "node": "12"
+    "node": "16"
   },
   "devDependencies": {
     "cypress": "6.8.0",

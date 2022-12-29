@@ -1,6 +1,6 @@
 # STAGE 1
 
-FROM node:12.19.0-alpine as BUILDER
+FROM node:16.18.1-alpine as BUILDER
 
 ARG SET_NPM_UNSAFE_PERM_TRUE
 ENV SET_NPM_UNSAFE_PERM_TRUE=${SET_NPM_UNSAFE_PERM_TRUE}
@@ -21,7 +21,7 @@ RUN npm ci --ignore-scripts && npm run build \
 
 # STAGE 2
 
-FROM node:12.19.0-alpine
+FROM node:16.18.1-alpine
 
 ENV NODE_APP_DIR=/home/node/app
 ENV PORT=3000
