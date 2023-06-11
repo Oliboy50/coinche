@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "SERVER_ENV=dev ts-node-dev --transpile-only src/index.ts",
     "build": "tsc -p tsconfig.build.json",
-    "prod:start": "node build/server/src/index.js",
+    "start": "node build/server/src/index.js",
     "test": "run-p test:e2e",
     "test:e2e": "jest --config ./jest.e2e-config.js --verbose",
     "lint": "run-p lint:es lint:tsc",
