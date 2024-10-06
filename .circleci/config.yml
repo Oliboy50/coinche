@@ -1,18 +1,10 @@
 version: 2
 
-aliases:
-  - &dockerImage
+jobs:
+  lint_and_test:
     docker:
       - image: node:16.18.1-alpine
-  # fixes https://discuss.circleci.com/t/requesterror-x509-certificate-signed-by-unknown-authority-while-uploading-workspace/27908/3
-  - &addDependencies
-    run: apk add --no-cache ca-certificates
-
-jobs:
-  install:
-    <<: *dockerImage
     steps:
-      - *addDependencies
       - checkout
       - run:
           name: client install
@@ -20,27 +12,12 @@ jobs:
       - run:
           name: server install
           command: cd server && npm ci --ignore-scripts && cd -
-      - persist_to_workspace:
-          root: .
-          paths: '*'
-  lint:
-    <<: *dockerImage
-    steps:
-      - *addDependencies
-      - attach_workspace:
-          at: .
       - run:
           name: client lint
           command: cd client && npm run lint && cd -
       - run:
           name: server lint
           command: cd server && npm run lint && cd -
-  test:
-    <<: *dockerImage
-    steps:
-      - *addDependencies
-      - attach_workspace:
-          at: .
       - run:
           name: client test
           command: cd client && npm run test && cd -
@@ -48,15 +25,18 @@ jobs:
           name: server test
           command: cd server && npm run test && cd -
   e2e:
-    # https://docs.cypress.io/guides/guides/continuous-integration.html#Example-circle-yml-v2-config-file
     docker:
       - image: cypress/base:16.18.1
         environment:
           TERM: xterm
     steps:
-      - attach_workspace:
-          at: .
       - checkout
+      - run:
+          name: client install
+          command: cd client && npm ci --ignore-scripts && cd -
+      - run:
+          name: server install
+          command: cd server && npm ci --ignore-scripts && cd -
       - run:
           name: e2e install
           command: cd e2e && npm ci && cd -
@@ -70,13 +50,5 @@ workflows:
   version: 2
   dev-worflow:
     jobs:
-      - install
-      - lint:
-          requires:
-            - install
-      - test:
-          requires:
-            - install
-      - e2e:
-          requires:
-            - install
+      - lint_and_test
+      - e2e
