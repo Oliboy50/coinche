@@ -30,12 +30,16 @@ describe('coinche', () => {
 
     cy.usingPlayer(PLAYER_4);
 
-    // Card display option
+    // Card display and color options
     cy.get('[data-testid="button options"]').click();
     cy.get('[data-testid="select cardDisplay"]').select('DejaVu');
     cy.get('.coincheBoard .DejaVuFont .card').should('be.visible');
     cy.get('[data-testid="select cardDisplay"]').select('Natif');
     cy.get('.coincheBoard .DejaVuFont .card').should('not.exist');
+    cy.get('[data-testid="select cardColorDisplay"]').select('4 couleurs');
+    cy.get('.coincheBoard .card.club').should('exist');
+    cy.get('[data-testid="select cardColorDisplay"]').select('2 couleurs');
+    cy.get('.coincheBoard .DejaVuFont .card.club').should('not.exist');
     cy.get('[data-testid="button options"]').click();
 
     // GameHistory before starting first round

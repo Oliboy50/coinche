@@ -9,9 +9,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.black {
+.spade, .black {
   color: black;
 }
-.red {
+.club {
+  color: rgb(0, 140, 0);
+}
+.heart, .red {
   color: rgb(170, 0, 0);
+}
+.diamond {
+  color: rgb(0, 80, 180);
 }

@@ -2,6 +2,7 @@ import type {I18n} from './index';
 import {LanguageCode} from '../../shared';
 import {AnnounceGroup, AnnounceID, CardColor, CardName, TrumpMode} from '../../shared/coinche';
 import {CardDisplay} from '../context/cardDisplay';
+import {CardColorDisplay} from '../context/cardColor';
 
 export const en: I18n = {
   common: {
@@ -16,6 +17,11 @@ export const en: I18n = {
         [CardDisplay.UnicodeDejaVuFont]: 'DejaVu',
       },
       selectCardDisplay: `Card display:`,
+      cardColorDisplay: {
+        [CardColorDisplay.TwoColors]: '2 colors',
+        [CardColorDisplay.FourColors]: '4 colors',
+      },
+      selectCardColorDisplay: `Card color:`,
     },
   },
   game: {

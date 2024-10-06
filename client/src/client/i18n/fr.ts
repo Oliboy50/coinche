@@ -2,6 +2,7 @@ import {I18n} from './index';
 import {LanguageCode} from '../../shared';
 import {AnnounceGroup, AnnounceID, CardColor, CardName, TrumpMode} from '../../shared/coinche';
 import {CardDisplay} from '../context/cardDisplay';
+import {CardColorDisplay} from '../context/cardColor';
 
 export const fr: I18n = {
   common: {
@@ -16,6 +17,11 @@ export const fr: I18n = {
         [CardDisplay.UnicodeDejaVuFont]: 'DejaVu',
       },
       selectCardDisplay: `Affichage des cartes\u00A0:`,
+      cardColorDisplay: {
+        [CardColorDisplay.TwoColors]: '2 couleurs',
+        [CardColorDisplay.FourColors]: '4 couleurs',
+      },
+      selectCardColorDisplay: `Couleur des cartes\u00A0:`,
     },
   },
   game: {
