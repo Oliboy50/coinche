@@ -1,9 +1,11 @@
 import type {LanguageCode} from '../../shared';
 import type {CardDisplay} from '../context/cardDisplay';
+import type {CardColorDisplay} from '../context/cardColor';
 
 interface Options {
   languageCode: LanguageCode;
   cardDisplay: CardDisplay;
+  cardColorDisplay: CardColorDisplay;
 }
 
 const LOCAL_STORAGE_KEY = 'coinche-opt';

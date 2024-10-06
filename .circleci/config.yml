@@ -5,14 +5,14 @@ aliases:
     docker:
       - image: node:16.18.1-alpine
   # fixes https://discuss.circleci.com/t/requesterror-x509-certificate-signed-by-unknown-authority-while-uploading-workspace/27908/3
-  - &addCertificates
+  - &addDependencies
     run: apk add --no-cache ca-certificates
 
 jobs:
   install:
     <<: *dockerImage
     steps:
-      - *addCertificates
+      - *addDependencies
       - checkout
       - run:
           name: client install
@@ -26,7 +26,7 @@ jobs:
   lint:
     <<: *dockerImage
     steps:
-      - *addCertificates
+      - *addDependencies
       - attach_workspace:
           at: .
       - run:
@@ -38,7 +38,7 @@ jobs:
   test:
     <<: *dockerImage
     steps:
-      - *addCertificates
+      - *addDependencies
       - attach_workspace:
           at: .
       - run:

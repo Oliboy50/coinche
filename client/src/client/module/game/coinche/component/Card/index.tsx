@@ -19,14 +19,14 @@ export type CardComponentProps = {
   onDontSayBelotClick?: () => void,
 };
 export const CardComponent: React.FunctionComponent<CardComponentProps> = (props) => {
-  const { state: { cardDisplay } } = useContext(OptionsContext);
+  const { state: { cardDisplay, cardColorDisplay } } = useContext(OptionsContext);
 
   switch (cardDisplay) {
     case CardDisplay.UnicodeNativeFont:
-      return <UnicodeCardComponent {...props}/>;
+      return <UnicodeCardComponent cardColorDisplay={cardColorDisplay} {...props}/>;
     case CardDisplay.UnicodeDejaVuFont:
       return <Suspense fallback={<span />}>
-        <DejaVuFontCardComponent {...props}/>
+        <DejaVuFontCardComponent cardColorDisplay={cardColorDisplay} {...props}/>
       </Suspense>;
   }
 };

@@ -8,6 +8,7 @@ import type {
   TrumpMode,
 } from '../../shared/coinche';
 import type {CardDisplay} from '../context/cardDisplay';
+import type {CardColorDisplay} from '../context/cardColor';
 
 export interface I18n {
   common: {
@@ -16,6 +17,8 @@ export interface I18n {
       selectLanguageCode: string;
       cardDisplay: Record<CardDisplay, string>;
       selectCardDisplay: string;
+      cardColorDisplay: Record<CardColorDisplay, string>;
+      selectCardColorDisplay: string;
     };
   };
   game: {

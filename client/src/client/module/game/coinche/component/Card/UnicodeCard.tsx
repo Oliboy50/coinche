@@ -1,6 +1,7 @@
 import {Fragment} from 'react';
 import {CardColor, CardName, secretCard} from '../../../../../../shared/coinche';
 import type {CardComponentProps} from './index';
+import {CardColorDisplay} from '../../../../../context/cardColor';
 
 const getUnicode = (card: CardComponentProps['card']): string => {
   if (card === secretCard) {
@@ -90,18 +91,33 @@ const getUnicode = (card: CardComponentProps['card']): string => {
   }
 };
 
-const getColorClass = (card: CardComponentProps['card']): string => {
+const getColorClass = (cardColorDisplay: CardColorDisplay, card: CardComponentProps['card']): string => {
   if (card === secretCard) {
     return '';
   }
 
-  switch (card.color) {
-    case CardColor.Spade:
-    case CardColor.Club:
-      return 'black';
-    case CardColor.Diamond:
-    case CardColor.Heart:
-      return 'red';
+  switch (cardColorDisplay) {
+    case CardColorDisplay.TwoColors:
+      switch (card.color) {
+        case CardColor.Spade:
+        case CardColor.Club:
+          return 'black';
+        case CardColor.Diamond:
+        case CardColor.Heart:
+          return 'red';
+      }
+    // eslint-disable-next-line no-fallthrough
+    case CardColorDisplay.FourColors:
+      switch (card.color) {
+        case CardColor.Spade:
+          return 'spade';
+        case CardColor.Club:
+          return 'club';
+        case CardColor.Diamond:
+          return 'diamond';
+        case CardColor.Heart:
+          return 'heart';
+      }
   }
 };
 
@@ -116,17 +132,18 @@ const getPlayCardStateClass = (playCardState: CardComponentProps['playCardState'
   }
 };
 
-export const UnicodeCardComponent: React.FunctionComponent<CardComponentProps & { extraClassName?: string }> = ({
+export const UnicodeCardComponent: React.FunctionComponent<CardComponentProps & { cardColorDisplay: CardColorDisplay; extraClassName?: string }> = ({
   card,
   playCardState,
   onCardClick,
   onSayBelotClick,
   onDontSayBelotClick,
+  cardColorDisplay,
   extraClassName,
 }) => {
   return (
     <span className={`cardWrapper ${getPlayCardStateClass(playCardState)} ${extraClassName || ''}`}>
-      <span className={`card ${getColorClass(card)}`} onClick={onCardClick} data-testid={`card ${card === secretCard ? 'secretCard' : `${card.color}|${card.name}`}`}>{
+      <span className={`card ${getColorClass(cardColorDisplay, card)}`} onClick={onCardClick} data-testid={`card ${card === secretCard ? 'secretCard' : `${card.color}|${card.name}`}`}>{
         getUnicode(card)
       }</span>
       {onSayBelotClick && onDontSayBelotClick && (

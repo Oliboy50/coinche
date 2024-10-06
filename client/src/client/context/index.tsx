@@ -5,18 +5,22 @@ import type {I18n} from '../i18n';
 import {i18n, languageCodeDefaultValue} from './i18n';
 import {CardDisplay, cardDisplayDefaultValue} from './cardDisplay';
 import {OptionsComponent} from '../component/Options';
+import {CardColorDisplay, cardColorDisplayDefaultValue} from './cardColor';
 
 type OptionsState = {
   languageCode: LanguageCode;
   cardDisplay: CardDisplay;
+  cardColorDisplay: CardColorDisplay;
 };
 const optionsInitialState: OptionsState = {
   languageCode: findOption('languageCode') || languageCodeDefaultValue,
   cardDisplay: findOption('cardDisplay') || cardDisplayDefaultValue,
+  cardColorDisplay: findOption('cardColorDisplay') || cardColorDisplayDefaultValue,
 };
 type OptionsAction =
   | { type: 'SET_LANGUAGE_CODE', payload: LanguageCode }
   | { type: 'SET_CARD_DISPLAY', payload: CardDisplay }
+  | { type: 'SET_CARD_COLOR_DISPLAY', payload: CardColorDisplay }
 ;
 const optionsReducer = (state: OptionsState, action: OptionsAction) => {
   switch (action.type) {
@@ -33,6 +37,13 @@ const optionsReducer = (state: OptionsState, action: OptionsAction) => {
       return {
         ...state,
         cardDisplay: action.payload,
+      };
+    case 'SET_CARD_COLOR_DISPLAY':
+      persistOption('cardColorDisplay', action.payload);
+
+      return {
+        ...state,
+        cardColorDisplay: action.payload,
       };
   }
 };
