@@ -5,7 +5,8 @@ import {
   validExpectedPoints,
   validTrumpModes,
 } from '../../../../../shared/coinche';
-import {I18nContext} from '../../../../context';
+import {I18nContext, OptionsContext} from '../../../../context';
+import {getCardColorClassForTrump, getCardSymbolCharForTrump} from '../../../../service/getCardColorAndSymbol';
 
 type ComponentProps = {
   saySkip: () => void,
@@ -28,6 +29,7 @@ export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
   sayableExpectedPoints,
 }) => {
   const { game: i18n } = useContext(I18nContext);
+  const { state: {cardColorDisplay} } = useContext(OptionsContext);
   const [selectedTrumpMode, setSelectedTrumpMode] = useState(selectedTrumpModeDefaultValue);
   const [selectedExpectedPoint, setSelectedExpectedPoint] = useState(sayableExpectedPoints.length ? sayableExpectedPoints[0] : undefined);
 
@@ -57,11 +59,11 @@ export const TalkMenuComponent: React.FunctionComponent<ComponentProps> = ({
               </option>
             ))}
           </select>
-          <select value={selectedTrumpMode} onChange={onChangeTrumpMode} data-testid="select sayTakeTrumpMode">
+          <select value={selectedTrumpMode} onChange={onChangeTrumpMode} className={selectedTrumpMode ? getCardColorClassForTrump(cardColorDisplay, selectedTrumpMode) : undefined} data-testid="select sayTakeTrumpMode">
             <option value="">{i18n.TalkMenu.selectTrumpModePlaceholder}</option>
             {validTrumpModes.map(trumpMode => (
               <option value={trumpMode} key={`trumpMode_${trumpMode}`}>
-                {i18n.trumpMode[trumpMode]}
+                {`${getCardSymbolCharForTrump(trumpMode)} ${i18n.trumpMode[trumpMode]}`}
               </option>
             ))}
           </select>

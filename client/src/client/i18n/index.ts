@@ -76,7 +76,7 @@ export interface I18n {
       roundDetailToggleButtonHide: string;
       roundDetailToggleButtonShow: string;
       goalPointsTitle: string;
-      goalPointsDetail: (pointsForExpectedPoints: number, goal: string) => string;
+      goalPointsDetail: (pointsForExpectedPoints: number) => string;
       cardsPointsTitle: string;
       endOfRoundPointsTitle: string;
       endOfRoundPointsDetail: (roundEndPoints: 0|10|100) => string;
