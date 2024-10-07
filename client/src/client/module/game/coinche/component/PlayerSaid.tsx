@@ -6,7 +6,8 @@ import type {
   PhaseID,
   PlayerID,
 } from '../../../../../shared/coinche';
-import {I18nContext} from '../../../../context';
+import {I18nContext, OptionsContext} from '../../../../context';
+import {getCardColorClassForTrump, getCardSymbolCharForTrump} from '../../../../service/getCardColorAndSymbol';
 
 type ComponentProps = {
   playerSaid: BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>['G']['playersSaid'][PlayerID.North],
@@ -17,6 +18,7 @@ export const PlayerSaidComponent: React.FunctionComponent<ComponentProps> = ({
   const rootElementClassName = 'playerSaid';
 
   const { game: i18n } = useContext(I18nContext);
+  const { state: { cardColorDisplay } } = useContext(OptionsContext);
 
   if (!playerSaid) {
     return null;
@@ -35,6 +37,6 @@ export const PlayerSaidComponent: React.FunctionComponent<ComponentProps> = ({
   }
 
   return (
-    <div className={rootElementClassName}>{`${playerSaid.expectedPoints} ${i18n.trumpMode[playerSaid.trumpMode]}`}</div>
+    <div className={rootElementClassName}>{`${playerSaid.expectedPoints}`} <span className={getCardColorClassForTrump(cardColorDisplay, playerSaid.trumpMode)}>{getCardSymbolCharForTrump(playerSaid.trumpMode)}</span> {`${i18n.trumpMode[playerSaid.trumpMode]}`}</div>
   );
 };

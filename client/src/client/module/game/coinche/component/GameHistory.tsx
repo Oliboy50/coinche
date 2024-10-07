@@ -1,16 +1,36 @@
-import {useContext, useState} from 'react';
-import {I18nContext} from '../../../../context';
+import {Fragment, useContext, useState} from 'react';
+import {I18nContext, OptionsContext} from '../../../../context';
 import {
   GameHistory,
   PlayerID,
   TeamID,
-  getPlayerTeam,
+  getPlayerTeam, TrumpMode, SayCoincheLevel,
 } from '../../../../../shared/coinche';
 import {
   getPointsForAnnounce,
   getPointsForCard,
   getPointsForExpectedPoints,
 } from '../../../../../shared/coinche/service/pointsCounter';
+import {getCardColorClassForTrump, getCardSymbolCharForTrump} from '../../../../service/getCardColorAndSymbol';
+
+const GoalComponent: React.FunctionComponent<{ expectedPoints: number; trumpMode: TrumpMode; sayCoincheLevel: SayCoincheLevel | undefined; prefix: string; wrapInParentheses: boolean }> =
+  ({ expectedPoints,
+    trumpMode,
+    sayCoincheLevel,
+    prefix,
+    wrapInParentheses,
+  }) => {
+    const { game: i18n } = useContext(I18nContext);
+    const { state: { cardColorDisplay } } = useContext(OptionsContext);
+
+    const sayCoincheLevelText = `${sayCoincheLevel === 'coinche' ? ` (${i18n.sayCoincheLevel.coinche})` : ''}${sayCoincheLevel === 'surcoinche' ? ` (${i18n.sayCoincheLevel.surcoinche})` : ''}`;
+
+    return (
+      <Fragment>{`${prefix} ${wrapInParentheses ? '(' : ''}${expectedPoints}`} <span
+        className={getCardColorClassForTrump(cardColorDisplay, trumpMode)}>{getCardSymbolCharForTrump(trumpMode)}</span> {`${i18n.trumpMode[trumpMode]}${sayCoincheLevelText}${wrapInParentheses ? ')' : ''}`}
+      </Fragment>
+    );
+  };
 
 type ComponentProps = {
   gameHistory: GameHistory;
@@ -37,12 +57,11 @@ export const GameHistoryComponent: React.FunctionComponent<ComponentProps> = ({
         const previousEastWestTeamPointsAtTheEndOfRound = roundIndex < (reversedRounds.length - 1) ? reversedRounds[roundIndex + 1].teamPointsAtTheEndOfRound![TeamID.EastWest] : 0;
 
         const attackingTeam = [PlayerID.North, PlayerID.South].includes(round.sayTake.playerID) ? TeamID.NorthSouth : TeamID.EastWest;
-        const goal = `${round.sayTake.expectedPoints} ${i18n.trumpMode[round.sayTake.trumpMode]}${round.sayTake.sayCoincheLevel === 'coinche' ? ` (${i18n.sayCoincheLevel.coinche})` : ''}${round.sayTake.sayCoincheLevel === 'surcoinche' ? ` (${i18n.sayCoincheLevel.surcoinche})` : ''}`;
 
         return <div key={roundIndex} className="round">
           <div className="roundTitle">{i18n.GameHistory.roundTitle(reversedRounds.length - roundIndex)}</div>
           <div>{`${i18n.GameHistory.attackingPlayer} ${getPlayerNameByID(round.sayTake.playerID)}`}</div>
-          <div>{`${i18n.GameHistory.goal} ${goal}`}</div>
+          <div><GoalComponent prefix={i18n.GameHistory.goal} wrapInParentheses={false} expectedPoints={round.sayTake.expectedPoints} trumpMode={round.sayTake.trumpMode} sayCoincheLevel={round.sayTake.sayCoincheLevel} /></div>
 
           {round.teamPointsAtTheEndOfRound && round.winningTeam && (
             <div className="roundSummary">
@@ -70,8 +89,8 @@ export const GameHistoryComponent: React.FunctionComponent<ComponentProps> = ({
                 <div className="roundDetail">
                   <div className="goalPoints">
                     <div className="sectionTitle">{i18n.GameHistory.goalPointsTitle}</div>
-                    <div>{`${i18n.GameHistory.team(getTeamNameByID(TeamID.NorthSouth))} ${round.winningTeam === TeamID.NorthSouth ? i18n.GameHistory.goalPointsDetail(getPointsForExpectedPoints(round.sayTake), goal) : i18n.GameHistory.score(0)}`}</div>
-                    <div>{`${i18n.GameHistory.team(getTeamNameByID(TeamID.EastWest))} ${round.winningTeam === TeamID.EastWest ? i18n.GameHistory.goalPointsDetail(getPointsForExpectedPoints(round.sayTake), goal) : i18n.GameHistory.score(0)}`}</div>
+                    <div><Fragment>{i18n.GameHistory.team(getTeamNameByID(TeamID.NorthSouth))}</Fragment> <Fragment>{round.winningTeam === TeamID.NorthSouth ? <GoalComponent prefix={i18n.GameHistory.goalPointsDetail(getPointsForExpectedPoints(round.sayTake))} wrapInParentheses={true} expectedPoints={round.sayTake.expectedPoints} trumpMode={round.sayTake.trumpMode} sayCoincheLevel={round.sayTake.sayCoincheLevel} /> : i18n.GameHistory.score(0)}</Fragment></div>
+                    <div><Fragment>{i18n.GameHistory.team(getTeamNameByID(TeamID.EastWest))}</Fragment> <Fragment>{round.winningTeam === TeamID.EastWest ? <GoalComponent prefix={i18n.GameHistory.goalPointsDetail(getPointsForExpectedPoints(round.sayTake))} wrapInParentheses={true} expectedPoints={round.sayTake.expectedPoints} trumpMode={round.sayTake.trumpMode} sayCoincheLevel={round.sayTake.sayCoincheLevel} /> : i18n.GameHistory.score(0)}</Fragment></div>
                   </div>
 
                   <div className="turnsPoints">

@@ -1,7 +1,9 @@
-import {Fragment} from 'react';
+import {Fragment, useContext} from 'react';
 import {CardColor, CardName, secretCard} from '../../../../../../shared/coinche';
 import type {CardComponentProps} from './index';
 import {CardColorDisplay} from '../../../../../context/cardColor';
+import {getCardColorClassForCardColor} from '../../../../../service/getCardColorAndSymbol';
+import {OptionsContext} from '../../../../../context';
 
 const getUnicode = (card: CardComponentProps['card']): string => {
   if (card === secretCard) {
@@ -96,29 +98,7 @@ const getColorClass = (cardColorDisplay: CardColorDisplay, card: CardComponentPr
     return '';
   }
 
-  switch (cardColorDisplay) {
-    case CardColorDisplay.TwoColors:
-      switch (card.color) {
-        case CardColor.Spade:
-        case CardColor.Club:
-          return 'black';
-        case CardColor.Diamond:
-        case CardColor.Heart:
-          return 'red';
-      }
-    // eslint-disable-next-line no-fallthrough
-    case CardColorDisplay.FourColors:
-      switch (card.color) {
-        case CardColor.Spade:
-          return 'spade';
-        case CardColor.Club:
-          return 'club';
-        case CardColor.Diamond:
-          return 'diamond';
-        case CardColor.Heart:
-          return 'heart';
-      }
-  }
+  return getCardColorClassForCardColor(cardColorDisplay, card.color);
 };
 
 const getPlayCardStateClass = (playCardState: CardComponentProps['playCardState']): string => {
@@ -132,15 +112,16 @@ const getPlayCardStateClass = (playCardState: CardComponentProps['playCardState'
   }
 };
 
-export const UnicodeCardComponent: React.FunctionComponent<CardComponentProps & { cardColorDisplay: CardColorDisplay; extraClassName?: string }> = ({
+export const UnicodeCardComponent: React.FunctionComponent<CardComponentProps & { extraClassName?: string }> = ({
   card,
   playCardState,
   onCardClick,
   onSayBelotClick,
   onDontSayBelotClick,
-  cardColorDisplay,
   extraClassName,
 }) => {
+  const { state: { cardColorDisplay } } = useContext(OptionsContext);
+
   return (
     <span className={`cardWrapper ${getPlayCardStateClass(playCardState)} ${extraClassName || ''}`}>
       <span className={`card ${getColorClass(cardColorDisplay, card)}`} onClick={onCardClick} data-testid={`card ${card === secretCard ? 'secretCard' : `${card.color}|${card.name}`}`}>{

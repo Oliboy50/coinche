@@ -26,10 +26,10 @@ export const fr: I18n = {
   },
   game: {
     trumpMode: {
-      [TrumpMode.TrumpSpade]: '♠️ Pique',
-      [TrumpMode.TrumpDiamond]: '♦️ Carreau',
-      [TrumpMode.TrumpClub]: '♣️ Trèfle',
-      [TrumpMode.TrumpHeart]: '♥️ Coeur',
+      [TrumpMode.TrumpSpade]: 'Pique',
+      [TrumpMode.TrumpDiamond]: 'Carreau',
+      [TrumpMode.TrumpClub]: 'Trèfle',
+      [TrumpMode.TrumpHeart]: 'Coeur',
       [TrumpMode.NoTrump]: 'Sans atout',
     },
     sayCoincheLevel: {
@@ -193,7 +193,7 @@ export const fr: I18n = {
       roundDetailToggleButtonHide: `Masquer le détail de la jetée`,
       roundDetailToggleButtonShow: `Afficher le détail de la jetée`,
       goalPointsTitle: `Points des enchères`,
-      goalPointsDetail: (pointsForExpectedPoints, goal) => `${pointsForExpectedPoints} points (${goal})`,
+      goalPointsDetail: (pointsForExpectedPoints) => `${pointsForExpectedPoints} points`,
       cardsPointsTitle: `Points des cartes`,
       endOfRoundPointsTitle: `Points de fin de jetée`,
       endOfRoundPointsDetail: (roundEndPoints) => roundEndPoints === 100 ? `100 points (capot)` : (roundEndPoints === 10 ? `10 points (dernier pli)` : '0 point'),

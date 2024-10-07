@@ -1,5 +1,5 @@
 import {Fragment, useContext} from 'react';
-import {I18nContext} from '../../../../context';
+import {I18nContext, OptionsContext} from '../../../../context';
 import type {
   AnnounceID,
   ExpectedPoints,
@@ -7,6 +7,10 @@ import type {
   SayCoincheLevel,
   TrumpMode,
 } from '../../../../../shared/coinche';
+import {
+  getCardColorClassForTrump,
+  getCardSymbolCharForTrump,
+} from '../../../../service/getCardColorAndSymbol';
 
 type ComponentProps = {
   partnerTeamPoints: number;
@@ -29,6 +33,7 @@ export const CurrentInfoComponent: React.FunctionComponent<ComponentProps> = ({
   displayablePlayersAnnounces,
 }) => {
   const { game: i18n } = useContext(I18nContext);
+  const { state: { cardColorDisplay } } = useContext(OptionsContext);
 
   return (
     <div className="currentInfo">
@@ -48,7 +53,7 @@ export const CurrentInfoComponent: React.FunctionComponent<ComponentProps> = ({
           </div>
           <div className="goal">
             <span className="label">{i18n.Info.goal}</span>
-            <span className="data">{`${expectedPoints} ${i18n.trumpMode[trumpMode]}${sayCoincheLevel === 'coinche' ? ` (${i18n.sayCoincheLevel.coinche})` : ''}${sayCoincheLevel === 'surcoinche' ? ` (${i18n.sayCoincheLevel.surcoinche})` : ''}`}</span>
+            <span className="data">{`${expectedPoints}`} <span className={getCardColorClassForTrump(cardColorDisplay, trumpMode)}>{getCardSymbolCharForTrump(trumpMode)}</span> {`${i18n.trumpMode[trumpMode]}${sayCoincheLevel === 'coinche' ? ` (${i18n.sayCoincheLevel.coinche})` : ''}${sayCoincheLevel === 'surcoinche' ? ` (${i18n.sayCoincheLevel.surcoinche})` : ''}`}</span>
           </div>
         </Fragment>
       )}

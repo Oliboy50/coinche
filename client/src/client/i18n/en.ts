@@ -26,10 +26,10 @@ export const en: I18n = {
   },
   game: {
     trumpMode: {
-      [TrumpMode.TrumpSpade]: '♠️ Spade',
-      [TrumpMode.TrumpDiamond]: '♦️ Diamond',
-      [TrumpMode.TrumpClub]: '♣️ Club',
-      [TrumpMode.TrumpHeart]: '♥️ Heart',
+      [TrumpMode.TrumpSpade]: 'Spade',
+      [TrumpMode.TrumpDiamond]: 'Diamond',
+      [TrumpMode.TrumpClub]: 'Club',
+      [TrumpMode.TrumpHeart]: 'Heart',
       [TrumpMode.NoTrump]: 'No trump',
     },
     sayCoincheLevel: {
@@ -193,7 +193,7 @@ export const en: I18n = {
       roundDetailToggleButtonHide: `Hide the round details`,
       roundDetailToggleButtonShow: `Show the round details`,
       goalPointsTitle: `Goal points`,
-      goalPointsDetail: (pointsForExpectedPoints, goal) => `${pointsForExpectedPoints} points (${goal})`,
+      goalPointsDetail: (pointsForExpectedPoints) => `${pointsForExpectedPoints} points`,
       cardsPointsTitle: `Cards' points`,
       endOfRoundPointsTitle: `Round end points`,
       endOfRoundPointsDetail: (roundEndPoints) => roundEndPoints === 100 ? `100 points (capot)` : (roundEndPoints === 10 ? `10 points (last trick)` : '0 point'),
