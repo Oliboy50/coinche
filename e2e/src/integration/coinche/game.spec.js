@@ -48,21 +48,21 @@ describe('coinche', () => {
     cy.get('[data-testid="select sayTakeExpectedPoint"]').select('100');
     cy.get('[data-testid="select sayTakeTrumpMode"]').select('TrumpClub');
     cy.get('[data-testid="button sayTake"]').click();
-    cy.get('.myPlayer .playerSaid').should('contain', '100 ♣️ Trèfle');
+    cy.get('.myPlayer .playerSaid').should('contain', '100 \u2663 Trèfle');
 
     cy.usingPlayer(PLAYER_3);
-    cy.get('.otherPlayer.left .playerSaid').should('contain', '100 ♣️ Trèfle');
+    cy.get('.otherPlayer.left .playerSaid').should('contain', '100 \u2663 Trèfle');
     cy.get('[data-testid="button saySkip"]').click();
     cy.get('.myPlayer .playerSaid').should('contain', 'Je passe');
 
     cy.usingPlayer(PLAYER_2);
-    cy.get('.otherPlayer.top .playerSaid').should('contain', '100 ♣️ Trèfle');
+    cy.get('.otherPlayer.top .playerSaid').should('contain', '100 \u2663 Trèfle');
     cy.get('.otherPlayer.left .playerSaid').should('contain', 'Je passe');
     cy.get('[data-testid="button saySkip"]').click();
     cy.get('.myPlayer .playerSaid').should('contain', 'Je passe');
 
     cy.usingPlayer(PLAYER_1);
-    cy.get('.otherPlayer.right .playerSaid').should('contain', '100 ♣️ Trèfle');
+    cy.get('.otherPlayer.right .playerSaid').should('contain', '100 \u2663 Trèfle');
     cy.get('.otherPlayer.top .playerSaid').should('contain', 'Je passe');
     cy.get('.otherPlayer.left .playerSaid').should('contain', 'Je passe');
     cy.get('[data-testid="button saySkip"]').click();
@@ -77,7 +77,7 @@ describe('coinche', () => {
     cy.get('.gameHistory').should('be.visible');
     cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Détail de la jetée n°1');
     cy.get('.gameHistory .round:nth-child(1)').should('contain', `Attaquant\u00A0: ${PLAYER_4}`);
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Objectif\u00A0: 100 ♣️ Trèfle');
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Objectif\u00A0: 100 \u2663 Trèfle');
     cy.get('[data-testid="button gameHistory"]').click();
 
     cy.usingPlayer(PLAYER_4);
@@ -234,7 +234,7 @@ describe('coinche', () => {
     cy.get('.gameHistory .round:nth-child(1) [data-testid="button showRoundDetail"]').click();
     cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Points des enchères');
     cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_1}|${PLAYER_3}]\u00A0: 0 points`);
-    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_2}|${PLAYER_4}]\u00A0: 100 points (100 ♣️ Trèfle)`);
+    cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_2}|${PLAYER_4}]\u00A0: 100 points (100 \u2663 Trèfle)`);
     cy.get('.gameHistory .round:nth-child(1)').should('contain', 'Points des cartes');
     cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_1}|${PLAYER_3}]\u00A0: 0 points`);
     cy.get('.gameHistory .round:nth-child(1)').should('contain', `Equipe [${PLAYER_2}|${PLAYER_4}]\u00A0: 152 points`);

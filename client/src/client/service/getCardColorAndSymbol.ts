@@ -1,10 +1,10 @@
 import {CardColorDisplay} from '../context/cardColor';
 import {CardColor, TrumpMode} from '../../shared/coinche';
 
-const SPADE = '♠️';
-const CLUB = '♣️';
-const DIAMOND = '♦️';
-const HEART = '♥️';
+const SPADE = '\u2660';
+const CLUB = '\u2663';
+const DIAMOND = '\u2666';
+const HEART = '\u2665';
 
 export const getCardColorClassForCardColor = (cardColorDisplay: CardColorDisplay, cardColor: CardColor): string => {
   switch (cardColorDisplay) {
