@@ -3,7 +3,7 @@ version: 2
 jobs:
   lint_and_test:
     docker:
-      - image: node:16.18.1-alpine
+      - image: node:24-alpine
     steps:
       - checkout
       - run:
@@ -26,7 +26,7 @@ jobs:
           command: cd server && npm run test && cd -
   e2e:
     docker:
-      - image: cypress/base:16.18.1
+      - image: cypress/base:24.19.0
         environment:
           TERM: xterm
     steps:

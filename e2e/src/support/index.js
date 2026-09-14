@@ -3,7 +3,7 @@
 
 // Internal
 Cypress.Commands.add('clearData', () => {
-  if (Cypress.env('E2E_ENV') === 'dev') {
+  if (Cypress.expose('E2E_ENV') === 'dev') {
     cy.exec('npm run dev:server:clear');
   }
 });
@@ -37,11 +37,17 @@ Cypress.Commands.add('playCard', (cardColor, cardName, sayBelot = '') => {
     cy.get(`[data-testid="card ${cardColor}|${cardName}"]`).click();
   }
   if (sayBelot === 'say belot') {
-    cy.get('[data-testid="button sayBelot"]').click({ force: true, multiple: true });
+    cy.get(`[data-testid="card ${cardColor}|${cardName}"]`)
+      .parent()
+      .find('[data-testid="button sayBelot"]')
+      .click({ force: true });
     cy.get('.myPlayer .playerSaidAnnounces').should('contain', 'Belote');
   }
   if (sayBelot === 'dont say belot') {
-    cy.get('[data-testid="button dontSayBelot"]').click({ force: true, multiple: true });
+    cy.get(`[data-testid="card ${cardColor}|${cardName}"]`)
+      .parent()
+      .find('[data-testid="button dontSayBelot"]')
+      .click({ force: true });
     cy.get('.myPlayer .playerSaidAnnounces').should('not.contain', 'Belote');
   }
 

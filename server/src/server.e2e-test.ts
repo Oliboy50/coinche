@@ -1,5 +1,5 @@
 import type {RunningServer} from 'boardgame.io/server';
-import * as request from 'supertest';
+import request from 'supertest';
 import { start, stop } from './server';
 
 describe('server endpoints', () => {

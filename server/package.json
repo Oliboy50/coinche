@@ -3,43 +3,43 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "SERVER_ENV=dev ts-node-dev --transpile-only src/index.ts",
+    "dev": "SERVER_ENV=dev tsx watch src/index.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node build/server/src/index.js",
     "test": "run-p test:e2e",
     "test:e2e": "jest --config ./jest.e2e-config.js --verbose",
     "lint": "run-p lint:es lint:tsc",
     "lint:fix": "run-p lint:fix:es",
-    "lint:es": "eslint --max-warnings 0 '**/*.{js,ts}'",
-    "lint:fix:es": "eslint --fix '**/*.{js,ts}'",
+    "lint:es": "eslint --max-warnings 0",
+    "lint:fix:es": "eslint --fix",
     "lint:tsc": "tsc",
-    "prepare": "cd .. && husky install"
+    "prepare": "cd .. && husky"
   },
   "engines": {
-    "node": "16"
+    "node": "24"
   },
   "dependencies": {
-    "boardgame.io": "0.43.3",
-    "koa-route": "3.2.0"
+    "boardgame.io": "0.50.2",
+    "koa-route": "4.0.1"
   },
   "devDependencies": {
-    "@types/jest": "26.0.22",
-    "@types/koa": "2.13.1",
-    "@types/koa-route": "3.2.4",
-    "@types/node": "16.18.11",
-    "@types/supertest": "2.0.11",
-    "@typescript-eslint/eslint-plugin": "4.20.0",
-    "@typescript-eslint/parser": "4.20.0",
-    "babel-eslint": "10.1.0",
-    "eslint": "7.23.0",
-    "husky": "6.0.0",
-    "jest": "26.6.3",
-    "lint-staged": "10.5.4",
+    "@eslint/js": "10.0.1",
+    "@types/jest": "30.0.0",
+    "@types/koa": "2.15.2",
+    "@types/koa-route": "3.2.9",
+    "@types/node": "24.13.4",
+    "@types/supertest": "7.2.1",
+    "eslint": "10.10.0",
+    "globals": "17.12.0",
+    "husky": "9.1.7",
+    "jest": "30.5.1",
+    "lint-staged": "17.5.1",
     "npm-run-all": "4.1.5",
-    "supertest": "6.1.3",
-    "ts-jest": "26.5.4",
-    "ts-node-dev": "1.1.6",
-    "typescript": "4.2.3"
+    "supertest": "7.2.2",
+    "ts-jest": "29.4.12",
+    "tsx": "4.23.13",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.70.0"
   },
   "lint-staged": {
     "**/*.{js,ts}": "eslint --fix"

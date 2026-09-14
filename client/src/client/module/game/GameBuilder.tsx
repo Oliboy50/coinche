@@ -1,6 +1,5 @@
 import {useEffect} from 'react';
-import {useHistory} from 'react-router';
-import {useParams, Redirect} from 'react-router-dom';
+import {useNavigate, useParams, Navigate} from 'react-router-dom';
 import {Client} from 'boardgame.io/react';
 import {SocketIO} from 'boardgame.io/multiplayer';
 import {GameName, validGameNames} from '../../../shared';
@@ -31,19 +30,21 @@ export const GameBuilderComponent: React.FunctionComponent<ComponentProps> = ({
     return () => clearInterval(livelinessProbe);
   }, []);
 
-  const history = useHistory();
-  const { gameName, roomID, playerID } = useParams<{gameName: GameName; roomID: string; playerID: PlayerID}>();
-  const playerRoomKey = playerKeysByRoomID[roomID];
-  if (!validGameNames.includes(gameName) || !validPlayerIDs.includes(playerID) || !playerRoomKey) {
-    return <Redirect to="/"/>;
+  const navigate = useNavigate();
+  const { gameName, roomID, playerID } = useParams();
+  const typedGameName = gameName as GameName;
+  const typedPlayerID = playerID as PlayerID;
+  const playerRoomKey = roomID ? playerKeysByRoomID[roomID] : undefined;
+  if (!gameName || !roomID || !playerID || !validGameNames.includes(typedGameName) || !validPlayerIDs.includes(typedPlayerID) || !playerRoomKey) {
+    return <Navigate to="/"/>;
   }
 
   const goBackToLobby = async () => {
-    await requestToLeaveRoom(gameName, roomID, playerID, playerRoomKey);
+    await requestToLeaveRoom(typedGameName, roomID, typedPlayerID, playerRoomKey);
 
     updatePlayerKey(roomID, undefined);
 
-    history.replace('/');
+    navigate('/', { replace: true });
   };
 
   const GameComponent = Client<GameStatePlayerView, Moves, PlayerID, PhaseID>({
@@ -56,7 +57,7 @@ export const GameBuilderComponent: React.FunctionComponent<ComponentProps> = ({
   return (
     <GameComponent
       matchID={roomID}
-      playerID={playerID}
+      playerID={typedPlayerID}
       credentials={playerRoomKey}
     />
   );

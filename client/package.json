@@ -3,74 +3,42 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --verbose",
+    "dev": "vite",
+    "build": "vite build",
+    "test": "vitest run --reporter=verbose",
     "lint": "run-p lint:es lint:tsc",
     "lint:fix": "run-p lint:fix:es",
-    "lint:es": "eslint --max-warnings 0 '**/*.{js,jsx,ts,tsx}'",
-    "lint:fix:es": "eslint --fix '**/*.{js,jsx,ts,tsx}'",
+    "lint:es": "eslint --max-warnings 0",
+    "lint:fix:es": "eslint --fix",
     "lint:tsc": "tsc",
-    "prepare": "cd .. && husky install"
+    "prepare": "cd .. && husky"
   },
   "engines": {
-    "node": "16"
+    "node": "24"
   },
   "dependencies": {
-    "boardgame.io": "0.43.3",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
-    "react-router-dom": "5.2.0",
-    "swr": "0.5.5"
+    "boardgame.io": "0.50.2",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-router-dom": "7.18.3",
+    "swr": "2.5.1"
   },
   "devDependencies": {
-    "@types/jest": "26.0.22",
-    "@types/node": "16.18.11",
-    "@types/react": "17.0.3",
-    "@types/react-dom": "17.0.3",
-    "@types/react-router-dom": "5.1.7",
-    "husky": "6.0.0",
-    "lint-staged": "10.5.4",
+    "@eslint/js": "10.0.1",
+    "@types/node": "24.13.4",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.1",
+    "eslint": "10.10.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.12.0",
+    "husky": "9.1.7",
+    "lint-staged": "17.5.1",
     "npm-run-all": "4.1.5",
-    "react-scripts": "4.0.3",
-    "typescript": "4.2.3"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version"
-    ]
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app"
-    ],
-    "rules": {
-      "semi": [
-        "warn",
-        "always"
-      ],
-      "comma-dangle": [
-        "warn",
-        "always-multiline"
-      ],
-      "quotes": [
-        "warn",
-        "single",
-        {
-          "allowTemplateLiterals": true
-        }
-      ],
-      "@typescript-eslint/indent": [
-        "warn",
-        2
-      ]
-    }
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.70.0",
+    "vite": "8.3.0",
+    "vitest": "5.0.0"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": "eslint --fix"

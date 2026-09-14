@@ -17,7 +17,7 @@ describe(`move/endTurn`, () => {
   });
 
   it(`ends the current player turn`, () => {
-    const endTurnSpy = jest.spyOn(ctx.events, 'endTurn');
+    const endTurnSpy = vi.spyOn(ctx.events, 'endTurn');
 
     endTurn(G, ctx);
 

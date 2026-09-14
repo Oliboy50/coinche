@@ -13,7 +13,7 @@ export const isServerStillAlive = async (): Promise<boolean> => {
     await fetch(`${apiBaseUrl}/healthz`);
 
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
 };

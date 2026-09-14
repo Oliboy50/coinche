@@ -12,5 +12,5 @@ export const constructorForGetPlayerNameByID = (matchData: BoardProps<GameStateP
     return defaultPlayerName;
   }
 
-  return playerMetadata.name;
+  return playerMetadata.name ?? defaultPlayerName;
 };

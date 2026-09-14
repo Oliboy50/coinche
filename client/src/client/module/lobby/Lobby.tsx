@@ -1,5 +1,5 @@
 import './Lobby.css';
-import {useHistory} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import useSWR, {mutate as updateRequestCache} from 'swr';
 import {GameName} from '../../../shared';
 import {PlayerID} from '../../../shared/coinche';
@@ -23,12 +23,13 @@ export const LobbyComponent: React.FunctionComponent<ComponentProps> = ({
   playerKeysByRoomID,
   updatePlayerKey,
 }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
 
-  const { data: getCoincheRoomsResponse } = useSWR(getCacheKeyForGetRoomsRequest(GameName.Coinche), {
-    refreshInterval: 2000,
-    fetcher: () => requestToGetRooms(GameName.Coinche),
-  });
+  const { data: getCoincheRoomsResponse } = useSWR(
+    getCacheKeyForGetRoomsRequest(GameName.Coinche),
+    () => requestToGetRooms(GameName.Coinche),
+    { refreshInterval: 2000 },
+  );
 
   const createRoom = async (gameName: GameName) => {
     const response = await requestToCreateRoom(gameName);
@@ -62,7 +63,7 @@ export const LobbyComponent: React.FunctionComponent<ComponentProps> = ({
   };
 
   const goToRoom = (gameName: GameName, roomID: string, playerID: PlayerID) => {
-    history.push(`/${gameName}/${roomID}/${playerID}`);
+    navigate(`/${gameName}/${roomID}/${playerID}`);
   };
 
   return (

@@ -4,7 +4,7 @@ import { coincheGame } from '../../client/src/shared/coinche';
 
 let runningServers: RunningServers | undefined;
 
-const server = Server({ games: [coincheGame] });
+const server = Server({ games: [coincheGame], origins: true });
 
 export const start = async (): Promise<RunningServers> => {
   return runningServers = await server.run(process.env.PORT ? process.env.PORT : 8000);

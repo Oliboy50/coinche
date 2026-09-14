@@ -1,12 +1,31 @@
 import './App.css';
 import {useState} from 'react';
-import {BrowserRouter as Router, Switch, Redirect, Route, RouteProps} from 'react-router-dom';
+import {BrowserRouter as Router, Routes, Navigate, Route, useLocation} from 'react-router-dom';
 import {findPlayerKeys, persistPlayerKeys} from './repository/playerKeyRepository';
 import {findPlayerName, persistPlayerName} from './repository/playerNameRepository';
 import {ContextProvider} from './context';
 import {GameBuilderComponent} from './module/game/GameBuilder';
 import {LobbyComponent} from './module/lobby/Lobby';
 import {LoginComponent} from './module/login/Login';
+
+const AuthenticatedRoute: React.FunctionComponent<{
+  playerName: string;
+  children: React.ReactNode;
+}> = ({ playerName, children }) => {
+  const location = useLocation();
+  if (!playerName) {
+    return <Navigate to="/login" state={{ referer: location.pathname }} />;
+  }
+
+  return children;
+};
+
+const LogoutRoute: React.FunctionComponent<{
+  onLogout: () => void;
+}> = ({ onLogout }) => {
+  onLogout();
+  return <Navigate to="/login" state={{ referer: '/logout' }} />;
+};
 
 const App: React.FunctionComponent = () => {
   const [playerName, setPlayerName] = useState(findPlayerName());
@@ -29,36 +48,32 @@ const App: React.FunctionComponent = () => {
     persistPlayerKeys(playerName, newPlayerKeysByRoomID);
   };
 
-  const AuthenticatedRoute: React.FunctionComponent<RouteProps> = ({ children, ...rest }) => (
-    <Route
-      {...rest}
-      render={({ location }) => !playerName ? <Redirect to={{ pathname: '/login', state: { referer: location.pathname } }} /> : children}
-    />
-  );
-
   return (
     <ContextProvider>
       <Router>
-        <Switch>
-          <Route path="/login" exact>
+        <Routes>
+          <Route path="/login" element={
             <LoginComponent playerName={playerName} updatePlayerName={updatePlayerName}/>
-          </Route>
+          } />
 
-          <Route path="/logout" exact render={() => {
-            updatePlayerName('');
-            return <Redirect to={{ pathname: '/login', state: { referer: '/logout' } }}/>;
-          }}/>
+          <Route path="/logout" element={
+            <LogoutRoute onLogout={() => updatePlayerName('')} />
+          } />
 
-          <AuthenticatedRoute path="/:gameName/:roomID/:playerID" exact>
-            <GameBuilderComponent playerKeysByRoomID={playerKeysByRoomID} updatePlayerKey={updatePlayerKey}/>
-          </AuthenticatedRoute>
+          <Route path="/:gameName/:roomID/:playerID" element={
+            <AuthenticatedRoute playerName={playerName}>
+              <GameBuilderComponent playerKeysByRoomID={playerKeysByRoomID} updatePlayerKey={updatePlayerKey}/>
+            </AuthenticatedRoute>
+          } />
 
-          <AuthenticatedRoute path="/" exact>
-            <LobbyComponent playerName={playerName} playerKeysByRoomID={playerKeysByRoomID} updatePlayerKey={updatePlayerKey}/>
-          </AuthenticatedRoute>
+          <Route path="/" element={
+            <AuthenticatedRoute playerName={playerName}>
+              <LobbyComponent playerName={playerName} playerKeysByRoomID={playerKeysByRoomID} updatePlayerKey={updatePlayerKey}/>
+            </AuthenticatedRoute>
+          } />
 
-          <Route path="*" render={() => <Redirect to="/"/>}/>
-        </Switch>
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
       </Router>
     </ContextProvider>
   );

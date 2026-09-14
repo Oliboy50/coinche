@@ -1,5 +1,5 @@
 import './Login.css';
-import {useHistory, useLocation} from 'react-router-dom';
+import {useNavigate, useLocation} from 'react-router-dom';
 import {PageHeaderComponent} from '../../component/PageHeader';
 import {PageMenuComponent} from '../../component/PageMenu';
 import {LoginFormComponent} from './component/LoginForm';
@@ -12,9 +12,9 @@ export const LoginComponent: React.FunctionComponent<ComponentProps> = ({
   playerName,
   updatePlayerName,
 }) => {
-  const history = useHistory();
-  const location = useLocation<{ referer: string }>();
-  const { referer } = location.state || { referer: '/' };
+  const navigate = useNavigate();
+  const location = useLocation();
+  const referer = (location.state as { referer?: string } | null)?.referer ?? '/';
 
   const login = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -26,7 +26,7 @@ export const LoginComponent: React.FunctionComponent<ComponentProps> = ({
     }
 
     updatePlayerName(newPlayerName);
-    history.replace((['/login', '/logout'].includes(referer)) ? '/' : referer );
+    navigate((['/login', '/logout'].includes(referer)) ? '/' : referer, { replace: true });
   };
 
   return (
