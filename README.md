@@ -2,7 +2,7 @@
 
 > Card game
 
-[![CircleCI](https://circleci.com/gh/Oliboy50/coinche.svg?style=svg)](https://circleci.com/gh/Oliboy50/coinche)
+[![CI](https://github.com/Oliboy50/coinche/actions/workflows/ci.yml/badge.svg)](https://github.com/Oliboy50/coinche/actions/workflows/ci.yml)
 
 ## User documentation
 

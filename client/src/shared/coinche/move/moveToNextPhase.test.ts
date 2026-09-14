@@ -22,7 +22,7 @@ describe(`move/moveToNextPhase`, () => {
       __isWaitingBeforeMovingToNextPhase: true,
       __canMoveToNextPhase: false,
     };
-    const endTurnSpy = jest.spyOn(ctx.events, 'endTurn');
+    const endTurnSpy = vi.spyOn(ctx.events, 'endTurn');
 
     moveToNextPhase(G, ctx);
 

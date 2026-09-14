@@ -14,8 +14,8 @@ declare module 'boardgame.io/react' {
     matchID: string;
     playerID: PlayerID | null;
     matchData: {
-      id: PlayerID;
-      name: string;
+      id: PlayerID | number;
+      name?: string;
     }[] | undefined;
     isActive: boolean;
     isMultiplayer: boolean;
@@ -31,7 +31,7 @@ declare module 'boardgame.io/react' {
     game: object;
     board: ComponentType<BoardProps<GameStatePlayerView, Moves, PlayerID, PhaseID>>;
     numPlayers?: number;
-    multiplayer?: false | ((transportOpts: SocketIOTransportOpts) => SocketIOTransport);
+    multiplayer?: false | unknown;
     debug?: boolean;
   }
 
@@ -50,4 +50,8 @@ declare module 'boardgame.io/react' {
     PlayerID = DefaultPlayerID,
     PhaseID = DefaultPhaseID,
   >(config: ClientConfig<GameStatePlayerView, Moves, PlayerID, PhaseID>): ComponentType<ClientProps<PlayerID>>;
+}
+
+declare module 'boardgame.io/multiplayer' {
+  export function SocketIO(opts?: { server?: string }): unknown;
 }

@@ -2655,7 +2655,7 @@ const mustMoveFromTalkPhaseToPlayCardsPhase = (currentSayTake: SayTake | undefin
 const defaultTurnConfig: TurnConfig<GameState, PlayerID, PhaseID> = {
   order: {
     playOrder: () => getTurnOrder(PlayerID.North),
-    first: (G, ctx) => {
+    first: ({ G, ctx }) => {
       if (ctx.phase === PhaseID.PlayCards) {
         switch (G.firstPlayerInCurrentTurn) {
           case PlayerID.North:
@@ -2680,7 +2680,7 @@ const defaultTurnConfig: TurnConfig<GameState, PlayerID, PhaseID> = {
           return 3;
       }
     },
-    next: (G, ctx) => {
+    next: ({ ctx }) => {
       switch (ctx.currentPlayer) {
         case PlayerID.North:
           return 1;
@@ -2694,12 +2694,20 @@ const defaultTurnConfig: TurnConfig<GameState, PlayerID, PhaseID> = {
     },
   },
 };
+const wrapMove = <Args extends unknown[]>(
+  move: (G: GameState, ctx: Context<PlayerID, PhaseID>, ...args: Args) => void,
+) => (
+  { G, ctx, events, random }: { G: GameState; ctx: Context<PlayerID, PhaseID>; events: Context<PlayerID, PhaseID>['events']; random: Context<PlayerID, PhaseID>['random'] },
+  ...args: Args
+): void => {
+  move(G, { ...ctx, events, random }, ...args);
+};
 export const coincheGame: GameConfig<GameState, GameStatePlayerView, Moves, PlayerID, PhaseID> = {
   name: GameName.Coinche,
   minPlayers: howManyPlayers,
   maxPlayers: howManyPlayers,
 
-  setup: getSetupGameState,
+  setup: ({ ctx }) => getSetupGameState(ctx),
 
   turn: defaultTurnConfig,
 
@@ -2717,13 +2725,13 @@ export const coincheGame: GameConfig<GameState, GameStatePlayerView, Moves, Play
   phases: {
     [PhaseID.Deal]: {
       start: true,
-      onBegin: (G, ctx) => {
+      onBegin: ({ G, ctx, random }) => {
         // set new dealer
         const dealer = G.nextDealer;
         const nextDealer = getTurnOrder(dealer)[1];
 
         // reset round state
-        G.availableCards = getShuffleCardsFn(ctx)(getCards());
+        G.availableCards = getShuffleCardsFn({ ...ctx, random })(getCards());
         G.playersCards = getDefaultPlayersCards();
         G.wonTeamsCards = getDefaultWonTeamsCards();
         G.dealer = dealer;
@@ -2747,23 +2755,23 @@ export const coincheGame: GameConfig<GameState, GameStatePlayerView, Moves, Play
 
         G.__forcedNextPhase = PhaseID.Talk;
       },
-      endIf: (G) => {
+      endIf: ({ G }) => {
         return G.__forcedNextPhase ? { next: G.__forcedNextPhase } : false;
       },
-      onEnd: (G) => {
+      onEnd: ({ G }) => {
         G.__forcedNextPhase = undefined;
       },
     },
     [PhaseID.Talk]: {
       moves: {
-        endTurn,
-        waitBeforeMovingToNextPhase,
-        moveToNextPhase,
-        saySkip,
-        sayTake,
-        sayCoinche,
+        endTurn: wrapMove(endTurn),
+        waitBeforeMovingToNextPhase: wrapMove(waitBeforeMovingToNextPhase),
+        moveToNextPhase: wrapMove(moveToNextPhase),
+        saySkip: wrapMove(saySkip),
+        sayTake: wrapMove(sayTake),
+        sayCoinche: wrapMove(sayCoinche),
       },
-      endIf: (G) => {
+      endIf: ({ G }) => {
         if (G.__canMoveToNextPhase && G.numberOfSuccessiveSkipSaid >= howManyPlayers) {
           return { next: PhaseID.Deal };
         }
@@ -2774,7 +2782,7 @@ export const coincheGame: GameConfig<GameState, GameStatePlayerView, Moves, Play
 
         return false;
       },
-      onEnd: (G) => {
+      onEnd: ({ G }) => {
         G.__canMoveToNextPhase = false;
 
         if (
@@ -2808,16 +2816,16 @@ export const coincheGame: GameConfig<GameState, GameStatePlayerView, Moves, Play
     },
     [PhaseID.PlayCards]: {
       moves: {
-        endTurn,
-        waitBeforeMovingToNextPhase,
-        moveToNextPhase,
-        sayAnnounce,
-        sayBelotOrNot,
-        playCard,
+        endTurn: wrapMove(endTurn),
+        waitBeforeMovingToNextPhase: wrapMove(waitBeforeMovingToNextPhase),
+        moveToNextPhase: wrapMove(moveToNextPhase),
+        sayAnnounce: wrapMove(sayAnnounce),
+        sayBelotOrNot: wrapMove(sayBelotOrNot),
+        playCard: wrapMove(playCard),
       },
       turn: {
         ...defaultTurnConfig,
-        onBegin: (G, ctx) => {
+        onBegin: ({ G, ctx }) => {
           // set players cards playability
           const player = ctx.currentPlayer;
           const playerPartner = getPlayerPartner(player);
@@ -2841,7 +2849,7 @@ export const coincheGame: GameConfig<GameState, GameStatePlayerView, Moves, Play
             [PlayerID.West]: setCardsPlayability(G.playersCards[PlayerID.West], PlayerID.West === player),
           };
         },
-        onEnd: (G) => {
+        onEnd: ({ G }) => {
           // set said announces displayability
           const allSaidPlayerAnnounces = [...G.playersAnnounces[PlayerID.North], ...G.playersAnnounces[PlayerID.East], ...G.playersAnnounces[PlayerID.South], ...G.playersAnnounces[PlayerID.West]].filter(a => a.isSaid);
           if (
@@ -2938,19 +2946,19 @@ export const coincheGame: GameConfig<GameState, GameStatePlayerView, Moves, Play
           }
         },
       },
-      endIf: (G) => {
+      endIf: ({ G }) => {
         if (G.__canMoveToNextPhase && Object.values(G.playersCardPlayedInCurrentTurn).every(card => card !== undefined)) {
           return { next: PhaseID.CountPoints };
         }
 
         return false;
       },
-      onEnd: (G) => {
+      onEnd: ({ G }) => {
         G.__canMoveToNextPhase = false;
       },
     },
     [PhaseID.CountPoints]: {
-      onBegin: (G, ctx) => {
+      onBegin: ({ G, events }) => {
         if (!G.currentSayTake) {
           throw new Error();
         }
@@ -3037,29 +3045,28 @@ export const coincheGame: GameConfig<GameState, GameStatePlayerView, Moves, Play
           return;
         }
 
-        ctx.events.endGame({
+        events.endGame({
           winners: gameWinningTeam ? getTeamPlayers(gameWinningTeam) : [],
         });
       },
-      endIf: (G) => {
+      endIf: ({ G }) => {
         return G.__forcedNextPhase ? { next: G.__forcedNextPhase } : false;
       },
-      onEnd: (G) => {
+      onEnd: ({ G }) => {
         G.__forcedNextPhase = undefined;
       },
     },
   },
 
-  playerView: (
-    {
+  playerView: ({
+    G: {
       availableCards,
       playersCards,
       playersAnnounces,
       ...GWithoutSecretData
     },
-    ctx,
     playerID,
-  ): GameStatePlayerView => {
+  }): GameStatePlayerView => {
     return {
       ...GWithoutSecretData,
       availableCards: new Array(availableCards.length).fill(secretCard),

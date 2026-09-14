@@ -1,6 +1,6 @@
 # STAGE 1
 
-FROM node:16.18.1-alpine as BUILDER
+FROM node:24-alpine AS BUILDER
 
 ARG SET_NPM_UNSAFE_PERM_TRUE
 ENV SET_NPM_UNSAFE_PERM_TRUE=${SET_NPM_UNSAFE_PERM_TRUE}
@@ -16,12 +16,12 @@ WORKDIR /tmp/builder/server
 
 RUN npm ci --ignore-scripts && npm run build \
     && cp package-lock.json package.json ./build \
-    && cd ./build && npm ci --production --ignore-scripts \
+    && cd ./build && npm ci --omit=dev --ignore-scripts \
     && rm package-lock.json package.json
 
 # STAGE 2
 
-FROM node:16.18.1-alpine
+FROM node:24-alpine
 
 ENV NODE_APP_DIR=/home/node/app
 ENV NODE_ENV=production

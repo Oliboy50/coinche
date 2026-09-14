@@ -59,8 +59,8 @@ export const I18nContext = createContext<I18n>(i18n[optionsInitialState.language
 
 export interface PageMenuButton {
   id: string;
-  renderContent: JSX.Element;
-  renderButton: JSX.Element;
+  renderContent: React.ReactElement;
+  renderButton: React.ReactElement;
   isOpened: boolean;
 }
 type PageMenuState = {
@@ -126,7 +126,7 @@ export const PageMenuContext = createContext<{
   dispatch: () => null,
 });
 
-export const ContextProvider: React.FunctionComponent = ({ children }) => {
+export const ContextProvider: React.FunctionComponent<{ children?: React.ReactNode }> = ({ children }) => {
   const [optionsState, optionsDispatch] = useReducer(optionsReducer, optionsInitialState);
   const [pageMenuState, pageMenuDispatch] = useReducer(pageMenuReducer, pageMenuInitialState);
 

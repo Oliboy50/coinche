@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            client/package-lock.json
+            server/package-lock.json
+      - name: Install client
+        working-directory: client
+        run: npm ci --ignore-scripts
+      - name: Install server
+        working-directory: server
+        run: npm ci --ignore-scripts
+      - name: Lint client
+        working-directory: client
+        run: npm run lint
+      - name: Lint server
+        working-directory: server
+        run: npm run lint
+      - name: Test client
+        working-directory: client
+        run: npm run test
+      - name: Test server
+        working-directory: server
+        run: npm run test
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            client/package-lock.json
+            server/package-lock.json
+            e2e/package-lock.json
+      - name: Install client
+        working-directory: client
+        run: npm ci --ignore-scripts
+      - name: Install server
+        working-directory: server
+        run: npm ci --ignore-scripts
+      - name: Run e2e tests
+        uses: cypress-io/github-action@v7
+        with:
+          working-directory: e2e
+          command: npm run test
+        env:
+          TERM: xterm
+      - name: Upload e2e screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots
+          path: e2e/src/screenshots
+          if-no-files-found: ignore

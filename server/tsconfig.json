@@ -3,12 +3,22 @@
     "src",
     "../client/src/shared"
   ],
+  "exclude": [
+    "../client/**/*.test.ts",
+    "../client/**/__*"
+  ],
   "compilerOptions": {
-    "target": "es2019",
+    "target": "ES2022",
     "module": "commonjs",
     "moduleResolution": "node",
     "strict": true,
     "skipLibCheck": true,
+    "ignoreDeprecations": "6.0",
+    "esModuleInterop": true,
+    "types": [
+      "node",
+      "jest"
+    ],
     "rootDir": "..",
     "noEmit": true
   }

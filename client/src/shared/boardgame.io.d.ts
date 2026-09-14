@@ -23,7 +23,7 @@ declare module 'boardgame.io/core' {
     currentPlayer: PlayerID;
     currentPlayerMoves: number;
     random: {
-      Shuffle: <A extends any[]>(array: A) => A;
+      Shuffle: <A extends unknown[]>(array: A) => A;
     };
     playOrder: PlayerID[];
     playOrderPos: number;
@@ -41,18 +41,29 @@ declare module 'boardgame.io/core' {
     };
   }
 
+  export interface FnContext<
+    GameState = DefaultGameState,
+    PlayerID = DefaultPlayerID,
+    PhaseID = DefaultPhaseID,
+  > {
+    G: GameState;
+    ctx: Context<PlayerID, PhaseID>;
+    events: Context<PlayerID, PhaseID>['events'];
+    random: Context<PlayerID, PhaseID>['random'];
+  }
+
   export interface TurnConfig<
     GameState = DefaultGameState,
     PlayerID = DefaultPlayerID,
     PhaseID = DefaultPhaseID,
   > {
-    onBegin?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
-    onEnd?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
-    endIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => boolean | { next: PlayerID };
+    onBegin?: (context: FnContext<GameState, PlayerID, PhaseID>) => GameState | void;
+    onEnd?: (context: FnContext<GameState, PlayerID, PhaseID>) => GameState | void;
+    endIf?: (context: FnContext<GameState, PlayerID, PhaseID>) => boolean | { next: PlayerID };
     order?: {
-      playOrder?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => PlayerID[];
-      first: (G: GameState, ctx: Context<PlayerID, PhaseID>) => number;
-      next: (G: GameState, ctx: Context<PlayerID, PhaseID>) => number;
+      playOrder?: (context: FnContext<GameState, PlayerID, PhaseID>) => PlayerID[];
+      first: (context: FnContext<GameState, PlayerID, PhaseID>) => number;
+      next: (context: FnContext<GameState, PlayerID, PhaseID>) => number;
     };
   }
 
@@ -63,13 +74,13 @@ declare module 'boardgame.io/core' {
     PhaseID = DefaultPhaseID,
   > {
     moves?: {
-      [k in keyof Partial<Moves>]: (G: GameState, ctx: Context<PlayerID, PhaseID>, ...args: Parameters<Moves[k]>) => GameState | void;
+      [k in keyof Partial<Moves>]: (context: FnContext<GameState, PlayerID, PhaseID>, ...args: Parameters<Moves[k]>) => GameState | void;
     };
     turn?: TurnConfig<GameState, PlayerID, PhaseID>;
-    endIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => boolean | { next: PhaseID };
+    endIf?: (context: FnContext<GameState, PlayerID, PhaseID>) => boolean | { next: PhaseID };
     next?: PhaseID;
-    onBegin?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
-    onEnd?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => GameState | void;
+    onBegin?: (context: FnContext<GameState, PlayerID, PhaseID>) => GameState | void;
+    onEnd?: (context: FnContext<GameState, PlayerID, PhaseID>) => GameState | void;
     start?: true;
   }
 
@@ -83,9 +94,9 @@ declare module 'boardgame.io/core' {
     name?: string;
     minPlayers?: number;
     maxPlayers?: number;
-    setup: (ctx: Context<PlayerID, PhaseID>) => GameState;
+    setup: (context: FnContext<GameState, PlayerID, PhaseID>) => GameState;
     moves?: {
-      [k in keyof Partial<Moves>]: (G: GameState, ctx: Context<PlayerID, PhaseID>, ...args: Parameters<Moves[k]>) => GameState | void;
+      [k in keyof Partial<Moves>]: (context: FnContext<GameState, PlayerID, PhaseID>, ...args: Parameters<Moves[k]>) => GameState | void;
     };
     events?: {
       endStage?: boolean;
@@ -99,7 +110,7 @@ declare module 'boardgame.io/core' {
     };
     turn?: TurnConfig<GameState, PlayerID, PhaseID>;
     phases?: Record<PhaseID, PhaseConfig<GameState, Moves, PlayerID, PhaseID>>;
-    endIf?: (G: GameState, ctx: Context<PlayerID, PhaseID>) => any;
-    playerView?: (G: GameState | GameStatePlayerView, ctx: Context<PlayerID, PhaseID>, playerID?: PlayerID) => GameStatePlayerView;
+    endIf?: (context: FnContext<GameState, PlayerID, PhaseID>) => unknown;
+    playerView?: (context: { G: GameState | GameStatePlayerView; ctx: Context<PlayerID, PhaseID>; playerID?: PlayerID | null }) => GameStatePlayerView;
   }
 }
